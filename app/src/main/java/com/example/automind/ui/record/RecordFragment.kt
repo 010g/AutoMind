@@ -22,13 +22,18 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.automind.MainActivity
+import com.example.automind.data.TranscribedTextRepository
 import com.example.automind.databinding.FragmentRecordBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Locale
 import java.util.Objects
 
 
 class RecordFragment : Fragment(), RecognitionListener {
+    private lateinit var transcribedTextRepository: TranscribedTextRepository
 
     private lateinit var speech: SpeechRecognizer
     private lateinit var recognizerIntent: Intent
@@ -56,6 +61,9 @@ class RecordFragment : Fragment(), RecognitionListener {
         editText = binding.edittext
         btn_mic = binding.btnMic
         btn_play = binding.btnPlay
+
+        // Initialize the repository
+        transcribedTextRepository = (activity as MainActivity).transcribedTextRepository
 
         speech = SpeechRecognizer.createSpeechRecognizer(requireContext())
         speech.setRecognitionListener(this)
@@ -151,6 +159,15 @@ class RecordFragment : Fragment(), RecognitionListener {
             for (result in matches) text = """
               $result
               """.trimIndent()
+
+            // Insert the transcribed text into the database
+            GlobalScope.launch(Dispatchers.IO) {
+                transcribedTextRepository.insertTranscribedText(text)
+                val transcribedTexts = transcribedTextRepository.getAllTranscribedTexts()
+                for (text in transcribedTexts) {
+                    Log.d("DatabaseTest", "Transcribed Text: ${text.text}")
+                }
+            }
         }
         editText?.setText(text)
     }
