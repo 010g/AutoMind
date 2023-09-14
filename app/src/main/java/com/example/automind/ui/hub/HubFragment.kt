@@ -32,7 +32,7 @@ class HubFragment : Fragment() {
         hubViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
-        return root
+        return binding.root
     }
 
     override fun onDestroyView() {
