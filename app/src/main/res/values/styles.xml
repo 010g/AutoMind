@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/dark_blue</item>
+    </style>
+
+
+    <style name="BottomNavigationView">
+        <item name="android:background">@color/dark_blue</item>
+    </style>
+
+</resources>
