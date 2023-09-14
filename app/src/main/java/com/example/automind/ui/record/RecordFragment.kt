@@ -1,10 +1,15 @@
 package com.example.automind.ui.record
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Environment
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,23 +21,22 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.automind.MainActivity
 import com.example.automind.databinding.FragmentRecordBinding
 import java.io.IOException
+import java.util.Locale
+import java.util.Objects
 
 
-class RecordFragment : Fragment() {
+class RecordFragment : Fragment(), RecognitionListener {
 
-    private val LOG_TAG = "AudioRecordTest"
+    private lateinit var speech: SpeechRecognizer
+    private lateinit var recognizerIntent: Intent
 
-    private var fileName: String = ""
     private var editText : EditText? = null
     private var btn_mic :ImageButton? = null
-    private var recorder: MediaRecorder? = null
+    private var isRecording: Boolean = false
     private var btn_play :ImageButton? = null
-    private var player: MediaPlayer? = null
-
-    var mStartRecording = true
-    var mStartPlaying = true
 
     private var _binding: FragmentRecordBinding? = null
 
@@ -49,12 +53,18 @@ class RecordFragment : Fragment() {
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        // Record to the external cache directory for visibility
-        fileName = "${requireContext().externalCacheDir?.absolutePath}/audiorecordtest.mp3"
-
         editText = binding.edittext
         btn_mic = binding.btnMic
         btn_play = binding.btnPlay
+
+        speech = SpeechRecognizer.createSpeechRecognizer(requireContext())
+        speech.setRecognitionListener(this)
+
+        recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "US-en")
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
 
         btn_mic!!.setOnClickListener{
             if (ContextCompat.checkSelfPermission(requireContext(),
@@ -63,94 +73,92 @@ class RecordFragment : Fragment() {
                 val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
                 ActivityCompat.requestPermissions(requireActivity(), permissions,0)
             } else {
-                onRecord(mStartRecording)
-                var text = when (mStartRecording) {
-                    true -> "Start recording"
-                    false -> "Stop recording"
+                if (!isRecording) {
+                    speech.startListening(recognizerIntent)
+                    Toast.makeText(
+                        requireContext(),
+                        "Start recording!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    isRecording = true
+                } else{
+                    speech.stopListening()
+                    Toast.makeText(
+                        requireContext(),
+                        "Stop recording!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    isRecording = false
                 }
-                Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
-                mStartRecording = !mStartRecording
             }
-        }
-
-        btn_play!!.setOnClickListener{
-            onPlay(mStartPlaying)
-            var text = when (mStartPlaying) {
-                true -> "Start playing"
-                false -> "Stop playing"
-            }
-            Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
-            mStartPlaying = !mStartPlaying
         }
 
         return binding.root
     }
 
-    override fun onStop() {
-        super.onStop()
-        recorder?.release()
-        recorder = null
-        player?.release()
-        player = null
-    }
-
-    private fun onRecord(start: Boolean) = if (start) {
-        startRecording()
-    } else {
-        stopRecording()
-    }
-
-    private fun onPlay(start: Boolean) = if (start) {
-        startPlaying()
-    } else {
-        stopPlaying()
-    }
-
-    private fun startPlaying() {
-        player = MediaPlayer().apply {
-            try {
-                setDataSource(fileName)
-                prepare()
-                start()
-            } catch (e: IOException) {
-                Log.e(LOG_TAG, "prepare() failed")
-            }
-        }
-    }
-
-    private fun stopPlaying() {
-        player?.release()
-        player = null
-    }
-
-    private fun startRecording() {
-        recorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setOutputFile(fileName)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-
-            try {
-                prepare()
-            } catch (e: IOException) {
-                Log.e(LOG_TAG, "prepare() failed")
-            }
-
-            start()
-        }
-    }
-
-    private fun stopRecording() {
-        recorder?.apply {
-            stop()
-            release()
-        }
-        recorder = null
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
+        speech.destroy()
         _binding = null
+    }
+
+    override fun onStop() {
+        super.onStop()
+        speech.destroy()
+    }
+
+    override fun onReadyForSpeech(params: Bundle?) {
+    }
+
+    override fun onBeginningOfSpeech() {
+    }
+
+    override fun onRmsChanged(rmsdB: Float) {
+    }
+
+    override fun onBufferReceived(buffer: ByteArray?) {
+    }
+
+    override fun onEndOfSpeech() {
+    }
+
+    override fun onError(error: Int) {
+        val errorMessage: String = getErrorText(error)
+        editText?.setText(errorMessage)
+    }
+
+    private fun getErrorText(error: Int): String {
+        var message = ""
+        message = when (error) {
+            SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
+            SpeechRecognizer.ERROR_CLIENT -> "Client side error"
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
+            SpeechRecognizer.ERROR_NETWORK -> "Network error"
+            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
+            SpeechRecognizer.ERROR_NO_MATCH -> "No match"
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "RecognitionService busy"
+            SpeechRecognizer.ERROR_SERVER -> "error from server"
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input"
+            else -> "Didn't understand, please try again."
+        }
+        return message
+    }
+
+    override fun onResults(results: Bundle?) {
+        val matches = results!!.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        var text = ""
+        if (matches != null) {
+            for (result in matches) text = """
+              $result
+              """.trimIndent()
+        }
+        editText?.setText(text)
+    }
+
+    override fun onPartialResults(partialResults: Bundle?) {
+    }
+
+    override fun onEvent(eventType: Int, params: Bundle?) {
     }
 
 
