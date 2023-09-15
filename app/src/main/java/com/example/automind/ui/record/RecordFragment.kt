@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -33,7 +34,7 @@ import java.io.File
 import java.io.IOException
 
 
-class RecordFragment : Fragment() {
+class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private lateinit var transcribedTextRepository: TranscribedTextRepository
 
     private val LOG_TAG = "AudioRecordTest"
@@ -44,6 +45,10 @@ class RecordFragment : Fragment() {
     private var recorder: MediaRecorder? = null
     private var btn_play :ImageButton? = null
     private var player: MediaPlayer? = null
+    private var tv_timer: TextView? = null
+    private var waveformView: View? = null
+
+    private lateinit var timer: Timer
 
     var mStartRecording = true
     var mStartPlaying = true
@@ -79,6 +84,10 @@ class RecordFragment : Fragment() {
         editText = binding.edittext
         btn_mic = binding.btnMic
         btn_play = binding.btnPlay
+        tv_timer = binding.tvTimer
+        waveformView = binding.waveformView
+
+        timer = Timer(this)
 
         // Initialize the repository
         transcribedTextRepository = (activity as MainActivity).transcribedTextRepository
@@ -123,8 +132,11 @@ class RecordFragment : Fragment() {
 
     private fun onRecord(start: Boolean) = if (start) {
         startRecording()
+        cleanAndResetTimer()
+        timer.start()
     } else {
         stopRecording()
+        timer.pause()
     }
 
     private fun onPlay(start: Boolean) = if (start) {
@@ -224,5 +236,17 @@ class RecordFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    override fun OnTimerTick(duration: String) {
+      tv_timer?.text = duration
+        recorder?.maxAmplitude?.let { (waveformView as WaveformView).addAmplitude(it.toFloat()) }
+    }
+
+    private fun cleanAndResetTimer() {
+        timer.pause()
+        timer = Timer(this)
+        tv_timer?.text = "00:00"
+    }
+
 
 }
