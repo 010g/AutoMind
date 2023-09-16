@@ -131,6 +131,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     }
 
     private fun onRecord(start: Boolean) = if (start) {
+        clearTranscribedText()
         startRecording()
         cleanAndResetTimer()
         timer.start()
@@ -199,11 +200,13 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         Log.d("DatabaseTest", "ASR Response: $response")
 
         val results = response.resultsList
+        var text = ""
         for (result in results) {
             val alternative = result.alternativesList[0]
-            return alternative.transcript
+            Log.d("recognition result", alternative.transcript)
+            text += " " + alternative.transcript
         }
-        return ""
+        return text
     }
 
     private fun stopRecording() {
@@ -218,7 +221,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         GlobalScope.launch(Dispatchers.IO){
             text = analyze(ByteString.copyFrom(File(fileName).readBytes()))
             Log.d("DatabaseTest", "Recorded Text: $text")
-            if (text != "") {
+            if (text.isNotBlank()) {
                 // Insert the transcribed text into the database
                 GlobalScope.launch(Dispatchers.IO) {
                     transcribedTextRepository.insertTranscribedText(text)
@@ -239,7 +242,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     override fun OnTimerTick(duration: String) {
       tv_timer?.text = duration
-        recorder?.maxAmplitude?.let { (waveformView as WaveformView).addAmplitude(it.toFloat()) }
+      recorder?.maxAmplitude?.let { (waveformView as WaveformView).addAmplitude(it.toFloat()) }
     }
 
     private fun cleanAndResetTimer() {
@@ -247,6 +250,12 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         timer = Timer(this)
         tv_timer?.text = "00:00"
     }
+
+
+    private fun clearTranscribedText() {
+        editText?.text?.clear()
+    }
+
 
 
 }
