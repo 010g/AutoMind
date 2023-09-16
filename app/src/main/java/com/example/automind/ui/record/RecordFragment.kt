@@ -27,15 +27,28 @@ import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.RecognizeRequest
 import com.google.cloud.speech.v1.SpeechClient
 import com.google.cloud.speech.v1.SpeechSettings
+import com.google.gson.JsonArray
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 
 
 class RecordFragment : Fragment(),Timer.OnTimerTickListener {
+
+    private val client = OkHttpClient()
+
     private lateinit var transcribedTextRepository: TranscribedTextRepository
 
     private val LOG_TAG = "AudioRecordTest"
@@ -49,6 +62,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private var player: MediaPlayer? = null
     private var tv_timer: TextView? = null
     private var waveformView: View? = null
+    private var btn_submit:Button? = null
+    private var txt_response:TextView? = null
 
     private lateinit var timer: Timer
 
@@ -89,6 +104,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         btn_remove = binding.btnRemove
         tv_timer = binding.tvTimer
         waveformView = binding.waveformView
+        btn_submit = binding.btnSubmit
+        txt_response = binding.txtResponse
 
         timer = Timer(this)
 
@@ -126,7 +143,77 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             mStartPlaying = !mStartPlaying
         }
 
+        btn_submit!!.setOnClickListener{
+            val question= editText!!.text.toString()
+            Toast.makeText(requireContext(),question,Toast.LENGTH_SHORT).show()
+            getResponse(question){response ->
+                requireActivity().runOnUiThread {
+                    txt_response!!.text = response
+                }
+
+            }
+        }
+
+
+
+
+
         return binding.root
+    }
+
+    fun getResponse(editText: String, callback: (String) -> Unit){
+        val apiKey = "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"
+        val url = "https://api.openai.com/v1/completions"
+
+        val requestBody="""
+            {
+            "model": "text-davinci-003",
+            "prompt": "$editText",
+            "max_tokens": 1000,
+            "temperature": 0
+            }
+         """.trimIndent()
+
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Content-Type","application/json")
+            .addHeader("Authorization", "Bearer $apiKey")
+            .post(requestBody.toRequestBody("application/json".toMediaTypeOrNull()))
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                requireActivity().runOnUiThread{
+                    Log.e("error","API failed",e)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body?.string()
+                if (body != null) {
+                    Log.v("data",body)
+                }
+                else{
+                        Log.v("data","empty")
+                    }
+                try {
+                    val jsonObject = JSONObject(body)
+                    val jsonArray = jsonObject.getJSONArray("choices")
+                    val firstChoice = jsonArray.getJSONObject(0)
+                    val textResult = firstChoice.getString("text")
+
+                    callback(textResult)
+
+                    requireActivity().runOnUiThread {
+                        txt_response!!.text = textResult
+                    }
+                } catch (e: Exception) {
+                    requireActivity().runOnUiThread {
+                        Log.e("error", "JSON parsing failed", e)
+                    }
+                }
+            }
+        })
     }
 
     override fun onStop() {
