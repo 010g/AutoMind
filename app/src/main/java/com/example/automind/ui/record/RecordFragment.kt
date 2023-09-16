@@ -140,6 +140,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private fun onRecord(start: Boolean) = if (start) {
         clearTranscribedText()
         startRecording()
+        resetWaveformView()
         cleanAndResetTimer()
         timer.start()
     } else {
@@ -268,6 +269,10 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         GlobalScope.launch(Dispatchers.IO) {
             transcribedTextRepository.deleteAllTranscribedTexts()
         }
+    }
+
+    private fun resetWaveformView() {
+        (waveformView as WaveformView).reset()
     }
 
 

@@ -60,4 +60,9 @@ class WaveformView(context: Context?, attrs: AttributeSet?):View (context,attrs)
         }
     }
 
+    fun reset() {
+        amplitudes.clear()
+        invalidate()
+    }
+
 }
