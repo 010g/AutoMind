@@ -9,4 +9,11 @@ class TranscribedTextRepository(private val transcribedTextDao: TranscribedTextD
     suspend fun getAllTranscribedTexts(): List<TranscribedText> {
         return transcribedTextDao.getAllTranscribedTexts()
     }
+
+
+    suspend fun deleteAllTranscribedTexts() {
+        transcribedTextDao.deleteAllTranscribedTexts()
+    }
+
+
 }

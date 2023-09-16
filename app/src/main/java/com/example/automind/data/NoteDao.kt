@@ -13,4 +13,8 @@ interface TranscribedTextDao {
 
     @Query("SELECT * FROM transcribed_text")
     suspend fun getAllTranscribedTexts(): List<TranscribedText>
+
+    @Query("DELETE FROM transcribed_text")
+    suspend fun deleteAllTranscribedTexts()
+
 }

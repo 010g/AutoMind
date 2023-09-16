@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
@@ -44,6 +45,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private var btn_mic :ImageButton? = null
     private var recorder: MediaRecorder? = null
     private var btn_play :ImageButton? = null
+    private var btn_remove: Button? = null
     private var player: MediaPlayer? = null
     private var tv_timer: TextView? = null
     private var waveformView: View? = null
@@ -84,6 +86,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         editText = binding.edittext
         btn_mic = binding.btnMic
         btn_play = binding.btnPlay
+        btn_remove = binding.btnRemove
         tv_timer = binding.tvTimer
         waveformView = binding.waveformView
 
@@ -106,6 +109,10 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 }
                 Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
                 mStartRecording = !mStartRecording
+            }
+
+            btn_remove!!.setOnClickListener {
+                deleteTranscribedText()
             }
         }
 
@@ -185,8 +192,9 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             .setConfig(
                 RecognitionConfig.newBuilder()
                     .setEncoding(RecognitionConfig.AudioEncoding.AMR_WB)
-                    .setLanguageCode("en-US")
+                    .setLanguageCode("zh-TW")
                     .setSampleRateHertz(16000)
+                    .setEnableAutomaticPunctuation(true)
                     .build()
             )
             .setAudio(
@@ -225,10 +233,10 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 // Insert the transcribed text into the database
                 GlobalScope.launch(Dispatchers.IO) {
                     transcribedTextRepository.insertTranscribedText(text)
+                    editText?.setText(text)
                     val transcribedTexts = transcribedTextRepository.getAllTranscribedTexts()
                     for (text in transcribedTexts) {
-                        Log.d("DatabaseTest", "Transcribed Text: ${text.text}")
-                        editText?.setText(text.text)
+                        Log.d("DatabaseTest", "Transcribed Text in database: ${text.text}")
                     }
                 }
             }
@@ -254,6 +262,12 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     private fun clearTranscribedText() {
         editText?.text?.clear()
+    }
+
+    private fun deleteTranscribedText() {
+        GlobalScope.launch(Dispatchers.IO) {
+            transcribedTextRepository.deleteAllTranscribedTexts()
+        }
     }
 
 
