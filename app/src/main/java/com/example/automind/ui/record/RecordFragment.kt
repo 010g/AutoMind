@@ -17,6 +17,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
+import androidx.navigation.fragment.findNavController
 import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.data.TranscribedTextRepository
@@ -63,6 +65,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private var tv_timer: TextView? = null
     private var waveformView: View? = null
     private var btn_submit:Button? = null
+    private var btn_convert_to_mindmap:Button? = null
     private var txt_response:TextView? = null
 
     private lateinit var timer: Timer
@@ -106,6 +109,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         waveformView = binding.waveformView
         btn_submit = binding.btnSubmit
         txt_response = binding.txtResponse
+        btn_convert_to_mindmap = binding.btnConvertToMindmap
 
         timer = Timer(this)
 
@@ -154,6 +158,17 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             }
         }
 
+        btn_convert_to_mindmap!!.setOnClickListener {
+            // Get the Markdown content from my EditText
+            val markdownContent = editText!!.text.toString()
+
+            // Create a bundle to pass the content to MindMapFragment
+            val bundle = Bundle()
+            bundle.putString("markdownContent", markdownContent)
+
+            // Navigate to MindMapFragment with the bundle
+            findNavController().navigate(R.id.action_recordFragment_to_mindmapFragment, bundle)
+        }
 
 
 
