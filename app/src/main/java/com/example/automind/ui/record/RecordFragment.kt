@@ -160,7 +160,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
         btn_convert_to_mindmap!!.setOnClickListener {
             // Get the Markdown content from my EditText
-            val markdownContent = editText!!.text.toString()
+            val markdownContent = txt_response!!.text.toString()
 
             // Create a bundle to pass the content to MindMapFragment
             val bundle = Bundle()
@@ -183,7 +183,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         val requestBody="""
             {
             "model": "text-davinci-003",
-            "prompt": "$editText",
+            "prompt": "you are an android studio expert using kotlin. please summary the following $editText and give back the markdown format",
             "max_tokens": 1000,
             "temperature": 0
             }

@@ -21,7 +21,8 @@ class MindMapFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_mindmap, container, false)
         markmapWebView = root.findViewById(R.id.markmapWebView)
 
-        //val markdownContent = arguments?.getString("markdownContent")
+        val markdownContent = arguments?.getString("markdownContent")
+        /*
         val markdownContent = """
             # My Mind Map
             ## Main Topic
@@ -39,6 +40,7 @@ class MindMapFragment : Fragment() {
               - Sub-subtopic B.1
               - Sub-subtopic B.2
         """.trimIndent()
+        */
         Log.d("MindMapFragment", "Markdown Content: $markdownContent")
 
         // Enable JavaScript in the WebView
