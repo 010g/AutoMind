@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -64,6 +65,8 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-speech:4.18.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1"
 
     //markmap
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'

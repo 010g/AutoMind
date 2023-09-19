@@ -45,6 +45,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+
 
 
 class RecordFragment : Fragment(),Timer.OnTimerTickListener {
@@ -181,20 +185,74 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         val apiKey = "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"
         val url = "https://api.openai.com/v1/completions"
 
-        val requestBody="""
-            {
-            "model": "text-davinci-003",
-            "prompt": "I want to make a mindmap through markmap with transforming the markdown format text.Please summarize $editText and give back the markdown format of the keywords",
-            "max_tokens": 1000,
-            "temperature": 0
-            }
-         """.trimIndent()
+        val promptTemplate = """
+I want to make a mindmap through markmap with transforming the markdown format text.
+Please summarize the input text and give back the markdown format of the keywords.
+
+Example 1: 
+INPUT: 
+明天我總共要做三件事情分別為運動吃飯和學習，學習的科目有英文數學和中文，吃飯的部分早上要吃香蕉午餐吃便當晚餐吃火鍋，運動的話早上要游泳下午打籃球晚上跑步，英文科目又分為現在式過去式和未來式。
+OUTPUT:
+### 明天的計畫
+1. **運動**
+   - 早上：游泳
+   - 下午：打籃球
+   - 晚上：跑步           
+2. **吃飯**
+   - 早餐：香蕉
+   - 午餐：便當
+   - 晚餐：火鍋       
+3. **學習**
+   - 學科：
+     - 英文
+       - 現在式
+       - 過去式
+       - 未來式
+     - 數學
+     - 中文
+     
+Example 2:
+INPUT:
+明天我總共要做三件事考試運動和吃飯，考試的科目有英文中文和數學，數學分成三角函數和排列組合，運動的話早上跑步，下午打籃球晚上游泳，吃飯的部分早上吃三明治午餐吃水餃晚上吃火鍋。
+OUTPUT:
+### 明天的計畫
+1. **考試**
+   - 考試科目：
+     - 英文
+     - 中文
+     - 數學
+       - 三角函數
+       - 排列組合
+2. **運動**
+   - 早上：跑步
+   - 下午：打籃球
+   - 晚上：游泳
+3. **吃飯**
+   - 早餐：三明治
+   - 午餐：水餃
+   - 晚餐：火鍋
+   
+INPUT:
+$editText
+OUTPUT:
+        """
+
+        val requestBody = RequestBody(
+            model = "text-davinci-003",
+            prompt = promptTemplate,
+            max_tokens = 1000,
+            temperature = 0.0
+        )
+
+        val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
+        val mediaType = "application/json".toMediaTypeOrNull()
+        val jsonRequestBody = jsonString.toRequestBody(mediaType)
 
         val request = Request.Builder()
             .url(url)
             .addHeader("Content-Type","application/json")
             .addHeader("Authorization", "Bearer $apiKey")
-            .post(requestBody.toRequestBody("application/json".toMediaTypeOrNull()))
+            .post(jsonRequestBody)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -381,3 +439,11 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
 
 }
+
+@Serializable
+data class RequestBody(
+    val model: String,
+    val prompt: String,
+    val max_tokens: Int,
+    val temperature: Double
+)

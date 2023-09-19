@@ -33,7 +33,7 @@ class WaveformView(context: Context?, attrs: AttributeSet?):View (context,attrs)
     }
 
     fun addAmplitude(amp: Float){
-        var norm = Math.min(amp.toInt() / 7, 400).toFloat()
+        var norm = Math.min(amp.toInt() / 48, 400).toFloat()
         amplitudes.add(norm)
 
 
