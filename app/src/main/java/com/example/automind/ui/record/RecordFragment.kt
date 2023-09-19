@@ -133,7 +133,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             }
 
             btn_remove!!.setOnClickListener {
-                deleteTranscribedText()
+                deleteAllFromDatabase()
+                txt_response?.text = ""
             }
         }
 
@@ -367,7 +368,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         editText?.text?.clear()
     }
 
-    private fun deleteTranscribedText() {
+    private fun deleteAllFromDatabase() {
         GlobalScope.launch(Dispatchers.IO) {
             transcribedTextRepository.deleteAllTranscribedTexts()
         }
