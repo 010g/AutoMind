@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
+import android.widget.EditText
+import android.widget.ImageButton
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.example.automind.R
 
@@ -22,29 +25,30 @@ class MindMapFragment : Fragment() {
         markmapWebView = root.findViewById(R.id.markmapWebView)
 
         val markdownContent = arguments?.getString("markdownContent")
-        /*
-        val markdownContent = """
-            # My Mind Map
-            ## Main Topic
-            - Subtopic 1
-              - Sub-subtopic 1.1
-              - Sub-subtopic 1.2
-            - Subtopic 2
-              - Sub-subtopic 2.1
-              - Sub-subtopic 2.2
-            ## Another Main Topic
-            - Subtopic A
-              - Sub-subtopic A.1
-              - Sub-subtopic A.2
-            - Subtopic B
-              - Sub-subtopic B.1
-              - Sub-subtopic B.2
-        """.trimIndent()
-        */
         Log.d("MindMapFragment", "Markdown Content: $markdownContent")
 
-        // Enable JavaScript in the WebView
-        markmapWebView.settings.javaScriptEnabled = true
+        // Enable JavaScript and Zoom in the WebView
+        markmapWebView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+        }
+
+        val zoomInButton: ImageButton = root.findViewById(R.id.zoomInButton)
+        zoomInButton.setOnClickListener {
+            markmapWebView.zoomIn()
+        }
+
+        val zoomOutButton: ImageButton = root.findViewById(R.id.zoomOutButton)
+        zoomOutButton.setOnClickListener {
+            markmapWebView.zoomOut()
+        }
+
+        val editButton: ImageButton = root.findViewById(R.id.editButton)
+        editButton.setOnClickListener {
+            // Open an edit dialog or another activity to edit markdownContent
+            openEditDialog()
+        }
+
         // Set up a WebChromeClient to handle console messages from WebView
         markmapWebView.webChromeClient = object : WebChromeClient() {
             override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
@@ -65,25 +69,44 @@ class MindMapFragment : Fragment() {
                 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
                 <script src="https://cdn.jsdelivr.net/npm/markmap-lib"></script>
                 <script src="https://cdn.jsdelivr.net/npm/markmap-view"></script>
+                <script src="https://cdn.jsdelivr.net/npm/markmap-toolbar"></script>
+
             </head>
             <body>
                 <svg id="markmap" style="width: 800px; height: 800px"></svg>
                 <script>
                     const { markmap } = window;
                     const { Markmap, loadCSS, loadJS } = markmap;
+                    
+                    let currentMarkmapInstance; // Hold the current markmap instance
         
                     function renderMarkmap(markdownContent) {
+                    
+                        // Clear existing markmap, if any
+                        if (currentMarkmapInstance) {
+                            currentMarkmapInstance.destroy();
+                        }
+                        
+                       
                         // Transform Markdown to markmap data
                         const transformer = new markmap.Transformer();
                         const { root, features } = transformer.transform(markdownContent);
                         const { styles, scripts } = transformer.getUsedAssets(features);
-        
+                                          
+                 
                         // Load assets
                         if (styles) loadCSS(styles);
                         if (scripts) loadJS(scripts, { getMarkmap: () => markmap });
-        
-                        // Create markmap
-                        Markmap.create('#markmap', undefined, root);
+                        
+                        currentMarkmapInstance = Markmap.create('#markmap', undefined, root);
+                        
+                                              
+                        // Add the toolbar
+                        const { el } = Toolbar.create(mm);
+                        el.style.position = 'absolute';
+                        el.style.bottom = '0.5rem';
+                        el.style.right = '0.5rem';
+                        document.body.appendChild(el);
                     }
                 </script>
             </body>
@@ -121,4 +144,30 @@ class MindMapFragment : Fragment() {
         val jsCode = "javascript:renderMarkmap(`$markdownContent`);"
         markmapWebView.evaluateJavascript(jsCode, null)
     }
+
+
+    // Function to open an edit dialog
+    private fun openEditDialog() {
+        val editText = EditText(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            setText(arguments?.getString("markdownContent"))
+        }
+
+        context?.let {
+            AlertDialog.Builder(it)
+                .setTitle("Edit Mindmap Content")
+                .setView(editText)
+                .setPositiveButton("Update") { _, _ ->
+                    val updatedContent = editText.text.toString()
+                    arguments?.putString("markdownContent", updatedContent)
+                    renderMarkdownInWebView(updatedContent)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
 }

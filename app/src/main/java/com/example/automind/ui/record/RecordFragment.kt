@@ -183,7 +183,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         val requestBody="""
             {
             "model": "text-davinci-003",
-            "prompt": "you are an android studio expert using kotlin. please summary the following $editText and give back the markdown format",
+            "prompt": "I want to make a mindmap through markmap with transforming the markdown format text.Please summarize $editText and give back the markdown format of the keywords",
             "max_tokens": 1000,
             "temperature": 0
             }
