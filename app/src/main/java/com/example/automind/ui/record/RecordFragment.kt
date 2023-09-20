@@ -55,6 +55,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     private val client = OkHttpClient()
 
+    private lateinit var recordViewModel: RecordViewModel
+
     private lateinit var transcribedTextRepository: TranscribedTextRepository
 
     private val LOG_TAG = "AudioRecordTest"
@@ -96,8 +98,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val recordViewModel =
-            ViewModelProvider(this).get(RecordViewModel::class.java)
+        recordViewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
 
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -170,6 +171,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             // Create a bundle to pass the content to MindMapFragment
             val bundle = Bundle()
             bundle.putString("markdownContent", markdownContent)
+            bundle.putLong("id", recordViewModel.latestSavedTextId.value!!)
 
             // Navigate to MindMapFragment with the bundle
             findNavController().navigate(R.id.action_recordFragment_to_mindmapFragment, bundle)
@@ -394,12 +396,8 @@ OUTPUT:
             if (text.isNotBlank()) {
                 // Insert the transcribed text into the database
                 GlobalScope.launch(Dispatchers.IO) {
-                    transcribedTextRepository.insertTranscribedText(text)
                     editText?.setText(text)
-                    val transcribedTexts = transcribedTextRepository.getAllTranscribedTexts()
-                    for (text in transcribedTexts) {
-                        Log.d("DatabaseTest", "Transcribed Text in database: ${text.text}")
-                    }
+                    recordViewModel.saveTranscribedData(text)
                 }
             }
         }

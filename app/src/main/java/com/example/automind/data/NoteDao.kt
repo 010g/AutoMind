@@ -9,12 +9,15 @@ import androidx.room.Query
 interface TranscribedTextDao {
 
     @Insert
-    suspend fun insertTranscribedText(transcribedText: TranscribedText)
+    suspend fun insertTranscribedText(transcribedText: TranscribedText): Long
 
-    @Query("SELECT * FROM transcribed_text")
+    @Query("SELECT * FROM transcribed_texts")
     suspend fun getAllTranscribedTexts(): List<TranscribedText>
 
-    @Query("DELETE FROM transcribed_text")
+    @Query("DELETE FROM transcribed_texts")
     suspend fun deleteAllTranscribedTexts()
+
+    @Query("UPDATE transcribed_texts SET mindmapMarkdown = :markdown WHERE id = :id")
+    suspend fun updateMindmapMarkdownForId(id: Long, markdown: String)
 
 }

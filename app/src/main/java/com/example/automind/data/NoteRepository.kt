@@ -1,9 +1,9 @@
 package com.example.automind.data
 
 class TranscribedTextRepository(private val transcribedTextDao: TranscribedTextDao) {
-    suspend fun insertTranscribedText(text: String) {
-        val transcribedText = TranscribedText(text = text)
-        transcribedTextDao.insertTranscribedText(transcribedText)
+    suspend fun insertTranscribedText(text: String): Long {
+        val transcribedText = TranscribedText(content = text)
+        return transcribedTextDao.insertTranscribedText(transcribedText)
     }
 
     suspend fun getAllTranscribedTexts(): List<TranscribedText> {
@@ -15,5 +15,9 @@ class TranscribedTextRepository(private val transcribedTextDao: TranscribedTextD
         transcribedTextDao.deleteAllTranscribedTexts()
     }
 
+
+    suspend fun updateMindmapMarkdownForId(id: Long, markdown: String) {
+        transcribedTextDao.updateMindmapMarkdownForId(id, markdown)
+    }
 
 }

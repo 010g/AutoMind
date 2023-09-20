@@ -1,27 +1,25 @@
-package com.example.automind.ui.record
+package com.example.automind.ui.mindmap
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.automind.data.AppDatabase
 import com.example.automind.data.TranscribedTextRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class RecordViewModel(application: Application) : AndroidViewModel(application) {
+class MindmapViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database by lazy { AppDatabase.getDatabase(application) }
     private val repository by lazy { TranscribedTextRepository(database.transcribedTextDao()) }
 
     val latestSavedTextId: MutableLiveData<Long?> = MutableLiveData(null)
-    fun saveTranscribedData(transcribedData: String) {
+
+    fun updateMindmapMarkdownForTranscribedText(id: Long, mindmapMarkdown: String) {
         viewModelScope.launch {
-            val id = repository.insertTranscribedText(transcribedData)
-            latestSavedTextId.postValue(id)
+            repository.updateMindmapMarkdownForId(id, mindmapMarkdown)
+
             val transcribedTexts = repository.getAllTranscribedTexts()
             for (text in transcribedTexts) {
                 Log.d("DatabaseTest", "Transcribed Text in database: ${text.content}, Markdown: ${text.mindmapMarkdown}")

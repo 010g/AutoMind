@@ -1,11 +1,5 @@
 package com.example.automind.ui.mindmap
 
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,28 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import android.Manifest
-import com.example.automind.R
-import com.example.automind.data.AppDatabase
-import com.example.automind.data.TranscribedTextRepository
 import com.example.automind.databinding.FragmentMindmapBinding
-import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
+import androidx.lifecycle.ViewModelProvider
 
 class MindMapFragment : Fragment() {
 
-    private val database by lazy { AppDatabase.getDatabase(requireContext()) }
-    private val repository by lazy { TranscribedTextRepository(database.transcribedTextDao()) }
-
     private var _binding: FragmentMindmapBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var viewModel: MindmapViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +26,9 @@ class MindMapFragment : Fragment() {
     ): View? {
         _binding = FragmentMindmapBinding.inflate(inflater, container, false)
         val root = binding.root
+
+        viewModel = ViewModelProvider(this).get(MindmapViewModel::class.java)
+
         binding.markmapWebView.let {
             it.settings.apply {
                 javaScriptEnabled = true
@@ -51,6 +37,8 @@ class MindMapFragment : Fragment() {
         }
 
         val markdownContent = arguments?.getString("markdownContent")
+        val id = arguments?.getLong("id")
+        viewModel.latestSavedTextId.value = id
         Log.d("MindMapFragment", "Markdown Content: $markdownContent")
 
 
@@ -68,7 +56,10 @@ class MindMapFragment : Fragment() {
 
         binding.btnSave.setOnClickListener {
             val currentMarkdown = arguments?.getString("markdownContent") ?: ""
-            saveMarkdownToDatabase(currentMarkdown)
+            val transcribedTextId = viewModel.latestSavedTextId.value
+            if (transcribedTextId != null) {
+                viewModel.updateMindmapMarkdownForTranscribedText(transcribedTextId, currentMarkdown)
+            }
         }
 
         // Set up a WebChromeClient to handle console messages from WebView
@@ -189,18 +180,6 @@ class MindMapFragment : Fragment() {
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
-        }
-    }
-
-    private fun saveMarkdownToDatabase(markdownContent: String) {
-        lifecycleScope.launch {
-            repository.insertTranscribedText(markdownContent)
-
-            // Step 2: Add log to see all the data in the current database.
-            val allTexts = repository.getAllTranscribedTexts()
-            allTexts.forEach {
-                Log.d("DatabaseContent", "ID: ${it.id}, Text: ${it.text}")
-            }
         }
     }
 
