@@ -17,7 +17,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.automind.MainActivity
 import com.example.automind.R
@@ -29,7 +28,6 @@ import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.RecognizeRequest
 import com.google.cloud.speech.v1.SpeechClient
 import com.google.cloud.speech.v1.SpeechSettings
-import com.google.gson.JsonArray
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -41,7 +39,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
@@ -65,8 +62,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private var editText : EditText? = null
     private var btn_mic :ImageButton? = null
     private var recorder: MediaRecorder? = null
-    private var btn_play :ImageButton? = null
-    private var btn_remove: Button? = null
     private var player: MediaPlayer? = null
     private var tv_timer: TextView? = null
     private var waveformView: View? = null
@@ -108,8 +103,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
         editText = binding.edittext
         btn_mic = binding.btnMic
-        btn_play = binding.btnPlay
-        btn_remove = binding.btnRemove
         tv_timer = binding.tvTimer
         waveformView = binding.waveformView
         btn_submit = binding.btnSubmit
@@ -121,37 +114,31 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         // Initialize the repository
         transcribedTextRepository = (activity as MainActivity).transcribedTextRepository
 
-        btn_mic!!.setOnClickListener{
-            if (ContextCompat.checkSelfPermission(requireContext(),
-                    android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(requireContext(),
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        btn_mic!!.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                ActivityCompat.requestPermissions(requireActivity(), permissions,0)
+                ActivityCompat.requestPermissions(requireActivity(), permissions, 0)
             } else {
                 onRecord(mStartRecording)
-                var text = when (mStartRecording) {
-                    true -> "Start recording"
-                    false -> "Stop recording"
-                }
-                Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
                 mStartRecording = !mStartRecording
-            }
 
-            btn_remove!!.setOnClickListener {
-                deleteAllFromDatabase()
-                txt_response?.text = ""
+                // Change the icon based on the recording state
+                if (mStartRecording) {
+                    // Start recording
+                    btn_mic!!.setImageResource(R.drawable.ic_is_recording)
+                } else {
+                    // Stop recording, revert to the original icon
+                    btn_mic!!.setImageResource(R.drawable.ic_not_recording)
+                }
+
+                var text = when (mStartRecording) {
+                    true -> "Stop recording"
+                    false -> "Start recording"
+                }
             }
         }
 
-        btn_play!!.setOnClickListener{
-            onPlay(mStartPlaying)
-            var text = when (mStartPlaying) {
-                true -> "Start playing"
-                false -> "Stop playing"
-            }
-            Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
-            mStartPlaying = !mStartPlaying
-        }
+
 
         btn_submit!!.setOnClickListener{
             val question= editText!!.text.toString()

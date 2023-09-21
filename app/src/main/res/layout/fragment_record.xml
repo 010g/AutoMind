@@ -6,6 +6,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#211F21"
+    android:layout_marginTop="?attr/actionBarSize"
+    android:layout_marginBottom="?attr/actionBarSize"
     tools:context=".ui.record.RecordFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,54 +17,95 @@
         tools:context=".ui.record.RecordFragment">
 
 
-
-        <ImageButton
-            android:id="@+id/btn_mic"
+        <TextView
+            android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_record"
-            android:background="@android:color/transparent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Sunday, December 3"
+            android:textSize="20sp"
+            android:fontFamily="times"
+            android:textStyle="italic"
+            android:textColor="@color/white"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="60dp"/>
-
-        <ImageButton
-            android:id="@+id/btn_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_record"
-            android:background="@android:color/transparent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_mic"
-            android:layout_marginTop="10dp"/>
-
-        <Button
-            android:id="@+id/btn_remove"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="remove"
-            app:layout_constraintEnd_toStartOf="@+id/btn_mic"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/btn_mic"
-            android:layout_marginEnd="30dp"/>
-
-        <com.example.automind.ui.record.WaveformView
-            android:id="@+id/waveform_view"
-            android:layout_width="match_parent"
-            android:layout_height="400px"
-            app:layout_constraintTop_toBottomOf="@+id/btn_play" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
             android:id="@+id/tv_timer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="40sp"
-            android:layout_marginTop="30dp"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:fontFamily="times"
+            android:textStyle="italic"
+            android:lineSpacingExtra="4dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/waveform_view"/>
+            app:layout_constraintTop_toBottomOf="@+id/tv_date"/>
+
+
+        <ImageView
+            android:id="@+id/image_record_background"
+            android:layout_width="0dp"
+            android:layout_height="220dp"
+            android:src="@drawable/image_record_background"
+            app:layout_constraintTop_toBottomOf="@+id/tv_timer"
+            app:layout_constraintBottom_toTopOf="@+id/waveform_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginEnd="80dp"/>
+
+        <com.example.automind.ui.record.WaveformView
+            android:id="@+id/waveform_view"
+            android:layout_width="match_parent"
+            android:layout_height="300px"
+            app:layout_constraintTop_toBottomOf="@+id/image_record_background"
+            android:layout_marginTop="10dp"/>
+
+
+        <TextView
+            android:id="@+id/tv_tite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEW NOTE"
+            android:textSize="20sp"
+            android:fontFamily="times"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/waveform_view"
+            android:layout_marginTop="10dp"/>
+
+
+        <TextView
+            android:id="@+id/tv_slogan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Record and Remember!"
+            android:textSize="12sp"
+            android:fontFamily="times"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_tite"
+            android:layout_marginTop="5dp"/>
+
+        <ImageButton
+            android:id="@+id/btn_mic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_is_recording"
+            android:background="@android:color/transparent"
+            app:layout_constraintTop_toBottomOf="@id/tv_slogan"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="20dp"/>
+
+
 
 
         <EditText
@@ -70,7 +114,7 @@
             android:layout_height="100dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_timer"
+            app:layout_constraintTop_toBottomOf="@+id/btn_mic"
             android:layout_margin="10dp"
             android:gravity="center"
             android:hint="Text from STT goes here." />

@@ -21,8 +21,9 @@ class MindmapViewModel(application: Application) : AndroidViewModel(application)
             repository.updateMindmapMarkdownForId(id, mindmapMarkdown)
 
             val transcribedTexts = repository.getAllTranscribedTexts()
+            Log.d("DatabaseTest after saving mindmap", "Getting all data from database...")
             for (text in transcribedTexts) {
-                Log.d("DatabaseTest", "Transcribed Text in database: ${text.content}, Markdown: ${text.mindmapMarkdown}")
+                Log.d("DatabaseTest after saving mindmap", "Transcribed Text in database: ${text.content}, Markdown: ${text.mindmapMarkdown}")
             }
         }
     }

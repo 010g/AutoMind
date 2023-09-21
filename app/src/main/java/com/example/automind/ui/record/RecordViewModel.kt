@@ -23,8 +23,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             val id = repository.insertTranscribedText(transcribedData)
             latestSavedTextId.postValue(id)
             val transcribedTexts = repository.getAllTranscribedTexts()
+            Log.d("DatabaseTest after STT", "Getting all data from database...")
             for (text in transcribedTexts) {
-                Log.d("DatabaseTest", "Transcribed Text in database: ${text.content}, Markdown: ${text.mindmapMarkdown}")
+                Log.d("DatabaseTest after STT", "Transcribed Text in database: ${text.content}, Markdown: ${text.mindmapMarkdown}")
             }
         }
     }

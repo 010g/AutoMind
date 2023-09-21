@@ -2,12 +2,12 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorPrimary">@color/primary</item>
     </style>
 
 
     <style name="BottomNavigationView">
-        <item name="android:background">@color/dark_blue</item>
+        <item name="android:background">@color/primary</item>
     </style>
 
 </resources>
