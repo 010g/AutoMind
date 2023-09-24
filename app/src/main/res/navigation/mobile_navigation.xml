@@ -25,10 +25,45 @@
 
     <fragment
         android:id="@+id/navigation_mindmap"
-        android:name="com.example.automind.ui.mindmap.MindMapFragment"
+        android:name="com.example.automind.ui.detail.mindmap.MindMapFragment"
         android:label="@string/title_mindmap"
         tools:layout="@layout/fragment_mindmap" />
+<!--    <action-->
+<!--        android:id="@+id/action_recordFragment_to_mindmapFragment"-->
+<!--        app:destination="@id/navigation_mindmap" />-->
+
+    <fragment
+        android:id="@+id/navigation_detail"
+        android:name="com.example.automind.ui.detail.DetailFragment"
+        android:label="Detail"
+        tools:layout="@layout/fragment_detail" />
     <action
-        android:id="@+id/action_recordFragment_to_mindmapFragment"
-        app:destination="@id/navigation_mindmap" />
+        android:id="@+id/action_recordFragment_to_detailFragment"
+        app:destination="@id/navigation_detail" />
+
+
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="com.example.automind.ui.detail.list.ListFragment"
+        tools:layout="@layout/fragment_list">
+    </fragment>
+
+    <fragment
+        android:id="@+id/summaryFragment"
+        android:name="com.example.automind.ui.detail.summary.SummaryFragment"
+        tools:layout="@layout/fragment_summary">
+    </fragment>
+
+    <fragment
+        android:id="@+id/originalFragment"
+        android:name="com.example.automind.ui.detail.original.OriginalFragment"
+        tools:layout="@layout/fragment_original">
+    </fragment>
+
+    <fragment
+        android:id="@+id/mindmapFragment"
+        android:name="com.example.automind.ui.detail.mindmap.MindMapFragment"
+        tools:layout="@layout/fragment_mindmap">
+    </fragment>
+
 </navigation>

@@ -1,4 +1,4 @@
-package com.example.automind.ui.mindmap
+package com.example.automind.ui.detail.mindmap
 
 import android.os.Bundle
 import android.util.Log
@@ -42,19 +42,11 @@ class MindMapFragment : Fragment() {
         Log.d("MindMapFragment", "Markdown Content: $markdownContent")
 
 
-        binding.btnZoomIn.setOnClickListener {
-            binding.markmapWebView.zoomIn()
-        }
-
-        binding.btnZoomOut.setOnClickListener {
-            binding.markmapWebView.zoomOut()
-        }
-
         binding.btnEdit.setOnClickListener {
             openEditDialog()
         }
 
-        binding.btnSave.setOnClickListener {
+        binding.btnLike.setOnClickListener {
             val currentMarkdown = arguments?.getString("markdownContent") ?: ""
             val transcribedTextId = viewModel.latestSavedTextId.value
             if (transcribedTextId != null) {
@@ -73,12 +65,25 @@ class MindMapFragment : Fragment() {
             }
         }
 
+        val darkThemeCSS = """
+    <style>
+        body {
+            background-color: #353535; /* Dark background color */
+            color: #ffffff; /* Light font color */
+        }
+        svg {
+            background-color: #353535; /* Dark background color for SVG */
+        }
+    </style>
+"""
+
         // Load the HTML content with embedded Markmap JavaScript
         val escapedMarkdownContent = markdownContent?.replace("`", "\\`") ?: ""
         val htmlContent = """
             <!DOCTYPE html>
             <html>
             <head>
+                $darkThemeCSS
                 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
                 <script src="https://cdn.jsdelivr.net/npm/markmap-lib"></script>
                 <script src="https://cdn.jsdelivr.net/npm/markmap-view"></script>

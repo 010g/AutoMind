@@ -29,10 +29,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <WebView
-                    android:id="@+id/markmapWebView"
+                <EditText
+                    android:id="@+id/editText"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"
+                    android:layout_margin="20dp"
+                    android:background="@null"
+                    android:hint="Enter Text Here"
+                    android:inputType="textMultiLine"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"

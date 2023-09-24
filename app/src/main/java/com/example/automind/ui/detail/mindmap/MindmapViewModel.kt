@@ -1,4 +1,4 @@
-package com.example.automind.ui.mindmap
+package com.example.automind.ui.detail.mindmap
 
 import android.app.Application
 import android.util.Log

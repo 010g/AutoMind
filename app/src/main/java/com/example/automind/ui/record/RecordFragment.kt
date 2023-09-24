@@ -158,10 +158,11 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             // Create a bundle to pass the content to MindMapFragment
             val bundle = Bundle()
             bundle.putString("markdownContent", markdownContent)
-            bundle.putLong("id", recordViewModel.latestSavedTextId.value!!)
+            bundle.putLong("id", recordViewModel.latestSavedTextId.value ?: -1)
+
 
             // Navigate to MindMapFragment with the bundle
-            findNavController().navigate(R.id.action_recordFragment_to_mindmapFragment, bundle)
+            findNavController().navigate(R.id.action_recordFragment_to_detailFragment, bundle)
         }
 
 
