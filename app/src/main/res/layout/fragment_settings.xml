@@ -132,7 +132,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 style="@style/SettingsTextStyle"
-                android:text="Writing Stylw"
+                android:text="Writing Style"
                 android:textAlignment="center"
                 android:layout_gravity="center"/>
 

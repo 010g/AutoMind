@@ -9,7 +9,11 @@
         android:id="@+id/navigation_hub"
         android:name="com.example.automind.ui.hub.HubFragment"
         android:label="@string/title_hub"
-        tools:layout="@layout/fragment_hub" />
+        tools:layout="@layout/fragment_hub">
+        <action
+            android:id="@+id/action_hubFragment_to_recordFragment"
+            app:destination="@id/navigation_record" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_record"
