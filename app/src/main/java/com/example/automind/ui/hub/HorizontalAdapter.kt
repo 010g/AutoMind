@@ -1,44 +1,66 @@
 package com.example.automind.ui.hub
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.automind.R
 import com.example.automind.databinding.ItemHorizontalBinding
 
-class HorizontalAdapter :
+class HorizontalAdapter(val listener: (Int) -> Unit) :
     ListAdapter<HorizontalItem, HorizontalAdapter.HorizontalViewHolder>(HorizontalDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HorizontalViewHolder {
         val binding = ItemHorizontalBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return HorizontalViewHolder(binding)
+        return HorizontalViewHolder(binding, listener)
     }
 
     override fun onBindViewHolder(holder: HorizontalViewHolder, position: Int) {
         val item = getItem(position)
+        holder.binding.btnHeart.setImageResource(
+            if (item.isSelected) R.drawable.ic_heart
+            else R.drawable.ic_heart_full
+        )
         holder.bind(item)
     }
 
-    class HorizontalViewHolder(private val binding: ItemHorizontalBinding) :
+
+
+
+
+    class HorizontalViewHolder(val binding: ItemHorizontalBinding, val listener: (Int) -> Unit) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: HorizontalItem) {
             binding.tvDate.text = item.date
             binding.tvTitle.text = item.title
             binding.tvContent.text = item.content
+            binding.btnHeart.setOnClickListener{
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    listener(position)
+                }
+            }
         }
     }
 
     class HorizontalDiffCallback : DiffUtil.ItemCallback<HorizontalItem>() {
         override fun areItemsTheSame(oldItem: HorizontalItem, newItem: HorizontalItem): Boolean {
-            // If items have unique IDs, compare them here.
-            return oldItem.date == newItem.date
+            // Compare the items based on their content if they don't have unique IDs
+            return oldItem.date == newItem.date &&
+                    oldItem.title == newItem.title &&
+                    oldItem.content == newItem.content
         }
 
         override fun areContentsTheSame(oldItem: HorizontalItem, newItem: HorizontalItem): Boolean {
-            return oldItem == newItem
+            return oldItem.date == newItem.date &&
+                    oldItem.title == newItem.title &&
+                    oldItem.content == newItem.content &&
+                    oldItem.isSelected == newItem.isSelected // Include isSelected in comparison
         }
+
     }
 }
 
@@ -47,6 +69,7 @@ class HorizontalAdapter :
 data class HorizontalItem(
     val date: String,
     val title: String,
-    val content: String
+    val content: String,
+    var isSelected: Boolean = false
 )
 
