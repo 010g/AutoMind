@@ -32,9 +32,10 @@
         android:name="com.example.automind.ui.detail.mindmap.MindMapFragment"
         android:label="@string/title_mindmap"
         tools:layout="@layout/fragment_mindmap" />
-<!--    <action-->
-<!--        android:id="@+id/action_recordFragment_to_mindmapFragment"-->
-<!--        app:destination="@id/navigation_mindmap" />-->
+
+    <action
+        android:id="@+id/action_recordFragment_to_mindmapFragment"
+        app:destination="@id/navigation_mindmap" />
 
     <fragment
         android:id="@+id/navigation_detail"

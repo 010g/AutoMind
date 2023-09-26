@@ -1,23 +1,47 @@
 package com.example.automind.data
 
-class TranscribedTextRepository(private val transcribedTextDao: TranscribedTextDao) {
-    suspend fun insertTranscribedText(text: String): Long {
-        val transcribedText = TranscribedText(content = text)
-        return transcribedTextDao.insertTranscribedText(transcribedText)
+class NoteRepository(private val noteDao: NoteDao) {
+    suspend fun insertNote(
+        tag: String,
+        title: String,
+        isLike: Boolean,
+        content: String,
+        summary: String,
+        list: String,
+        mindmapMarkdown: String,
+    ): Long {
+        val note = Note(
+            tag = tag,
+            title = title,
+            isLike = isLike,
+            content = content,
+            summary = summary,
+            list = list,
+            mindmapMarkdown = mindmapMarkdown,
+        )
+        return noteDao.insertNote(note)
     }
 
-    suspend fun getAllTranscribedTexts(): List<TranscribedText> {
-        return transcribedTextDao.getAllTranscribedTexts()
+    suspend fun getAllNotes(): List<Note> {
+        return noteDao.getAllNotes()
+    }
+
+    suspend fun getNoteById(noteId: Long): Note?{
+        return noteDao.getNoteById(noteId)
     }
 
 
-    suspend fun deleteAllTranscribedTexts() {
-        transcribedTextDao.deleteAllTranscribedTexts()
+    suspend fun deleteAllNotes() {
+        noteDao.deleteAllNotes()
+    }
+
+    suspend fun deleteNoteById(id: Long) {
+        noteDao.deleteNoteById(id)
     }
 
 
     suspend fun updateMindmapMarkdownForId(id: Long, markdown: String) {
-        transcribedTextDao.updateMindmapMarkdownForId(id, markdown)
+        noteDao.updateMindmapMarkdownForId(id, markdown)
     }
 
 }

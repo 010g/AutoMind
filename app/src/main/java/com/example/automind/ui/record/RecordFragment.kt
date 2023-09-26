@@ -16,11 +16,12 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.automind.MainActivity
 import com.example.automind.R
-import com.example.automind.data.TranscribedTextRepository
+import com.example.automind.data.NoteRepository
 import com.example.automind.databinding.FragmentRecordBinding
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.speech.v1.RecognitionAudio
@@ -50,11 +51,12 @@ import kotlinx.serialization.encodeToString
 
 class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
+
     private val client = OkHttpClient()
 
     private lateinit var recordViewModel: RecordViewModel
 
-    private lateinit var transcribedTextRepository: TranscribedTextRepository
+    private lateinit var noteRepository: NoteRepository
 
     private val LOG_TAG = "AudioRecordTest"
 
@@ -93,7 +95,9 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        recordViewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
+        //recordViewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
+        recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
+
 
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -112,7 +116,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         timer = Timer(this)
 
         // Initialize the repository
-        transcribedTextRepository = (activity as MainActivity).transcribedTextRepository
+        noteRepository = (activity as MainActivity).noteRepository
 
         btn_mic!!.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -137,36 +141,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 }
             }
         }
-
-
-
-        btn_submit!!.setOnClickListener{
-            val question= editText!!.text.toString()
-            Toast.makeText(requireContext(),question,Toast.LENGTH_SHORT).show()
-            getResponse(question){response ->
-                requireActivity().runOnUiThread {
-                    txt_response!!.text = response
-                }
-
-            }
-        }
-
-        btn_convert_to_mindmap!!.setOnClickListener {
-            // Get the Markdown content from my EditText
-            val markdownContent = txt_response!!.text.toString()
-
-            // Create a bundle to pass the content to MindMapFragment
-            val bundle = Bundle()
-            bundle.putString("markdownContent", markdownContent)
-            bundle.putLong("id", recordViewModel.latestSavedTextId.value ?: -1)
-
-
-            // Navigate to MindMapFragment with the bundle
-            findNavController().navigate(R.id.action_recordFragment_to_detailFragment, bundle)
-        }
-
-
-
 
         return binding.root
     }
@@ -280,6 +254,82 @@ OUTPUT:
         })
     }
 
+    fun getSummary(prompt: String, callback: (String) -> Unit){
+        val apiKey = "bXqztm1b0Vj5x4iXMWvJT3BlbkFJ932xSftp1AJ3cvYowSQV"
+        val url = "https://api.openai.com/v1/completions"
+
+        val requestBody = mapOf(
+            "prompt" to prompt,
+            "max_tokens" to 1000,
+            "temperature" to 0.0
+        )
+
+        val mediaType = "application/json".toMediaTypeOrNull()
+        val jsonRequestBody = JSONObject(requestBody).toString().toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Content-Type","application/json")
+            .addHeader("Authorization", "Bearer $apiKey")
+            .post(jsonRequestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("error", "API call failed", e)
+            }
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body?.string()
+                try {
+                    val jsonResponse = JSONObject(body!!)
+                    val summary = jsonResponse.getString("summary")
+                    callback(summary)
+                } catch (e: Exception) {
+                    Log.e("error", "JSON parsing failed", e)
+                }
+            }
+        })
+    }
+
+    fun getList(prompt: String, callback: (String) -> Unit){
+        val apiKey = "bXqztm1b0Vj5x4iXMWvJT3BlbkFJ932xSftp1AJ3cvYowSQV"
+        val url = "https://api.openai.com/v1/completions"
+
+        val requestBody = mapOf(
+            "prompt" to prompt,
+            "max_tokens" to 1000,
+            "temperature" to 0.0
+        )
+
+        val mediaType = "application/json".toMediaTypeOrNull()
+        val jsonRequestBody = JSONObject(requestBody).toString().toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Content-Type","application/json")
+            .addHeader("Authorization", "Bearer $apiKey")
+            .post(jsonRequestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("error", "API call failed", e)
+            }
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body?.string()
+                try {
+                    val jsonResponse = JSONObject(body!!)
+                    val list = jsonResponse.getString("list")
+                    callback(list)
+                } catch (e: Exception) {
+                    Log.e("error", "JSON parsing failed", e)
+                }
+            }
+        })
+    }
+
+
+
     override fun onStop() {
         super.onStop()
         recorder?.release()
@@ -381,11 +431,53 @@ OUTPUT:
         GlobalScope.launch(Dispatchers.IO){
             text = analyze(ByteString.copyFrom(File(fileName).readBytes()))
             Log.d("DatabaseTest", "Recorded Text: $text")
-            if (text.isNotBlank()) {
+            if (text.isNotBlank() || text.isBlank()) {
                 // Insert the transcribed text into the database
-                GlobalScope.launch(Dispatchers.IO) {
+                GlobalScope.launch(Dispatchers.Main) {
                     editText?.setText(text)
-                    recordViewModel.saveTranscribedData(text)
+
+                    // Posting value to originalText
+                    recordViewModel.originalText.postValue(text)
+                    Log.d("RecordFragment", "Posted value to originalText: $text")
+
+                    val question= editText!!.text.toString()
+                    getResponse(question){response ->
+                        txt_response!!.text = response
+                    }
+                    // Get the summary-related prompt
+                    var summary = "Generate a summary for the following text: $text"
+                    getSummary(summary){ responseSummary ->
+                        summary = responseSummary // Assigning the response to the outer variable.
+                    }
+
+                    // Get the list-related prompt
+                    var list = "List the main points of the following text: $text"
+                    getList(list){ responseList ->
+                        list = responseList // Assigning the response to the outer variable.
+                    }
+
+                    // Get the Markdown content from my EditText
+                    val markdownContent = txt_response!!.text.toString()
+
+                    // save data
+                    recordViewModel.saveNoteData(
+                        "", // tag
+                        binding.edittext.text.toString(), // title
+                        false,
+                        text,
+                        summary,
+                        list,
+                        markdownContent
+                    )
+                    Log.d("RecordFragment", "ViewModel instance: $recordViewModel")
+
+                    // Create a bundle to pass the content to DetailFragment
+                    val bundle = Bundle()
+                    bundle.putLong("id", recordViewModel.latestSavedTextId.value ?: -1)
+
+
+                    // Navigate to MindMapFragment with the bundle
+                    findNavController().navigate(R.id.action_recordFragment_to_detailFragment, bundle)
                 }
             }
         }
@@ -414,7 +506,7 @@ OUTPUT:
 
     private fun deleteAllFromDatabase() {
         GlobalScope.launch(Dispatchers.IO) {
-            transcribedTextRepository.deleteAllTranscribedTexts()
+            noteRepository.deleteAllNotes()
         }
     }
 

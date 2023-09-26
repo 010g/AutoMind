@@ -17,8 +17,8 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.automind.data.AppDatabase
-import com.example.automind.data.TranscribedTextDao
-import com.example.automind.data.TranscribedTextRepository
+import com.example.automind.data.NoteDao
+import com.example.automind.data.NoteRepository
 import com.example.automind.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -27,8 +27,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
 
     lateinit var db: RoomDatabase
-    lateinit var transcribedTextDao: TranscribedTextDao
-    lateinit var transcribedTextRepository: TranscribedTextRepository
+    lateinit var noteDao: NoteDao
+    lateinit var noteRepository: NoteRepository
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,8 +89,8 @@ class MainActivity : AppCompatActivity() {
             AppDatabase::class.java, // Provide the database class
             "app-database" // Provide the database name
         ).build()
-        transcribedTextDao = (db as AppDatabase).transcribedTextDao()
-        transcribedTextRepository = TranscribedTextRepository(transcribedTextDao)
+        noteDao = (db as AppDatabase).noteDao()
+        noteRepository = NoteRepository(noteDao)
     }
 
     override fun onSupportNavigateUp(): Boolean {
