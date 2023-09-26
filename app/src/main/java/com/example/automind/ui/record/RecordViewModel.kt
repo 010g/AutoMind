@@ -29,6 +29,13 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     var hasList = false
     var hasMarkdown = false
 
+    fun clearLiveData() {
+        hasOriginal = false
+        hasSummary = false
+        hasList = false
+        hasMarkdown = false
+    }
+
 
     fun updateOriginalText(text: String) {
         originalText.postValue(text)

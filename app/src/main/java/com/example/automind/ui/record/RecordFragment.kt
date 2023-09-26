@@ -95,9 +95,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        //recordViewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
         recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
-
+        recordViewModel.clearLiveData()
 
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -142,38 +141,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             }
         }
 
-        recordViewModel.originalText.observe(viewLifecycleOwner){
-            Log.d("originalText observed!", recordViewModel.originalText.value.toString())
-            recordViewModel.hasOriginal = true
-            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                actionsAfterAllDataObtained()
-            }
-        }
-
-        recordViewModel.summaryText.observe(viewLifecycleOwner){
-            Log.d("summaryText observed!", recordViewModel.summaryText.value.toString())
-            recordViewModel.hasSummary = true
-            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                actionsAfterAllDataObtained()
-            }
-        }
-
-        recordViewModel.listText.observe(viewLifecycleOwner){
-            Log.d("listText observed!", recordViewModel.listText.value.toString())
-            recordViewModel.hasList = true
-            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                actionsAfterAllDataObtained()
-            }
-        }
-
-        recordViewModel.markdownContent.observe(viewLifecycleOwner){
-            Log.d("markdownContent observed!", recordViewModel.markdownContent.value.toString())
-            recordViewModel.hasMarkdown = true
-            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                actionsAfterAllDataObtained()
-            }
-        }
-
         return binding.root
     }
 
@@ -212,6 +179,15 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     }
 
     fun getResponse(editText: String, callback: (String) -> Unit){
+
+        recordViewModel.markdownContent.observe(viewLifecycleOwner){
+            Log.d("markdownContent observed!", recordViewModel.markdownContent.value.toString())
+            recordViewModel.hasMarkdown = true
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
         val apiKey = "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"
         val url = "https://api.openai.com/v1/completions"
 
@@ -316,6 +292,15 @@ OUTPUT:
     }
 
     fun getSummary(prompt: String, callback: (String) -> Unit){
+
+        recordViewModel.summaryText.observe(viewLifecycleOwner){
+            Log.d("summaryText observed!", recordViewModel.summaryText.value.toString())
+            recordViewModel.hasSummary = true
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
         val apiKey = "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"
         val url = "https://api.openai.com/v1/completions"
 
@@ -364,6 +349,15 @@ OUTPUT:
     }
 
     fun getList(prompt: String, callback: (String) -> Unit){
+
+        recordViewModel.listText.observe(viewLifecycleOwner){
+            Log.d("listText observed!", recordViewModel.listText.value.toString())
+            recordViewModel.hasList = true
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
         val apiKey = "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"
         val url = "https://api.openai.com/v1/completions"
 
@@ -518,6 +512,14 @@ OUTPUT:
                 // Insert the transcribed text into the database
                 GlobalScope.launch(Dispatchers.Main) {
                     editText?.setText(text)
+
+                    recordViewModel.originalText.observe(viewLifecycleOwner){
+                        Log.d("originalText observed!", recordViewModel.originalText.value.toString())
+                        recordViewModel.hasOriginal = true
+                        if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                            actionsAfterAllDataObtained()
+                        }
+                    }
 
                     // Posting value to originalText
                     recordViewModel.originalText.postValue(text)
