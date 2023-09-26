@@ -142,7 +142,73 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             }
         }
 
+        recordViewModel.originalText.observe(viewLifecycleOwner){
+            Log.d("originalText observed!", recordViewModel.originalText.value.toString())
+            recordViewModel.hasOriginal = true
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
+        recordViewModel.summaryText.observe(viewLifecycleOwner){
+            Log.d("summaryText observed!", recordViewModel.summaryText.value.toString())
+            recordViewModel.hasSummary = true
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
+        recordViewModel.listText.observe(viewLifecycleOwner){
+            Log.d("listText observed!", recordViewModel.listText.value.toString())
+            recordViewModel.hasList = true
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
+        recordViewModel.markdownContent.observe(viewLifecycleOwner){
+            Log.d("markdownContent observed!", recordViewModel.markdownContent.value.toString())
+            recordViewModel.hasMarkdown = true
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
         return binding.root
+    }
+
+    fun actionsAfterAllDataObtained(){
+        recordViewModel.hasOriginal = false
+        recordViewModel.hasSummary = false
+        recordViewModel.hasList = false
+        recordViewModel.hasMarkdown = false
+
+        // save data
+        recordViewModel.originalText.value?.let { it1 ->
+            recordViewModel.summaryText.value?.let { it2 ->
+                recordViewModel.listText.value?.let { it3 ->
+                    recordViewModel.markdownContent.value?.let { it4 ->
+                        recordViewModel.saveNoteData(
+                            "", // tag
+                            binding.edittext.text.toString(), // title
+                            false,
+                            it1,
+                            it2,
+                            it3,
+                            it4
+                        )
+                    }
+                }
+            }
+        }
+
+        // Create a bundle to pass the content to DetailFragment
+        val bundle = Bundle()
+        bundle.putLong("id", recordViewModel.latestSavedTextId.value ?: -1)
+
+
+        // Navigate to MindMapFragment with the bundle
+        findNavController().navigate(R.id.action_recordFragment_to_detailFragment, bundle)
     }
 
     fun getResponse(editText: String, callback: (String) -> Unit){
@@ -212,6 +278,8 @@ OUTPUT:
         val mediaType = "application/json".toMediaTypeOrNull()
         val jsonRequestBody = jsonString.toRequestBody(mediaType)
 
+        Log.d("getResponse", "1")
+
         val request = Request.Builder()
             .url(url)
             .addHeader("Content-Type","application/json")
@@ -222,27 +290,20 @@ OUTPUT:
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 requireActivity().runOnUiThread{
-                    Log.e("error","API failed",e)
+                    Log.e("getResponse error","API failed",e)
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body?.string()
-                if (body != null) {
-                    Log.v("data",body)
-                }
-                else{
-                        Log.v("data","empty")
-                    }
                 try {
                     val jsonObject = JSONObject(body)
                     val jsonArray = jsonObject.getJSONArray("choices")
                     val firstChoice = jsonArray.getJSONObject(0)
                     val textResult = firstChoice.getString("text")
 
-                    callback(textResult)
-
                     requireActivity().runOnUiThread {
+                        callback(textResult)
                         txt_response!!.text = textResult
                     }
                 } catch (e: Exception) {
@@ -255,17 +316,19 @@ OUTPUT:
     }
 
     fun getSummary(prompt: String, callback: (String) -> Unit){
-        val apiKey = "bXqztm1b0Vj5x4iXMWvJT3BlbkFJ932xSftp1AJ3cvYowSQV"
+        val apiKey = "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"
         val url = "https://api.openai.com/v1/completions"
 
-        val requestBody = mapOf(
-            "prompt" to prompt,
-            "max_tokens" to 1000,
-            "temperature" to 0.0
+        val requestBody = RequestBody(
+            model = "text-davinci-003",
+            prompt = prompt,
+            max_tokens = 1000,
+            temperature = 0.0
         )
 
+        val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
         val mediaType = "application/json".toMediaTypeOrNull()
-        val jsonRequestBody = JSONObject(requestBody).toString().toRequestBody(mediaType)
+        val jsonRequestBody = jsonString.toRequestBody(mediaType)
 
         val request = Request.Builder()
             .url(url)
@@ -276,33 +339,44 @@ OUTPUT:
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("error", "API call failed", e)
+                requireActivity().runOnUiThread {
+                    Log.e("getSummary error", "API call failed", e)
+                }
             }
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body?.string()
                 try {
-                    val jsonResponse = JSONObject(body!!)
-                    val summary = jsonResponse.getString("summary")
-                    callback(summary)
+                    val jsonObject = JSONObject(body)
+                    Log.d("getSummary json", jsonObject.toString())
+                    val jsonArray = jsonObject.getJSONArray("choices")
+                    val firstChoice = jsonArray.getJSONObject(0)
+                    val textResult = firstChoice.getString("text")
+                    requireActivity().runOnUiThread {
+                        callback(textResult)
+                    }
                 } catch (e: Exception) {
-                    Log.e("error", "JSON parsing failed", e)
+                    requireActivity().runOnUiThread {
+                        Log.e("error", "JSON parsing failed", e)
+                    }
                 }
             }
         })
     }
 
     fun getList(prompt: String, callback: (String) -> Unit){
-        val apiKey = "bXqztm1b0Vj5x4iXMWvJT3BlbkFJ932xSftp1AJ3cvYowSQV"
+        val apiKey = "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"
         val url = "https://api.openai.com/v1/completions"
 
-        val requestBody = mapOf(
-            "prompt" to prompt,
-            "max_tokens" to 1000,
-            "temperature" to 0.0
+        val requestBody = RequestBody(
+            model = "text-davinci-003",
+            prompt = prompt,
+            max_tokens = 1000,
+            temperature = 0.0
         )
 
+        val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
         val mediaType = "application/json".toMediaTypeOrNull()
-        val jsonRequestBody = JSONObject(requestBody).toString().toRequestBody(mediaType)
+        val jsonRequestBody = jsonString.toRequestBody(mediaType)
 
         val request = Request.Builder()
             .url(url)
@@ -313,16 +387,25 @@ OUTPUT:
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("error", "API call failed", e)
+                requireActivity().runOnUiThread {
+                    Log.e("getList error", "API call failed", e)
+                }
             }
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body?.string()
                 try {
-                    val jsonResponse = JSONObject(body!!)
-                    val list = jsonResponse.getString("list")
-                    callback(list)
+                    val jsonObject = JSONObject(body)
+                    Log.d("getList json", jsonObject.toString())
+                    val jsonArray = jsonObject.getJSONArray("choices")
+                    val firstChoice = jsonArray.getJSONObject(0)
+                    val textResult = firstChoice.getString("text")
+                    requireActivity().runOnUiThread {
+                        callback(textResult)
+                    }
                 } catch (e: Exception) {
-                    Log.e("error", "JSON parsing failed", e)
+                    requireActivity().runOnUiThread {
+                        Log.e("error", "JSON parsing failed", e)
+                    }
                 }
             }
         })
@@ -440,44 +523,32 @@ OUTPUT:
                     recordViewModel.originalText.postValue(text)
                     Log.d("RecordFragment", "Posted value to originalText: $text")
 
-                    val question= editText!!.text.toString()
+                    var question = ""
+                    requireActivity().runOnUiThread {
+                        question = editText!!.text.toString()
+                    }
                     getResponse(question){response ->
                         txt_response!!.text = response
+                        recordViewModel.markdownContent.postValue(response)
                     }
                     // Get the summary-related prompt
-                    var summary = "Generate a summary for the following text: $text"
+                    var summary = ""
+                    requireActivity().runOnUiThread {
+                        summary = "Generate a summary for the following text in zh-TW: $text"
+                    }
                     getSummary(summary){ responseSummary ->
-                        summary = responseSummary // Assigning the response to the outer variable.
+                        recordViewModel.summaryText.postValue(responseSummary)
                     }
 
                     // Get the list-related prompt
-                    var list = "List the main points of the following text: $text"
+                    var list = ""
+                    requireActivity().runOnUiThread {
+                        list = "List the main points of the following text in zh-TW: $text"
+                    }
                     getList(list){ responseList ->
-                        list = responseList // Assigning the response to the outer variable.
+                        recordViewModel.listText.postValue(responseList)
                     }
 
-                    // Get the Markdown content from my EditText
-                    val markdownContent = txt_response!!.text.toString()
-
-                    // save data
-                    recordViewModel.saveNoteData(
-                        "", // tag
-                        binding.edittext.text.toString(), // title
-                        false,
-                        text,
-                        summary,
-                        list,
-                        markdownContent
-                    )
-                    Log.d("RecordFragment", "ViewModel instance: $recordViewModel")
-
-                    // Create a bundle to pass the content to DetailFragment
-                    val bundle = Bundle()
-                    bundle.putLong("id", recordViewModel.latestSavedTextId.value ?: -1)
-
-
-                    // Navigate to MindMapFragment with the bundle
-                    findNavController().navigate(R.id.action_recordFragment_to_detailFragment, bundle)
                 }
             }
         }

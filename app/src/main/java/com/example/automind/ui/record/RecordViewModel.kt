@@ -22,7 +22,12 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     val originalText: MutableLiveData<String> = MutableLiveData()
     val summaryText: MutableLiveData<String> = MutableLiveData()
     val listText: MutableLiveData<String> = MutableLiveData()
-    val mindmapData: MutableLiveData<String> = MutableLiveData()
+    val markdownContent: MutableLiveData<String> = MutableLiveData()
+
+    var hasOriginal = false
+    var hasSummary = false
+    var hasList = false
+    var hasMarkdown = false
 
 
     fun updateOriginalText(text: String) {

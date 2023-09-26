@@ -1,13 +1,18 @@
 package com.example.automind.ui.detail.list
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.example.automind.databinding.FragmentListBinding
+import com.example.automind.ui.record.RecordViewModel
 
 class ListFragment : Fragment() {
+
+    private val viewModel: RecordViewModel by activityViewModels()
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
@@ -22,7 +27,11 @@ class ListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Handle clicks and navigation here if required
+
+        viewModel.listText.observe(viewLifecycleOwner) { data ->
+            Log.d("Fragment", "Received data: $data")
+            binding.editText.setText(data)
+        }
     }
 
     override fun onDestroyView() {

@@ -9,15 +9,17 @@ import android.webkit.*
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.example.automind.databinding.FragmentMindmapBinding
 import androidx.lifecycle.ViewModelProvider
+import com.example.automind.ui.record.RecordViewModel
 
 class MindMapFragment : Fragment() {
 
     private var _binding: FragmentMindmapBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: MindmapViewModel
+    private val viewModel: RecordViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,7 +29,6 @@ class MindMapFragment : Fragment() {
         _binding = FragmentMindmapBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        viewModel = ViewModelProvider(this).get(MindmapViewModel::class.java)
 
         binding.markmapWebView.let {
             it.settings.apply {
@@ -36,38 +37,28 @@ class MindMapFragment : Fragment() {
             }
         }
 
-        val id = arguments?.getLong("id")
-        viewModel.latestSavedTextId.value = id
-        viewModel.getNoteByLatestSavedTextId()
 
 
         // Observe selectedNote LiveData
-        viewModel.selectedNote.observe(viewLifecycleOwner) { note ->
-            Log.d("MindMapFragment", "Received a note: $note")
-            note?.let {
-                // When a new note is received, get the markdownContent and render it
-                val markdownContent = it.mindmapMarkdown ?: ""
-                renderMarkdownInWebView(markdownContent)
+        viewModel.markdownContent.observe(viewLifecycleOwner) { data ->
+            renderMarkdownInWebView(data)
 
-                // After WebView is fully loaded, render the Markmap
-                binding.markmapWebView.webViewClient = object : WebViewClient() {
-                    override fun onPageFinished(view: WebView?, url: String?) {
-                        super.onPageFinished(view, url)
-                        markdownContent?.let {
-                            renderMarkdownInWebView(it)
-                        }
-                    }
-                    override fun onReceivedError(
-                        view: WebView?,
-                        request: WebResourceRequest?,
-                        error: WebResourceError?
-                    ) {
-                        super.onReceivedError(view, request, error)
-                        // Handle WebView errors
-                        val msg = error?.description ?: "Unknown error"
-                        val url = request?.url?.toString() ?: "Unknown URL"
-                        Log.e("WebView Error", "Error loading $url: $msg")
-                    }
+            // After WebView is fully loaded, render the Markmap
+            binding.markmapWebView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    renderMarkdownInWebView(data)
+                }
+                override fun onReceivedError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    error: WebResourceError?
+                ) {
+                    super.onReceivedError(view, request, error)
+                    // Handle WebView errors
+                    val msg = error?.description ?: "Unknown error"
+                    val url = request?.url?.toString() ?: "Unknown URL"
+                    Log.e("WebView Error", "Error loading $url: $msg")
                 }
             }
         }

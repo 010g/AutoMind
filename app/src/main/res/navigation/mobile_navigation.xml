@@ -5,6 +5,7 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_hub">
 
+
     <fragment
         android:id="@+id/navigation_hub"
         android:name="com.example.automind.ui.hub.HubFragment"
@@ -72,3 +73,4 @@
     </fragment>
 
 </navigation>
+
