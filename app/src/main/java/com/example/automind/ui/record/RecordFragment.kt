@@ -12,12 +12,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.automind.MainActivity
 import com.example.automind.R
@@ -32,14 +31,13 @@ import com.google.cloud.speech.v1.SpeechSettings
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
@@ -74,7 +72,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private lateinit var timer: Timer
 
     var mStartRecording = true
-    var mStartPlaying = true
 
     private var _binding: FragmentRecordBinding? = null
 
@@ -133,18 +130,44 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                     // Stop recording, revert to the original icon
                     btn_mic!!.setImageResource(R.drawable.ic_not_recording)
                 }
-
-                var text = when (mStartRecording) {
-                    true -> "Stop recording"
-                    false -> "Start recording"
-                }
             }
         }
 
         return binding.root
     }
 
-    fun actionsAfterAllDataObtained(){
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        recordViewModel.originalText.observe(viewLifecycleOwner) {
+            Log.d("originalText observed!", it)
+            checkAndPerformActions()
+        }
+
+        recordViewModel.summaryText.observe(viewLifecycleOwner) {
+            Log.d("summaryText observed!", it)
+            checkAndPerformActions()
+        }
+
+        recordViewModel.listText.observe(viewLifecycleOwner) {
+            Log.d("listText observed!", it)
+            checkAndPerformActions()
+        }
+
+        recordViewModel.markdownContent.observe(viewLifecycleOwner) {
+            Log.d("markdownContent observed!", it)
+            checkAndPerformActions()
+        }
+    }
+
+
+    private fun checkAndPerformActions() {
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
+        fun actionsAfterAllDataObtained(){
         recordViewModel.hasOriginal = false
         recordViewModel.hasSummary = false
         recordViewModel.hasList = false
@@ -178,20 +201,13 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         findNavController().navigate(R.id.action_recordFragment_to_detailFragment, bundle)
     }
 
-    fun getResponse(editText: String, callback: (String) -> Unit){
+    suspend fun getResponse(editText: String): String {
+        return withContext(Dispatchers.IO) {
 
-        recordViewModel.markdownContent.observe(viewLifecycleOwner){
-            Log.d("markdownContent observed!", recordViewModel.markdownContent.value.toString())
-            recordViewModel.hasMarkdown = true
-            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                actionsAfterAllDataObtained()
-            }
-        }
+            val apiKey = "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"
+            val url = "https://api.openai.com/v1/completions"
 
-        val apiKey = "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"
-        val url = "https://api.openai.com/v1/completions"
-
-        val promptTemplate = """
+            val promptTemplate = """
 I want to make a mindmap through markmap with transforming the markdown format text.
 Please summarize the input text and give back the markdown format of the keywords.
 
@@ -243,176 +259,112 @@ $editText
 OUTPUT:
         """
 
-        val requestBody = RequestBody(
-            model = "text-davinci-003",
-            prompt = promptTemplate,
-            max_tokens = 1000,
-            temperature = 0.0
-        )
+            val requestBody = RequestBody(
+                model = "text-davinci-003",
+                prompt = promptTemplate,
+                max_tokens = 1000,
+                temperature = 0.0
+            )
 
-        val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
-        val mediaType = "application/json".toMediaTypeOrNull()
-        val jsonRequestBody = jsonString.toRequestBody(mediaType)
+            val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val jsonRequestBody = jsonString.toRequestBody(mediaType)
 
-        Log.d("getResponse", "1")
+            Log.d("getResponse", "1")
 
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Content-Type","application/json")
-            .addHeader("Authorization", "Bearer $apiKey")
-            .post(jsonRequestBody)
-            .build()
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer $apiKey")
+                .post(jsonRequestBody)
+                .build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                requireActivity().runOnUiThread{
-                    Log.e("getResponse error","API failed",e)
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
+            return@withContext runCatching {
+                val response = client.newCall(request).execute()
                 val body = response.body?.string()
-                try {
-                    val jsonObject = JSONObject(body)
-                    val jsonArray = jsonObject.getJSONArray("choices")
-                    val firstChoice = jsonArray.getJSONObject(0)
-                    val textResult = firstChoice.getString("text")
-
-                    requireActivity().runOnUiThread {
-                        callback(textResult)
-                        txt_response!!.text = textResult
-                    }
-                } catch (e: Exception) {
-                    requireActivity().runOnUiThread {
-                        Log.e("error", "JSON parsing failed", e)
-                    }
-                }
-            }
-        })
-    }
-
-    fun getSummary(prompt: String, callback: (String) -> Unit){
-
-        recordViewModel.summaryText.observe(viewLifecycleOwner){
-            Log.d("summaryText observed!", recordViewModel.summaryText.value.toString())
-            recordViewModel.hasSummary = true
-            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                actionsAfterAllDataObtained()
+                val jsonObject = JSONObject(body!!)
+                val jsonArray = jsonObject.getJSONArray("choices")
+                val firstChoice = jsonArray.getJSONObject(0)
+                firstChoice.getString("text")
+            }.getOrElse {
+                ""
             }
         }
-
-        val apiKey = "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"
-        val url = "https://api.openai.com/v1/completions"
-
-        val requestBody = RequestBody(
-            model = "text-davinci-003",
-            prompt = prompt,
-            max_tokens = 1000,
-            temperature = 0.0
-        )
-
-        val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
-        val mediaType = "application/json".toMediaTypeOrNull()
-        val jsonRequestBody = jsonString.toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Content-Type","application/json")
-            .addHeader("Authorization", "Bearer $apiKey")
-            .post(jsonRequestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                requireActivity().runOnUiThread {
-                    Log.e("getSummary error", "API call failed", e)
-                }
-            }
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                try {
-                    val jsonObject = JSONObject(body)
-                    Log.d("getSummary json", jsonObject.toString())
-                    val jsonArray = jsonObject.getJSONArray("choices")
-                    val firstChoice = jsonArray.getJSONObject(0)
-                    val textResult = firstChoice.getString("text")
-                    requireActivity().runOnUiThread {
-                        callback(textResult)
-                    }
-                } catch (e: Exception) {
-                    requireActivity().runOnUiThread {
-                        Log.e("error", "JSON parsing failed", e)
-                    }
-                }
-            }
-        })
     }
 
-    fun getList(prompt: String, callback: (String) -> Unit){
+    suspend fun getSummary(prompt: String): String {
+        return withContext(Dispatchers.IO) {
 
-        recordViewModel.listText.observe(viewLifecycleOwner){
-            Log.d("listText observed!", recordViewModel.listText.value.toString())
-            recordViewModel.hasList = true
-            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                actionsAfterAllDataObtained()
+
+            val apiKey = "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"
+            val url = "https://api.openai.com/v1/completions"
+
+            val requestBody = RequestBody(
+                model = "text-davinci-003",
+                prompt = prompt,
+                max_tokens = 1000,
+                temperature = 0.0
+            )
+
+            val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val jsonRequestBody = jsonString.toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("Content-Type","application/json")
+                .addHeader("Authorization", "Bearer $apiKey")
+                .post(jsonRequestBody)
+                .build()
+
+            return@withContext runCatching {
+                val response = client.newCall(request).execute()
+                val body = response.body?.string()
+                val jsonObject = JSONObject(body!!)
+                val jsonArray = jsonObject.getJSONArray("choices")
+                val firstChoice = jsonArray.getJSONObject(0)
+                firstChoice.getString("text")
+            }.getOrElse {
+                ""
             }
         }
-
-        val apiKey = "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"
-        val url = "https://api.openai.com/v1/completions"
-
-        val requestBody = RequestBody(
-            model = "text-davinci-003",
-            prompt = prompt,
-            max_tokens = 1000,
-            temperature = 0.0
-        )
-
-        val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
-        val mediaType = "application/json".toMediaTypeOrNull()
-        val jsonRequestBody = jsonString.toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Content-Type","application/json")
-            .addHeader("Authorization", "Bearer $apiKey")
-            .post(jsonRequestBody)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                requireActivity().runOnUiThread {
-                    Log.e("getList error", "API call failed", e)
-                }
-            }
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                try {
-                    val jsonObject = JSONObject(body)
-                    Log.d("getList json", jsonObject.toString())
-                    val jsonArray = jsonObject.getJSONArray("choices")
-                    val firstChoice = jsonArray.getJSONObject(0)
-                    val textResult = firstChoice.getString("text")
-                    requireActivity().runOnUiThread {
-                        callback(textResult)
-                    }
-                } catch (e: Exception) {
-                    requireActivity().runOnUiThread {
-                        Log.e("error", "JSON parsing failed", e)
-                    }
-                }
-            }
-        })
     }
 
+    suspend fun getList(prompt: String): String  {
+        return withContext(Dispatchers.IO) {
 
+            val apiKey = "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"
+            val url = "https://api.openai.com/v1/completions"
 
-    override fun onStop() {
-        super.onStop()
-        recorder?.release()
-        recorder = null
-        player?.release()
-        player = null
+            val requestBody = RequestBody(
+                model = "text-davinci-003",
+                prompt = prompt,
+                max_tokens = 1000,
+                temperature = 0.0
+            )
+
+            val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val jsonRequestBody = jsonString.toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer $apiKey")
+                .post(jsonRequestBody)
+                .build()
+
+            return@withContext runCatching {
+                val response = client.newCall(request).execute()
+                val body = response.body?.string()
+                val jsonObject = JSONObject(body!!)
+                val jsonArray = jsonObject.getJSONArray("choices")
+                val firstChoice = jsonArray.getJSONObject(0)
+                firstChoice.getString("text")
+            }.getOrElse {
+                ""
+            }
+        }
     }
 
     private fun onRecord(start: Boolean) = if (start) {
@@ -425,30 +377,6 @@ OUTPUT:
         stopRecording()
         timer.pause()
     }
-
-    private fun onPlay(start: Boolean) = if (start) {
-        startPlaying()
-    } else {
-        stopPlaying()
-    }
-
-    private fun startPlaying() {
-        player = MediaPlayer().apply {
-            try {
-                setDataSource(fileName)
-                prepare()
-                start()
-            } catch (e: IOException) {
-                Log.e(LOG_TAG, "prepare() failed")
-            }
-        }
-    }
-
-    private fun stopPlaying() {
-        player?.release()
-        player = null
-    }
-
     private fun startRecording() {
         recorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -504,52 +432,44 @@ OUTPUT:
         recorder = null
 
         // speech to text
-        var text = ""
-        GlobalScope.launch(Dispatchers.IO){
-            text = analyze(ByteString.copyFrom(File(fileName).readBytes()))
+        recordViewModel.viewModelScope.launch(Dispatchers.IO) {
+            val text = analyze(ByteString.copyFrom(File(fileName).readBytes()))
             Log.d("DatabaseTest", "Recorded Text: $text")
+
             if (text.isNotBlank() || text.isBlank()) {
                 // Insert the transcribed text into the database
-                GlobalScope.launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     editText?.setText(text)
-
-                    recordViewModel.originalText.observe(viewLifecycleOwner){
-                        Log.d("originalText observed!", recordViewModel.originalText.value.toString())
-                        recordViewModel.hasOriginal = true
-                        if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                            actionsAfterAllDataObtained()
-                        }
-                    }
-
-                    // Posting value to originalText
-                    recordViewModel.originalText.postValue(text)
                     Log.d("RecordFragment", "Posted value to originalText: $text")
 
-                    var question = ""
-                    requireActivity().runOnUiThread {
-                        question = editText!!.text.toString()
-                    }
-                    getResponse(question){response ->
-                        txt_response!!.text = response
-                        recordViewModel.markdownContent.postValue(response)
-                    }
+
+                    // Posting value to LiveData
+                    recordViewModel.originalText.postValue(text)
+                    recordViewModel.hasOriginal = true
+
+                    val question = editText!!.text.toString()
+                    val responseDeferred = async { getResponse(question) }
+
                     // Get the summary-related prompt
-                    var summary = ""
-                    requireActivity().runOnUiThread {
-                        summary = "Generate a summary for the following text in zh-TW: $text"
-                    }
-                    getSummary(summary){ responseSummary ->
-                        recordViewModel.summaryText.postValue(responseSummary)
-                    }
+                    val summary = "Create a concise zh-TW summary with half the length for the following text: $text"
+                    val summaryDeferred = async { getSummary(summary) }
 
                     // Get the list-related prompt
-                    var list = ""
-                    requireActivity().runOnUiThread {
-                        list = "List the main points of the following text in zh-TW: $text"
-                    }
-                    getList(list){ responseList ->
-                        recordViewModel.listText.postValue(responseList)
-                    }
+                    val list = "Summarize the key words of the following text in zh-TW and using bullet points list: $text"
+                    val listDeferred = async { getList(list) }
+
+                    // Await results
+                    val response = responseDeferred.await()
+                    recordViewModel.markdownContent.postValue(response)
+                    recordViewModel.hasMarkdown = true
+
+                    val responseSummary = summaryDeferred.await()
+                    recordViewModel.summaryText.postValue(responseSummary)
+                    recordViewModel.hasSummary = true
+
+                    val responseList = listDeferred.await()
+                    recordViewModel.listText.postValue(responseList)
+                    recordViewModel.hasList = true
 
                 }
             }
@@ -577,11 +497,11 @@ OUTPUT:
         editText?.text?.clear()
     }
 
-    private fun deleteAllFromDatabase() {
-        GlobalScope.launch(Dispatchers.IO) {
-            noteRepository.deleteAllNotes()
-        }
-    }
+//    private fun deleteAllFromDatabase() {
+//        GlobalScope.launch(Dispatchers.IO) {
+//            noteRepository.deleteAllNotes()
+//        }
+//    }
 
     private fun resetWaveformView() {
         (waveformView as WaveformView).reset()
