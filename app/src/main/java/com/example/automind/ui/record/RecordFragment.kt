@@ -3,6 +3,7 @@ package com.example.automind.ui.record
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -22,6 +24,7 @@ import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.data.NoteRepository
 import com.example.automind.databinding.FragmentRecordBinding
+import com.example.automind.ui.hub.CategoryViewModel
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.speech.v1.RecognitionAudio
 import com.google.cloud.speech.v1.RecognitionConfig
@@ -53,6 +56,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private val client = OkHttpClient()
 
     private lateinit var recordViewModel: RecordViewModel
+
+    private lateinit var categoryViewModel: CategoryViewModel
 
     private lateinit var noteRepository: NoteRepository
 
@@ -93,6 +98,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         savedInstanceState: Bundle?
     ): View {
         recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
+        categoryViewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
         recordViewModel.clearLiveData()
 
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
@@ -136,6 +142,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -161,12 +168,14 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun checkAndPerformActions() {
             if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
                 actionsAfterAllDataObtained()
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun actionsAfterAllDataObtained(){
         recordViewModel.hasOriginal = false
         recordViewModel.hasSummary = false
@@ -179,14 +188,16 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 recordViewModel.listText.value?.let { it3 ->
                     recordViewModel.markdownContent.value?.let { it4 ->
                         recordViewModel.saveNoteData(
-                            "", // tag
+                            "Work", // tag
                             binding.edittext.text.toString(), // title
                             false,
                             it1,
                             it2,
                             it3,
                             it4
-                        )
+                        ).invokeOnCompletion {
+                            categoryViewModel.filterDataByTag("Work")
+                        }
                     }
                 }
             }
@@ -441,7 +452,7 @@ OUTPUT:
                 withContext(Dispatchers.Main) {
                     editText?.setText(text)
                     Log.d("RecordFragment", "Posted value to originalText: $text")
-
+                }
 
                     // Posting value to LiveData
                     recordViewModel.originalText.postValue(text)
@@ -471,7 +482,7 @@ OUTPUT:
                     recordViewModel.listText.postValue(responseList)
                     recordViewModel.hasList = true
 
-                }
+
             }
         }
     }

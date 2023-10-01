@@ -1,12 +1,15 @@
 package com.example.automind.ui.hub
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.automind.R
@@ -17,6 +20,7 @@ class HubFragment : Fragment() {
     private var _binding: FragmentHubBinding? = null
     private var items: MutableList<HorizontalItem> = mutableListOf()
     private val binding get() = _binding!!
+    private lateinit var viewModel: CategoryViewModel
     private lateinit var horizontalAdapter: HorizontalAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,6 +34,7 @@ class HubFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
 
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Work"))
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Ideas"))
@@ -71,9 +76,16 @@ class HubFragment : Fragment() {
 
         // Setup TabLayout
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onTabSelected(tab: TabLayout.Tab?) {
-
-                when (tab?.position) {
+                val tag = when(tab?.position) {
+                    0 -> "Work"
+                    1 -> "Ideas"
+                    2 -> "Personal"
+                    else -> return
+                }
+                viewModel.filterDataByTag(tag)
+                when(tab?.position){
                     0 -> replaceFragment(WorkFragment())
                     1 -> replaceFragment(IdeasFragment())
                     2 -> replaceFragment(PersonalFragment())

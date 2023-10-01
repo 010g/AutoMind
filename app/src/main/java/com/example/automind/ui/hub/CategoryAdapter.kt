@@ -9,31 +9,25 @@ import com.example.automind.databinding.ItemCategoryBinding
 
 data class CategoryItem(val date: String, val title: String, val content: String)
 
-class CategoryAdapter : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
-
-    var data = listOf<DataModel>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+class CategoryAdapter : ListAdapter<CategoryItem, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
 
     inner class CategoryViewHolder(private val binding: ItemCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
             val index = position * 3
 
-            data.getOrNull(index)?.let {
+            currentList.getOrNull(index)?.let {
                 binding.tvDate.text = it.date
                 binding.tvTitle.text = it.title
                 binding.tvContent.text = it.content
             }
 
-            data.getOrNull(index + 1)?.let {
+            currentList.getOrNull(index + 1)?.let {
                 binding.tvDate2.text = it.date
                 binding.tvTitle2.text = it.title
                 binding.tvContent2.text = it.content
             }
 
-            data.getOrNull(index + 2)?.let {
+            currentList.getOrNull(index + 2)?.let {
                 binding.tvDate3.text = it.date
                 binding.tvTitle3.text = it.title
                 binding.tvContent3.text = it.content
@@ -50,7 +44,7 @@ class CategoryAdapter : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>
         holder.bind(position)
     }
 
-    override fun getItemCount() = (data.size + 2) / 3  // 每一個 item 有三個數據模型
+    override fun getItemCount() = (currentList.size + 2) / 3  // 每一個 item 有三個數據模型
 }
 
 class CategoryDiffCallback : DiffUtil.ItemCallback<CategoryItem>() {

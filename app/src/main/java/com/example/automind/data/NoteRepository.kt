@@ -30,6 +30,10 @@ class NoteRepository(private val noteDao: NoteDao) {
         return noteDao.getNoteById(noteId)
     }
 
+    suspend fun getNoteByTag(noteTag: String): List<Note>?{
+        return noteDao.getNoteByTag(noteTag)
+    }
+
 
     suspend fun deleteAllNotes() {
         noteDao.deleteAllNotes()
@@ -42,6 +46,14 @@ class NoteRepository(private val noteDao: NoteDao) {
 
     suspend fun updateMindmapMarkdownForId(id: Long, markdown: String) {
         noteDao.updateMindmapMarkdownForId(id, markdown)
+    }
+
+    suspend fun updateTitleForId(id:Long, title:String){
+        noteDao.updateTitleForId(id,title)
+    }
+
+    suspend fun updateTagForId(id:Long, tag:String){
+        noteDao.updateTagForId(id,tag)
     }
 
 }

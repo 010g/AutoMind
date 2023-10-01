@@ -1,7 +1,11 @@
 package com.example.automind.ui.detail
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,11 +13,16 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentDetailBinding
+import com.example.automind.ui.hub.CategoryViewModel
+import com.example.automind.ui.record.RecordViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -24,18 +33,23 @@ class DetailFragment : Fragment() {
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var viewModel: RecordViewModel
+
+    private lateinit var categoryViewModel: CategoryViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout using View Binding
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
+        categoryViewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupSpinner()
         binding.viewPager.adapter = DetailViewPagerAdapter(this)
 
         // Create and bind tabs to the TabLayout
@@ -81,6 +95,36 @@ class DetailFragment : Fragment() {
             override fun onTabReselected(tab: TabLayout.Tab?) {
             }
         })
+
+        binding.title.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun afterTextChanged(s: Editable?) {
+                saveTitle()
+            }
+        })
+
+        val items = arrayOf("Work", "Ideas", "Personal")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, items)
+        binding.spinner.adapter = adapter
+
+        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedItem = parent?.getItemAtPosition(position).toString()
+                Log.d("selectedItem in spinner.onItemSelectedListener", selectedItem)
+                saveTag(selectedItem)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+
     }
 
 
@@ -99,21 +143,37 @@ class DetailFragment : Fragment() {
         return tabView
     }
 
-    private fun setupSpinner() {
-        val items = arrayOf("Work", "Ideas", "Personal")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, items)
-        binding.spinner.adapter = adapter
-
-        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedItem = parent?.getItemAtPosition(position).toString()
-                // Handle item selection
-                // You can use selectedItem to get the selected item's text
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Handle the case where no items are selected if needed
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun saveTitle() {
+        Log.d("latestSavedTextId in saveTag", viewModel.latestSavedTextId.value.toString())
+        val title = binding.title.text.toString()
+        viewModel.latestSavedTextId.value?.let {
+            Log.d("saveTitle", "$it: $title")
+            viewModel.updateTitleForId(
+                id = it,
+                title = title
+            ).invokeOnCompletion {
+                categoryViewModel.filterDataByTag("Work")
+                categoryViewModel.filterDataByTag("Ideas")
+                categoryViewModel.filterDataByTag("Personal")
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun saveTag(selectedItem: String) {
+        Log.d("latestSavedTextId in saveTag", viewModel.latestSavedTextId.value.toString())
+        viewModel.latestSavedTextId.value?.let {
+            Log.d("saveTag", "$it: $tag")
+            viewModel.updateTagForId(
+                id = it,
+                tag = selectedItem
+            ).invokeOnCompletion {
+                categoryViewModel.filterDataByTag("Work")
+                categoryViewModel.filterDataByTag("Ideas")
+                categoryViewModel.filterDataByTag("Personal")
+            }
+        }
+    }
+
 }

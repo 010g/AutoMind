@@ -9,6 +9,7 @@ import com.example.automind.data.AppDatabase
 import com.example.automind.data.Note
 import com.example.automind.data.NoteRepository
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class RecordViewModel(application: Application) : AndroidViewModel(application) {
@@ -49,8 +50,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         summary: String,
         list: String,
         markdownContent: String
-    ) {
-        viewModelScope.launch {
+    ):Job {
+        Log.d("saveNoteData before coroutine", "")
+        return viewModelScope.launch {
             val id = repository.insertNote(
                 tag,
                 title,
@@ -60,12 +62,26 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
                 list,
                 markdownContent,
             )
-            latestSavedTextId.postValue(id)
+            Log.d("saveNoteData", "$id, $tag, $title")
+            latestSavedTextId.value = id
+            Log.d("latestSavedTextId after STT", latestSavedTextId.value.toString())
             val notes = repository.getAllNotes()
             Log.d("DatabaseTest after STT", "Getting all data from database...")
             for (note in notes) {
                 Log.d("DatabaseTest after STT", "Transcribed Text in database: ${note.content}")
             }
+        }
+    }
+
+    fun updateTitleForId(id: Long, title: String): Job {
+        return viewModelScope.launch {
+            repository.updateTitleForId(id, title)
+        }
+    }
+
+    fun updateTagForId(id: Long, tag: String): Job {
+        return viewModelScope.launch {
+            repository.updateTagForId(id, tag)
         }
     }
 }

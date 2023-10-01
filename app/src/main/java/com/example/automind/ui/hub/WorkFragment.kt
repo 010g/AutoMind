@@ -1,10 +1,14 @@
 package com.example.automind.ui.hub
 
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.automind.databinding.FragmentWorkBinding
 
@@ -12,6 +16,8 @@ class WorkFragment : Fragment() {
 
     private var _binding: FragmentWorkBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var viewModel: CategoryViewModel
 
     private lateinit var categoryAdapter: CategoryAdapter
 
@@ -24,6 +30,7 @@ class WorkFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -32,14 +39,18 @@ class WorkFragment : Fragment() {
         categoryAdapter = CategoryAdapter()
         binding.recyclerView.adapter = categoryAdapter
 
-        // Provide data to your adapter
-        val categories = listOf(
-            DataModel("01-01-2023", "Title 1", "Content 1"),
-            DataModel("02-01-2023", "Title 2", "Content 2"),
-            DataModel("03-01-2023", "Title 3", "Content 3"),
-        )
+        // Initialize ViewModel
+        viewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
 
-        categoryAdapter.data = categories
+        // Observe the categories LiveData
+        viewModel.works.observe(viewLifecycleOwner) {
+            Log.d("works observed!", viewModel.works.value.toString())
+            categoryAdapter.submitList(it)
+            categoryAdapter.notifyDataSetChanged()
+        }
+
+        // Filter data based on tag when fragment is created
+        viewModel.filterDataByTag("Work")
     }
 
 
@@ -48,9 +59,3 @@ class WorkFragment : Fragment() {
         _binding = null
     }
 }
-
-data class DataModel(
-    val date: String,
-    val title: String,
-    val content: String
-)
