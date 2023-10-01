@@ -1,7 +1,9 @@
 package com.example.automind.ui.record
 
 import android.app.Application
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -29,6 +31,8 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     var hasSummary = false
     var hasList = false
     var hasMarkdown = false
+
+    var isLike = false
 
     fun clearLiveData() {
         hasOriginal = false
@@ -82,6 +86,12 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     fun updateTagForId(id: Long, tag: String): Job {
         return viewModelScope.launch {
             repository.updateTagForId(id, tag)
+        }
+    }
+
+    fun updateIsLike(noteId: Long, isLike: Boolean): Job {
+        return viewModelScope.launch {
+            repository.updateIsLikeForId(noteId, isLike)
         }
     }
 }

@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.automind.databinding.ItemCategoryBinding
 
-data class CategoryItem(val date: String, val title: String, val content: String)
+data class CategoryItem(val id: Long, val date: String, val title: String, val content: String)
 
 class CategoryAdapter : ListAdapter<CategoryItem, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
 

@@ -22,6 +22,7 @@ import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentDetailBinding
 import com.example.automind.ui.hub.CategoryViewModel
+import com.example.automind.ui.hub.HubViewModel
 import com.example.automind.ui.record.RecordViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -37,6 +38,8 @@ class DetailFragment : Fragment() {
 
     private lateinit var categoryViewModel: CategoryViewModel
 
+    private lateinit var hubViewModel: HubViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,9 +48,11 @@ class DetailFragment : Fragment() {
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
         categoryViewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
+        hubViewModel = ViewModelProvider(requireActivity()).get(HubViewModel::class.java)
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.viewPager.adapter = DetailViewPagerAdapter(this)
@@ -125,6 +130,11 @@ class DetailFragment : Fragment() {
             }
         }
 
+        binding.btnLike.setOnClickListener(){
+            Log.d("DetailFragment btnLike", "clicked")
+            saveLikeStatus()
+        }
+
     }
 
 
@@ -145,7 +155,7 @@ class DetailFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveTitle() {
-        Log.d("latestSavedTextId in saveTag", viewModel.latestSavedTextId.value.toString())
+        Log.d("latestSavedTextId in saveTitle", viewModel.latestSavedTextId.value.toString())
         val title = binding.title.text.toString()
         viewModel.latestSavedTextId.value?.let {
             Log.d("saveTitle", "$it: $title")
@@ -172,6 +182,21 @@ class DetailFragment : Fragment() {
                 categoryViewModel.filterDataByTag("Work")
                 categoryViewModel.filterDataByTag("Ideas")
                 categoryViewModel.filterDataByTag("Personal")
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun saveLikeStatus() {
+        Log.d("latestSavedTextId in saveLikeStatus", viewModel.latestSavedTextId.value.toString())
+        viewModel.isLike = !viewModel.isLike
+        viewModel.latestSavedTextId.value?.let {
+            Log.d("saveLikeStatus", "$it")
+            viewModel.updateIsLike(
+                noteId = it,
+                isLike = viewModel.isLike
+            ).invokeOnCompletion {
+                hubViewModel.filterDataByIsLike()
             }
         }
     }

@@ -31,7 +31,6 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
 
     private val _personals = MutableLiveData<List<CategoryItem>>()
     val personals: LiveData<List<CategoryItem>> get() = _personals
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun filterDataByTag(tag: String) {
         viewModelScope.launch {
@@ -47,15 +46,15 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
                 val format = SimpleDateFormat("yyyy.MM.dd HH:mm")
                  when(tag){
                      "Work" -> {
-                         _works.value = notes.map { CategoryItem(format.format(Date(it.timestamp)), it.title, it.content) }
+                         _works.value = notes.map { CategoryItem(it.id, format.format(Date(it.timestamp)), it.title, it.content) }
                          Log.d("work in filterDataByTag", works.value.toString())
                      }
                      "Ideas" -> {
-                         _ideas.value = notes.map { CategoryItem(format.format(Date(it.timestamp)), it.title, it.content) }
+                         _ideas.value = notes.map { CategoryItem(it.id, format.format(Date(it.timestamp)), it.title, it.content) }
                          Log.d("ideas in filterDataByTag", ideas.value.toString())
                      }
                      "Personal" -> {
-                         _personals.value = notes.map { CategoryItem(format.format(Date(it.timestamp)), it.title, it.content) }
+                         _personals.value = notes.map { CategoryItem(it.id, format.format(Date(it.timestamp)), it.title, it.content) }
                          Log.d("personal in filterDataByTag", personals.value.toString())
                      }
                 }

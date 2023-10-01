@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.automind.R
 import com.example.automind.databinding.ItemHorizontalBinding
 
-class HorizontalAdapter(val listener: (Int) -> Unit) :
+class HorizontalAdapter(val listener: (HorizontalItem) -> Unit) :
     ListAdapter<HorizontalItem, HorizontalAdapter.HorizontalViewHolder>(HorizontalDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HorizontalViewHolder {
@@ -20,7 +20,7 @@ class HorizontalAdapter(val listener: (Int) -> Unit) :
     override fun onBindViewHolder(holder: HorizontalViewHolder, position: Int) {
         val item = getItem(position)
         holder.binding.btnHeart.setImageResource(
-            if (item.isSelected) R.drawable.ic_heart
+            if (!item.isSelected) R.drawable.ic_heart
             else R.drawable.ic_heart_full
         )
         holder.bind(item)
@@ -30,7 +30,7 @@ class HorizontalAdapter(val listener: (Int) -> Unit) :
 
 
 
-    class HorizontalViewHolder(val binding: ItemHorizontalBinding, val listener: (Int) -> Unit) :
+    class HorizontalViewHolder(val binding: ItemHorizontalBinding, val listener: (HorizontalItem) -> Unit) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: HorizontalItem) {
@@ -40,7 +40,7 @@ class HorizontalAdapter(val listener: (Int) -> Unit) :
             binding.btnHeart.setOnClickListener{
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    listener(position)
+                    listener(item)
                 }
             }
         }
@@ -67,6 +67,7 @@ class HorizontalAdapter(val listener: (Int) -> Unit) :
 
 
 data class HorizontalItem(
+    val id: Long,
     val date: String,
     val title: String,
     val content: String,

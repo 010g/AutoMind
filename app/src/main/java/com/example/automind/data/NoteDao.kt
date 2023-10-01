@@ -21,6 +21,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE tag = :noteTag")
     suspend fun getNoteByTag(noteTag: String): List<Note>?
 
+    @Query("SELECT * FROM notes WHERE isLike = 1")
+    suspend fun getNoteByIsLike(): List<Note>?
+
     @Query("DELETE FROM notes")
     suspend fun deleteAllNotes()
 
@@ -35,6 +38,9 @@ interface NoteDao {
 
     @Query("UPDATE notes SET tag = :tag  WHERE id = :id")
     suspend fun updateTagForId(id: Long, tag: String)
+
+    @Query("UPDATE notes SET isLike = :isLike WHERE id = :id")
+    suspend fun updateIsLikeForId(id: Long, isLike: Boolean)
 
 
 

@@ -34,6 +34,10 @@ class NoteRepository(private val noteDao: NoteDao) {
         return noteDao.getNoteByTag(noteTag)
     }
 
+    suspend fun getNoteByIsLike(): List<Note>?{
+        return noteDao.getNoteByIsLike()
+    }
+
 
     suspend fun deleteAllNotes() {
         noteDao.deleteAllNotes()
@@ -54,6 +58,10 @@ class NoteRepository(private val noteDao: NoteDao) {
 
     suspend fun updateTagForId(id:Long, tag:String){
         noteDao.updateTagForId(id,tag)
+    }
+
+    suspend fun updateIsLikeForId(id: Long, isLike: Boolean) {
+        noteDao.updateIsLikeForId(id, isLike)
     }
 
 }
