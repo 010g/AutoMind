@@ -1,11 +1,5 @@
-package com.example.automind.ui.mindmap
+package com.example.automind.ui.detail.mindmap
 
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,28 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import android.Manifest
-import com.example.automind.R
-import com.example.automind.data.AppDatabase
-import com.example.automind.data.TranscribedTextRepository
+import androidx.fragment.app.activityViewModels
 import com.example.automind.databinding.FragmentMindmapBinding
-import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
+import androidx.lifecycle.ViewModelProvider
+import com.example.automind.ui.record.RecordViewModel
 
 class MindMapFragment : Fragment() {
 
-    private val database by lazy { AppDatabase.getDatabase(requireContext()) }
-    private val repository by lazy { TranscribedTextRepository(database.transcribedTextDao()) }
-
     private var _binding: FragmentMindmapBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: RecordViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +28,8 @@ class MindMapFragment : Fragment() {
     ): View? {
         _binding = FragmentMindmapBinding.inflate(inflater, container, false)
         val root = binding.root
+
+
         binding.markmapWebView.let {
             it.settings.apply {
                 javaScriptEnabled = true
@@ -50,25 +37,35 @@ class MindMapFragment : Fragment() {
             }
         }
 
-        val markdownContent = arguments?.getString("markdownContent")
-        Log.d("MindMapFragment", "Markdown Content: $markdownContent")
 
 
-        binding.btnZoomIn.setOnClickListener {
-            binding.markmapWebView.zoomIn()
+        // Observe selectedNote LiveData
+        viewModel.markdownContent.observe(viewLifecycleOwner) { data ->
+            renderMarkdownInWebView(data)
+
+            // After WebView is fully loaded, render the Markmap
+            binding.markmapWebView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    renderMarkdownInWebView(data)
+                }
+                override fun onReceivedError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    error: WebResourceError?
+                ) {
+                    super.onReceivedError(view, request, error)
+                    // Handle WebView errors
+                    val msg = error?.description ?: "Unknown error"
+                    val url = request?.url?.toString() ?: "Unknown URL"
+                    Log.e("WebView Error", "Error loading $url: $msg")
+                }
+            }
         }
 
-        binding.btnZoomOut.setOnClickListener {
-            binding.markmapWebView.zoomOut()
-        }
 
         binding.btnEdit.setOnClickListener {
             openEditDialog()
-        }
-
-        binding.btnSave.setOnClickListener {
-            val currentMarkdown = arguments?.getString("markdownContent") ?: ""
-            saveMarkdownToDatabase(currentMarkdown)
         }
 
         // Set up a WebChromeClient to handle console messages from WebView
@@ -82,12 +79,29 @@ class MindMapFragment : Fragment() {
             }
         }
 
+        val darkThemeCSS = """
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* 100% of the viewport height */
+            margin: 0; /* Removing the default margin */
+            background-color: #353535; /* Dark background color */
+            color: #ffffff; /* Light font color */
+        }
+        svg {
+            background-color: #353535; /* Dark background color for SVG */
+        }
+    </style>
+"""
+
         // Load the HTML content with embedded Markmap JavaScript
-        val escapedMarkdownContent = markdownContent?.replace("`", "\\`") ?: ""
         val htmlContent = """
             <!DOCTYPE html>
             <html>
             <head>
+                $darkThemeCSS
                 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
                 <script src="https://cdn.jsdelivr.net/npm/markmap-lib"></script>
                 <script src="https://cdn.jsdelivr.net/npm/markmap-view"></script>
@@ -138,31 +152,11 @@ class MindMapFragment : Fragment() {
         binding.markmapWebView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
         Log.d("MindMapFragment", "Loaded HTML content into WebView")
 
-        // After WebView is fully loaded, render the Markmap
-        binding.markmapWebView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                markdownContent?.let {
-                    renderMarkdownInWebView(it)
-                }
-            }
-            override fun onReceivedError(
-                view: WebView?,
-                request: WebResourceRequest?,
-                error: WebResourceError?
-            ) {
-                super.onReceivedError(view, request, error)
-                // Handle WebView errors
-                val msg = error?.description ?: "Unknown error"
-                val url = request?.url?.toString() ?: "Unknown URL"
-                Log.e("WebView Error", "Error loading $url: $msg")
-            }
-        }
-
         return root
     }
 
     fun renderMarkdownInWebView(markdownContent: String) {
+        Log.d("MindMapFragment", "Rendering markdown: $markdownContent")
         val jsCode = "javascript:renderMarkmap(`$markdownContent`);"
         binding.markmapWebView.evaluateJavascript(jsCode, null)
     }
@@ -189,18 +183,6 @@ class MindMapFragment : Fragment() {
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
-        }
-    }
-
-    private fun saveMarkdownToDatabase(markdownContent: String) {
-        lifecycleScope.launch {
-            repository.insertTranscribedText(markdownContent)
-
-            // Step 2: Add log to see all the data in the current database.
-            val allTexts = repository.getAllTranscribedTexts()
-            allTexts.forEach {
-                Log.d("DatabaseContent", "ID: ${it.id}, Text: ${it.text}")
-            }
         }
     }
 

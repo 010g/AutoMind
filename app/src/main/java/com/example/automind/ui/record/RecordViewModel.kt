@@ -1,13 +1,87 @@
 package com.example.automind.ui.record
 
-import androidx.lifecycle.LiveData
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.automind.data.AppDatabase
+import com.example.automind.data.Note
+import com.example.automind.data.NoteRepository
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
-class RecordViewModel : ViewModel() {
+class RecordViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is Record Fragment"
+    private val database by lazy { AppDatabase.getDatabase(application) }
+    private val repository by lazy { NoteRepository(database.noteDao()) }
+
+    val latestSavedTextId: MutableLiveData<Long?> = MutableLiveData(null)
+
+    // Added LiveData objects
+    val originalText: MutableLiveData<String> = MutableLiveData()
+    val summaryText: MutableLiveData<String> = MutableLiveData()
+    val listText: MutableLiveData<String> = MutableLiveData()
+    val markdownContent: MutableLiveData<String> = MutableLiveData()
+
+    var hasOriginal = false
+    var hasSummary = false
+    var hasList = false
+    var hasMarkdown = false
+
+    fun clearLiveData() {
+        hasOriginal = false
+        hasSummary = false
+        hasList = false
+        hasMarkdown = false
     }
-    val text: LiveData<String> = _text
+
+
+    fun updateOriginalText(text: String) {
+        originalText.postValue(text)
+        Log.d("ViewModel", "Posted value to originalText: $text")
+    }
+    fun saveNoteData(
+        tag: String,
+        title: String,
+        isLike: Boolean,
+        text: String,
+        summary: String,
+        list: String,
+        markdownContent: String
+    ):Job {
+        Log.d("saveNoteData before coroutine", "")
+        return viewModelScope.launch {
+            val id = repository.insertNote(
+                tag,
+                title,
+                isLike,
+                text,
+                summary,
+                list,
+                markdownContent,
+            )
+            Log.d("saveNoteData", "$id, $tag, $title")
+            latestSavedTextId.value = id
+            Log.d("latestSavedTextId after STT", latestSavedTextId.value.toString())
+            val notes = repository.getAllNotes()
+            Log.d("DatabaseTest after STT", "Getting all data from database...")
+            for (note in notes) {
+                Log.d("DatabaseTest after STT", "Transcribed Text in database: ${note.content}")
+            }
+        }
+    }
+
+    fun updateTitleForId(id: Long, title: String): Job {
+        return viewModelScope.launch {
+            repository.updateTitleForId(id, title)
+        }
+    }
+
+    fun updateTagForId(id: Long, tag: String): Job {
+        return viewModelScope.launch {
+            repository.updateTagForId(id, tag)
+        }
+    }
 }

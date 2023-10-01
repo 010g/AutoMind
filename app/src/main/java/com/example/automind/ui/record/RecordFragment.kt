@@ -3,6 +3,7 @@ package com.example.automind.ui.record
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,36 +13,34 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.automind.MainActivity
 import com.example.automind.R
-import com.example.automind.data.TranscribedTextRepository
+import com.example.automind.data.NoteRepository
 import com.example.automind.databinding.FragmentRecordBinding
+import com.example.automind.ui.hub.CategoryViewModel
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.speech.v1.RecognitionAudio
 import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.RecognizeRequest
 import com.google.cloud.speech.v1.SpeechClient
 import com.google.cloud.speech.v1.SpeechSettings
-import com.google.gson.JsonArray
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
@@ -53,9 +52,14 @@ import kotlinx.serialization.encodeToString
 
 class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
+
     private val client = OkHttpClient()
 
-    private lateinit var transcribedTextRepository: TranscribedTextRepository
+    private lateinit var recordViewModel: RecordViewModel
+
+    private lateinit var categoryViewModel: CategoryViewModel
+
+    private lateinit var noteRepository: NoteRepository
 
     private val LOG_TAG = "AudioRecordTest"
 
@@ -63,8 +67,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private var editText : EditText? = null
     private var btn_mic :ImageButton? = null
     private var recorder: MediaRecorder? = null
-    private var btn_play :ImageButton? = null
-    private var btn_remove: Button? = null
     private var player: MediaPlayer? = null
     private var tv_timer: TextView? = null
     private var waveformView: View? = null
@@ -75,7 +77,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private lateinit var timer: Timer
 
     var mStartRecording = true
-    var mStartPlaying = true
 
     private var _binding: FragmentRecordBinding? = null
 
@@ -96,8 +97,9 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val recordViewModel =
-            ViewModelProvider(this).get(RecordViewModel::class.java)
+        recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
+        categoryViewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
+        recordViewModel.clearLiveData()
 
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -107,8 +109,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
         editText = binding.edittext
         btn_mic = binding.btnMic
-        btn_play = binding.btnPlay
-        btn_remove = binding.btnRemove
         tv_timer = binding.tvTimer
         waveformView = binding.waveformView
         btn_submit = binding.btnSubmit
@@ -118,74 +118,107 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         timer = Timer(this)
 
         // Initialize the repository
-        transcribedTextRepository = (activity as MainActivity).transcribedTextRepository
+        noteRepository = (activity as MainActivity).noteRepository
 
-        btn_mic!!.setOnClickListener{
-            if (ContextCompat.checkSelfPermission(requireContext(),
-                    android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(requireContext(),
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        btn_mic!!.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                ActivityCompat.requestPermissions(requireActivity(), permissions,0)
+                ActivityCompat.requestPermissions(requireActivity(), permissions, 0)
             } else {
                 onRecord(mStartRecording)
-                var text = when (mStartRecording) {
-                    true -> "Start recording"
-                    false -> "Stop recording"
-                }
-                Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
                 mStartRecording = !mStartRecording
-            }
 
-            btn_remove!!.setOnClickListener {
-                deleteAllFromDatabase()
-                txt_response?.text = ""
-            }
-        }
-
-        btn_play!!.setOnClickListener{
-            onPlay(mStartPlaying)
-            var text = when (mStartPlaying) {
-                true -> "Start playing"
-                false -> "Stop playing"
-            }
-            Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
-            mStartPlaying = !mStartPlaying
-        }
-
-        btn_submit!!.setOnClickListener{
-            val question= editText!!.text.toString()
-            Toast.makeText(requireContext(),question,Toast.LENGTH_SHORT).show()
-            getResponse(question){response ->
-                requireActivity().runOnUiThread {
-                    txt_response!!.text = response
+                // Change the icon based on the recording state
+                if (mStartRecording) {
+                    // Start recording
+                    btn_mic!!.setImageResource(R.drawable.ic_is_recording)
+                } else {
+                    // Stop recording, revert to the original icon
+                    btn_mic!!.setImageResource(R.drawable.ic_not_recording)
                 }
-
             }
         }
-
-        btn_convert_to_mindmap!!.setOnClickListener {
-            // Get the Markdown content from my EditText
-            val markdownContent = txt_response!!.text.toString()
-
-            // Create a bundle to pass the content to MindMapFragment
-            val bundle = Bundle()
-            bundle.putString("markdownContent", markdownContent)
-
-            // Navigate to MindMapFragment with the bundle
-            findNavController().navigate(R.id.action_recordFragment_to_mindmapFragment, bundle)
-        }
-
-
-
 
         return binding.root
     }
 
-    fun getResponse(editText: String, callback: (String) -> Unit){
-        val apiKey = "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"
-        val url = "https://api.openai.com/v1/completions"
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        val promptTemplate = """
+        recordViewModel.originalText.observe(viewLifecycleOwner) {
+            Log.d("originalText observed!", it)
+            checkAndPerformActions()
+        }
+
+        recordViewModel.summaryText.observe(viewLifecycleOwner) {
+            Log.d("summaryText observed!", it)
+            checkAndPerformActions()
+        }
+
+        recordViewModel.listText.observe(viewLifecycleOwner) {
+            Log.d("listText observed!", it)
+            checkAndPerformActions()
+        }
+
+        recordViewModel.markdownContent.observe(viewLifecycleOwner) {
+            Log.d("markdownContent observed!", it)
+            checkAndPerformActions()
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun checkAndPerformActions() {
+            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
+                actionsAfterAllDataObtained()
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun actionsAfterAllDataObtained(){
+        recordViewModel.hasOriginal = false
+        recordViewModel.hasSummary = false
+        recordViewModel.hasList = false
+        recordViewModel.hasMarkdown = false
+
+        // save data
+        recordViewModel.originalText.value?.let { it1 ->
+            recordViewModel.summaryText.value?.let { it2 ->
+                recordViewModel.listText.value?.let { it3 ->
+                    recordViewModel.markdownContent.value?.let { it4 ->
+                        recordViewModel.saveNoteData(
+                            "Work", // tag
+                            binding.edittext.text.toString(), // title
+                            false,
+                            it1,
+                            it2,
+                            it3,
+                            it4
+                        ).invokeOnCompletion {
+                            categoryViewModel.filterDataByTag("Work")
+                        }
+                    }
+                }
+            }
+        }
+
+        // Create a bundle to pass the content to DetailFragment
+        val bundle = Bundle()
+        bundle.putLong("id", recordViewModel.latestSavedTextId.value ?: -1)
+
+
+        // Navigate to MindMapFragment with the bundle
+        findNavController().navigate(R.id.action_recordFragment_to_detailFragment, bundle)
+    }
+
+    suspend fun getResponse(editText: String): String {
+        return withContext(Dispatchers.IO) {
+
+            val apiKey = "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"
+            val url = "https://api.openai.com/v1/completions"
+
+            val promptTemplate = """
 I want to make a mindmap through markmap with transforming the markdown format text.
 Please summarize the input text and give back the markdown format of the keywords.
 
@@ -237,65 +270,112 @@ $editText
 OUTPUT:
         """
 
-        val requestBody = RequestBody(
-            model = "text-davinci-003",
-            prompt = promptTemplate,
-            max_tokens = 1000,
-            temperature = 0.0
-        )
+            val requestBody = RequestBody(
+                model = "text-davinci-003",
+                prompt = promptTemplate,
+                max_tokens = 1000,
+                temperature = 0.0
+            )
 
-        val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
-        val mediaType = "application/json".toMediaTypeOrNull()
-        val jsonRequestBody = jsonString.toRequestBody(mediaType)
+            val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val jsonRequestBody = jsonString.toRequestBody(mediaType)
 
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Content-Type","application/json")
-            .addHeader("Authorization", "Bearer $apiKey")
-            .post(jsonRequestBody)
-            .build()
+            Log.d("getResponse", "1")
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                requireActivity().runOnUiThread{
-                    Log.e("error","API failed",e)
-                }
-            }
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer $apiKey")
+                .post(jsonRequestBody)
+                .build()
 
-            override fun onResponse(call: Call, response: Response) {
+            return@withContext runCatching {
+                val response = client.newCall(request).execute()
                 val body = response.body?.string()
-                if (body != null) {
-                    Log.v("data",body)
-                }
-                else{
-                        Log.v("data","empty")
-                    }
-                try {
-                    val jsonObject = JSONObject(body)
-                    val jsonArray = jsonObject.getJSONArray("choices")
-                    val firstChoice = jsonArray.getJSONObject(0)
-                    val textResult = firstChoice.getString("text")
-
-                    callback(textResult)
-
-                    requireActivity().runOnUiThread {
-                        txt_response!!.text = textResult
-                    }
-                } catch (e: Exception) {
-                    requireActivity().runOnUiThread {
-                        Log.e("error", "JSON parsing failed", e)
-                    }
-                }
+                val jsonObject = JSONObject(body!!)
+                val jsonArray = jsonObject.getJSONArray("choices")
+                val firstChoice = jsonArray.getJSONObject(0)
+                firstChoice.getString("text")
+            }.getOrElse {
+                ""
             }
-        })
+        }
     }
 
-    override fun onStop() {
-        super.onStop()
-        recorder?.release()
-        recorder = null
-        player?.release()
-        player = null
+    suspend fun getSummary(prompt: String): String {
+        return withContext(Dispatchers.IO) {
+
+
+            val apiKey = "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"
+            val url = "https://api.openai.com/v1/completions"
+
+            val requestBody = RequestBody(
+                model = "text-davinci-003",
+                prompt = prompt,
+                max_tokens = 1000,
+                temperature = 0.0
+            )
+
+            val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val jsonRequestBody = jsonString.toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("Content-Type","application/json")
+                .addHeader("Authorization", "Bearer $apiKey")
+                .post(jsonRequestBody)
+                .build()
+
+            return@withContext runCatching {
+                val response = client.newCall(request).execute()
+                val body = response.body?.string()
+                val jsonObject = JSONObject(body!!)
+                val jsonArray = jsonObject.getJSONArray("choices")
+                val firstChoice = jsonArray.getJSONObject(0)
+                firstChoice.getString("text")
+            }.getOrElse {
+                ""
+            }
+        }
+    }
+
+    suspend fun getList(prompt: String): String  {
+        return withContext(Dispatchers.IO) {
+
+            val apiKey = "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"
+            val url = "https://api.openai.com/v1/completions"
+
+            val requestBody = RequestBody(
+                model = "text-davinci-003",
+                prompt = prompt,
+                max_tokens = 1000,
+                temperature = 0.0
+            )
+
+            val jsonString = Json { prettyPrint = true }.encodeToString(requestBody)
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val jsonRequestBody = jsonString.toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer $apiKey")
+                .post(jsonRequestBody)
+                .build()
+
+            return@withContext runCatching {
+                val response = client.newCall(request).execute()
+                val body = response.body?.string()
+                val jsonObject = JSONObject(body!!)
+                val jsonArray = jsonObject.getJSONArray("choices")
+                val firstChoice = jsonArray.getJSONObject(0)
+                firstChoice.getString("text")
+            }.getOrElse {
+                ""
+            }
+        }
     }
 
     private fun onRecord(start: Boolean) = if (start) {
@@ -308,30 +388,6 @@ OUTPUT:
         stopRecording()
         timer.pause()
     }
-
-    private fun onPlay(start: Boolean) = if (start) {
-        startPlaying()
-    } else {
-        stopPlaying()
-    }
-
-    private fun startPlaying() {
-        player = MediaPlayer().apply {
-            try {
-                setDataSource(fileName)
-                prepare()
-                start()
-            } catch (e: IOException) {
-                Log.e(LOG_TAG, "prepare() failed")
-            }
-        }
-    }
-
-    private fun stopPlaying() {
-        player?.release()
-        player = null
-    }
-
     private fun startRecording() {
         recorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -387,20 +443,46 @@ OUTPUT:
         recorder = null
 
         // speech to text
-        var text = ""
-        GlobalScope.launch(Dispatchers.IO){
-            text = analyze(ByteString.copyFrom(File(fileName).readBytes()))
+        recordViewModel.viewModelScope.launch(Dispatchers.IO) {
+            val text = analyze(ByteString.copyFrom(File(fileName).readBytes()))
             Log.d("DatabaseTest", "Recorded Text: $text")
-            if (text.isNotBlank()) {
+
+            if (text.isNotBlank() || text.isBlank()) {
                 // Insert the transcribed text into the database
-                GlobalScope.launch(Dispatchers.IO) {
-                    transcribedTextRepository.insertTranscribedText(text)
+                withContext(Dispatchers.Main) {
                     editText?.setText(text)
-                    val transcribedTexts = transcribedTextRepository.getAllTranscribedTexts()
-                    for (text in transcribedTexts) {
-                        Log.d("DatabaseTest", "Transcribed Text in database: ${text.text}")
-                    }
+                    Log.d("RecordFragment", "Posted value to originalText: $text")
                 }
+
+                    // Posting value to LiveData
+                    recordViewModel.originalText.postValue(text)
+                    recordViewModel.hasOriginal = true
+
+                    val question = editText!!.text.toString()
+                    val responseDeferred = async { getResponse(question) }
+
+                    // Get the summary-related prompt
+                    val summary = "Create a concise zh-TW summary with half the length for the following text: $text"
+                    val summaryDeferred = async { getSummary(summary) }
+
+                    // Get the list-related prompt
+                    val list = "Summarize the key words of the following text in zh-TW and using bullet points list: $text"
+                    val listDeferred = async { getList(list) }
+
+                    // Await results
+                    val response = responseDeferred.await()
+                    recordViewModel.markdownContent.postValue(response)
+                    recordViewModel.hasMarkdown = true
+
+                    val responseSummary = summaryDeferred.await()
+                    recordViewModel.summaryText.postValue(responseSummary)
+                    recordViewModel.hasSummary = true
+
+                    val responseList = listDeferred.await()
+                    recordViewModel.listText.postValue(responseList)
+                    recordViewModel.hasList = true
+
+
             }
         }
     }
@@ -426,11 +508,11 @@ OUTPUT:
         editText?.text?.clear()
     }
 
-    private fun deleteAllFromDatabase() {
-        GlobalScope.launch(Dispatchers.IO) {
-            transcribedTextRepository.deleteAllTranscribedTexts()
-        }
-    }
+//    private fun deleteAllFromDatabase() {
+//        GlobalScope.launch(Dispatchers.IO) {
+//            noteRepository.deleteAllNotes()
+//        }
+//    }
 
     private fun resetWaveformView() {
         (waveformView as WaveformView).reset()

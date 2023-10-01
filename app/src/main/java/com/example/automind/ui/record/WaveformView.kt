@@ -20,12 +20,12 @@ class WaveformView(context: Context?, attrs: AttributeSet?):View (context,attrs)
     private var space = 6f
 
     private var screenWidth = 0f
-    private var screenHigh = 400f
+    private var screenHigh = 300f
 
     private var maxSpikes = 0
 
     init{
-        paint.color = Color.rgb(244,81,30)
+        paint.color = Color.rgb(255,255,255)
 
         screenWidth = resources.displayMetrics.widthPixels.toFloat()
 
@@ -33,7 +33,7 @@ class WaveformView(context: Context?, attrs: AttributeSet?):View (context,attrs)
     }
 
     fun addAmplitude(amp: Float){
-        var norm = Math.min(amp.toInt() / 48, 400).toFloat()
+        var norm = Math.min(amp.toInt() /55, 300).toFloat()
         amplitudes.add(norm)
 
 
