@@ -79,7 +79,7 @@ class Repository(
         settingsDao.insert(setting)
     }
 
-    fun getSetting(id: Int): LiveData<Setting> {
+    suspend fun getSetting(id: Int): Setting {
         return settingsDao.getSetting(id)
     }
 

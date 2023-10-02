@@ -1,18 +1,34 @@
 package com.example.automind.ui.settings
 
+import android.app.Application
 import androidx.lifecycle.*
+import com.example.automind.data.AppDatabase
 import com.example.automind.data.Repository
 import com.example.automind.data.Setting
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(private val repository: Repository) : ViewModel() {
+class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val setting: LiveData<Setting> = repository.getSetting(1)
+    private val database by lazy { AppDatabase.getDatabase(application) }
+    val repository by lazy { Repository(database.noteDao(),database.settingsDao()) }
 
-    val inputLanguage: LiveData<String> = setting.map { it.inputLanguage }
-    val outputLanguage: LiveData<String> = setting.map { it.outputLanguage }
-    val writingStyle: LiveData<String> = setting.map { it.writingStyle }
-    val outputLength: LiveData<Int> = setting.map { it.outputLength }
+    private val setting: MutableLiveData<Setting?> = MutableLiveData()
+
+    val inputLanguage: MutableLiveData<String> = MutableLiveData()
+    val outputLanguage: MutableLiveData<String> = MutableLiveData()
+    val writingStyle: MutableLiveData<String> = MutableLiveData()
+    val outputLength: MutableLiveData<Int> = MutableLiveData()
+
+    init {
+        viewModelScope.launch {
+            setting.postValue(repository.getSetting(1))
+
+            inputLanguage.postValue(setting.value?.inputLanguage ?: "Traditional Chinese" )
+            outputLanguage.postValue(setting.value?.outputLanguage ?: "Traditional Chinese" )
+            writingStyle.postValue(setting.value?.writingStyle ?: "Regular" )
+            outputLength.postValue(setting.value?.outputLength ?: 50 )
+        }
+    }
 
     fun updateSetting(updatedSetting: Setting) = viewModelScope.launch {
         repository.updateSetting(updatedSetting)
