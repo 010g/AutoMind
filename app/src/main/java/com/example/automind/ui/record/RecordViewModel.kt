@@ -94,4 +94,10 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             repository.updateIsLikeForId(noteId, isLike)
         }
     }
+
+    suspend fun deleteNoteById(id: Long): Job {
+        return viewModelScope.launch {
+            repository.deleteNoteById(id)
+        }
+    }
 }

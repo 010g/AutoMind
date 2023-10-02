@@ -64,9 +64,9 @@ class MindMapFragment : Fragment() {
         }
 
 
-        binding.btnEdit.setOnClickListener {
-            openEditDialog()
-        }
+//        binding.btnEdit.setOnClickListener {
+//            openEditDialog()
+//        }
 
         // Set up a WebChromeClient to handle console messages from WebView
         binding.markmapWebView.webChromeClient = object : WebChromeClient() {

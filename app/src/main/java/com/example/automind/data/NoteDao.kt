@@ -43,5 +43,4 @@ interface NoteDao {
     suspend fun updateIsLikeForId(id: Long, isLike: Boolean)
 
 
-
 }
