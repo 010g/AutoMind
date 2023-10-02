@@ -7,21 +7,17 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.automind.data.AppDatabase
-import com.example.automind.data.Note
-import com.example.automind.data.NoteDao
-import com.example.automind.data.NoteRepository
+import com.example.automind.data.Repository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Date
 
 class CategoryViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database by lazy { AppDatabase.getDatabase(application) }
-    private val repository by lazy { NoteRepository(database.noteDao()) }
+    private val repository by lazy { Repository(database.noteDao(),database.settingsDao()) }
 
     private val _works = MutableLiveData<List<CategoryItem>>()
     val works: LiveData<List<CategoryItem>> get() = _works

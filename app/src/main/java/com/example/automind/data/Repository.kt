@@ -1,6 +1,11 @@
 package com.example.automind.data
 
-class NoteRepository(private val noteDao: NoteDao) {
+import androidx.lifecycle.LiveData
+
+class Repository(
+    private val noteDao: NoteDao,
+    private val settingsDao: SettingsDao
+    ) {
     suspend fun insertNote(
         tag: String,
         title: String,
@@ -68,4 +73,17 @@ class NoteRepository(private val noteDao: NoteDao) {
         noteDao.updateNoteContent(id, content, summary, list, mindmapMarkdown)
     }
 
+
+    //settings
+    suspend fun insertSetting(setting: Setting) {
+        settingsDao.insert(setting)
+    }
+
+    fun getSetting(id: Int): LiveData<Setting> {
+        return settingsDao.getSetting(id)
+    }
+
+    suspend fun updateSetting(setting: Setting) {
+        settingsDao.update(setting)
+    }
 }

@@ -22,7 +22,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.automind.MainActivity
 import com.example.automind.R
-import com.example.automind.data.NoteRepository
+import com.example.automind.data.Repository
 import com.example.automind.databinding.FragmentRecordBinding
 import com.example.automind.ui.hub.CategoryViewModel
 import com.google.auth.oauth2.GoogleCredentials
@@ -33,7 +33,6 @@ import com.google.cloud.speech.v1.SpeechClient
 import com.google.cloud.speech.v1.SpeechSettings
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -59,7 +58,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     private lateinit var categoryViewModel: CategoryViewModel
 
-    private lateinit var noteRepository: NoteRepository
+    private lateinit var repository: Repository
 
     private val LOG_TAG = "AudioRecordTest"
 
@@ -118,7 +117,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         timer = Timer(this)
 
         // Initialize the repository
-        noteRepository = (activity as MainActivity).noteRepository
+        repository = (activity as MainActivity).repository
 
         btn_mic!!.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {

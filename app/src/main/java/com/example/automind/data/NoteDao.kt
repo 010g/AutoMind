@@ -1,10 +1,12 @@
 package com.example.automind.data
 
 import android.nfc.Tag
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface NoteDao {
@@ -45,4 +47,16 @@ interface NoteDao {
     @Query("UPDATE notes SET content = :content, summary = :summary, list = :list, mindmapMarkdown = :mindmapMarkdown WHERE id = :id")
     suspend fun updateNoteContent(id: Long, content: String, summary: String, list: String, mindmapMarkdown: String?)
 
+}
+
+@Dao
+interface SettingsDao {
+    @Query("SELECT * FROM settings WHERE id = :id LIMIT 1")
+    fun getSetting(id: Int): LiveData<Setting>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(setting: Setting)
+
+    @Update
+    suspend fun update(setting: Setting)
 }

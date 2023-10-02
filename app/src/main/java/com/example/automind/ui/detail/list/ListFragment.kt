@@ -31,8 +31,10 @@ class ListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.listText.observe(viewLifecycleOwner) { data ->
-            Log.d("Fragment", "Received data: $data")
-            binding.etList.setText(data)
+            Log.d("ListFragment", "Received data: $data")
+            if (data != binding.etList.text.toString()) {
+                binding.etList.setText(data)
+            }
         }
 
         binding.etList.addTextChangedListener(object : TextWatcher {
@@ -46,7 +48,9 @@ class ListFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 // Update the LiveData in ViewModel
-                viewModel.summaryText.postValue(s?.toString())
+                if (s?.toString() != viewModel.listText.value) {
+                    viewModel.listText.postValue(s?.toString())
+                }
             }
         })
     }

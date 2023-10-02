@@ -1,24 +1,20 @@
 package com.example.automind.ui.record
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.automind.data.AppDatabase
-import com.example.automind.data.Note
-import com.example.automind.data.NoteRepository
-import kotlinx.coroutines.GlobalScope
+import com.example.automind.data.Repository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class RecordViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database by lazy { AppDatabase.getDatabase(application) }
-    private val repository by lazy { NoteRepository(database.noteDao()) }
+    private val repository by lazy { Repository(database.noteDao(),database.settingsDao()) }
 
     val latestSavedTextId: MutableLiveData<Long?> = MutableLiveData(null)
 

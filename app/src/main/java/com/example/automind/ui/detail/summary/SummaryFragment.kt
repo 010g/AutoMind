@@ -31,8 +31,10 @@ class SummaryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.summaryText.observe(viewLifecycleOwner) { data ->
-            Log.d("Fragment", "Received data: $data")
-            binding.etSummary.setText(data)
+            Log.d("SummaryFragment", "Received data: $data")
+            if (data != binding.etSummary.text.toString()) {
+                binding.etSummary.setText(data)
+            }
         }
 
         binding.etSummary.addTextChangedListener(object : TextWatcher {
@@ -46,7 +48,9 @@ class SummaryFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 // Update the LiveData in ViewModel
-                viewModel.summaryText.postValue(s?.toString())
+                if (s?.toString() != viewModel.summaryText.value) {
+                    viewModel.summaryText.postValue(s?.toString())
+                }
             }
         })
     }

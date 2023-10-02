@@ -32,8 +32,10 @@ class OriginalFragment : Fragment() {
         Log.d("OriginalFragment", "ViewModel instance: $viewModel")
 
         viewModel.originalText.observe(viewLifecycleOwner) { data ->
-            Log.d("Fragment", "Received data: $data")
-            binding.etContent.setText(data)
+            Log.d("OriginalFragment", "Received data: $data")
+            if (data != binding.etContent.text.toString()) {
+                binding.etContent.setText(data)
+            }
         }
 
         // Set a TextWatcher on the EditText to listen for changes
@@ -48,7 +50,9 @@ class OriginalFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 // After the text has changed, post the new value to the LiveData object in the ViewModel
-                viewModel.originalText.postValue(s?.toString())
+                if (s?.toString() != viewModel.originalText.value) {
+                    viewModel.originalText.postValue(s?.toString())
+                }
             }
         })
     }

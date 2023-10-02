@@ -40,6 +40,13 @@
                 ViewModelProvider(requireActivity()).get(SettingsViewModel::class.java)
 
             _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+
+            // Setup Observers
+            setupObservers()
+
+            // Setup UI Elements
+            setupUI()
+
             val root: View = binding.root
 
 
@@ -137,6 +144,46 @@
                     setTextColor(ContextCompat.getColorStateList(context, R.drawable.chip_icon_tint))
                 }
             }
+        }
+
+        private fun setupObservers() {
+            settingsViewModel.inputLanguage.observe(viewLifecycleOwner) { language ->
+                // Handle changes to input language
+                // ...
+            }
+
+            settingsViewModel.outputLanguage.observe(viewLifecycleOwner) { language ->
+                // Handle changes to output language
+                // ...
+            }
+
+            settingsViewModel.writingStyle.observe(viewLifecycleOwner) { style ->
+                // Handle changes to writing style
+                // ...
+            }
+
+            settingsViewModel.outputLength.observe(viewLifecycleOwner) { length ->
+                // Update the SeekBar's progress with the observed value
+                binding.seekbarOutputLength.progress = length
+            }
+        }
+
+        private fun setupUI() {
+            // Set up the UI elements like Spinners, ChipGroups, SeekBars etc.
+            // ...
+
+            binding.seekbarOutputLength.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        settingsViewModel.updateOutputLength(progress)
+                    }
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            })
+
+            // ... other UI setup code ...
         }
 
 
