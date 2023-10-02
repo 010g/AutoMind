@@ -42,5 +42,7 @@ interface NoteDao {
     @Query("UPDATE notes SET isLike = :isLike WHERE id = :id")
     suspend fun updateIsLikeForId(id: Long, isLike: Boolean)
 
+    @Query("UPDATE notes SET content = :content, summary = :summary, list = :list, mindmapMarkdown = :mindmapMarkdown WHERE id = :id")
+    suspend fun updateNoteContent(id: Long, content: String, summary: String, list: String, mindmapMarkdown: String?)
 
 }

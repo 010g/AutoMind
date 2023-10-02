@@ -471,7 +471,7 @@ OUTPUT:
 
                     // Await results
                     val response = responseDeferred.await()
-                    recordViewModel.markdownContent.postValue(response)
+                    recordViewModel.updateMarkdownContent(response)
                     recordViewModel.hasMarkdown = true
 
                     val responseSummary = summaryDeferred.await()

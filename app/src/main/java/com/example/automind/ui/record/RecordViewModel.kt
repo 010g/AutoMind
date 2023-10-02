@@ -5,6 +5,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.automind.data.AppDatabase
@@ -25,7 +26,9 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     val originalText: MutableLiveData<String> = MutableLiveData()
     val summaryText: MutableLiveData<String> = MutableLiveData()
     val listText: MutableLiveData<String> = MutableLiveData()
-    val markdownContent: MutableLiveData<String> = MutableLiveData()
+    //val markdownContent: MutableLiveData<String> = MutableLiveData()
+    private val _markdownContent = MutableLiveData<String>()
+    val markdownContent: LiveData<String> get() = _markdownContent
 
     var hasOriginal = false
     var hasSummary = false
@@ -98,6 +101,17 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     suspend fun deleteNoteById(id: Long): Job {
         return viewModelScope.launch {
             repository.deleteNoteById(id)
+        }
+    }
+
+    fun updateMarkdownContent(newContent: String) {
+        _markdownContent.postValue(newContent)
+    }
+
+    fun updateNoteContent(id: Long, content: String, summary: String, list: String, mindmapMarkdown: String?) {
+        viewModelScope.launch {
+            repository.updateNoteContent(id, content, summary, list, mindmapMarkdown)
+            Log.d("RecordViewModel", "NoteContent updated for Id: $id, New content: $content, New summary: $summary, New list: $list, New mindmapMarkdown: $mindmapMarkdown")
         }
     }
 }

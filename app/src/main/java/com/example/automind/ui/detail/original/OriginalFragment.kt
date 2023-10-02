@@ -1,6 +1,8 @@
 package com.example.automind.ui.detail.original
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -31,8 +33,24 @@ class OriginalFragment : Fragment() {
 
         viewModel.originalText.observe(viewLifecycleOwner) { data ->
             Log.d("Fragment", "Received data: $data")
-            binding.editText.setText(data)
+            binding.etContent.setText(data)
         }
+
+        // Set a TextWatcher on the EditText to listen for changes
+        binding.etContent.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Do nothing
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Do nothing
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // After the text has changed, post the new value to the LiveData object in the ViewModel
+                viewModel.originalText.postValue(s?.toString())
+            }
+        })
     }
 
     override fun onDestroyView() {

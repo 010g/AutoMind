@@ -64,4 +64,8 @@ class NoteRepository(private val noteDao: NoteDao) {
         noteDao.updateIsLikeForId(id, isLike)
     }
 
+    suspend fun updateNoteContent(id: Long, content: String, summary: String, list: String, mindmapMarkdown: String?) {
+        noteDao.updateNoteContent(id, content, summary, list, mindmapMarkdown)
+    }
+
 }

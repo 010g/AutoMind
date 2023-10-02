@@ -18,6 +18,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.TooltipCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -35,7 +36,6 @@ import kotlinx.coroutines.launch
 
 class DetailFragment : Fragment() {
 
-
     // View binding instance
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
@@ -47,7 +47,6 @@ class DetailFragment : Fragment() {
     private lateinit var hubViewModel: HubViewModel
 
     private var isDelete = false
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -165,6 +164,25 @@ class DetailFragment : Fragment() {
                     deleteNote()
                 }
             }
+        }
+
+
+        binding.btnUpdate.setOnClickListener {
+            binding.btnUpdate.setImageResource(R.drawable.ic_update_full)
+
+            viewModel.latestSavedTextId.value?.let { id ->
+                val content = viewModel.originalText.value ?: ""
+                val summary = viewModel.summaryText.value ?: ""
+                val list = viewModel.listText.value ?: ""
+                val mindmapMarkdown = viewModel.markdownContent.value ?: ""
+
+                viewModel.updateNoteContent(id, content, summary, list, mindmapMarkdown)
+                Log.d("DetailFragment", "Updating Note Content for Id: $id, Content: $content, Summary: $summary, List: $list, mindmapMarkdown: $mindmapMarkdown")
+            }
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                binding.btnUpdate.setImageResource(R.drawable.ic_update)
+            }, 2000)
         }
     }
 

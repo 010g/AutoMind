@@ -12,7 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.automind.databinding.FragmentMindmapBinding
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.automind.ui.record.RecordViewModel
+import kotlinx.coroutines.launch
 
 class MindMapFragment : Fragment() {
 
@@ -64,9 +66,9 @@ class MindMapFragment : Fragment() {
         }
 
 
-//        binding.btnEdit.setOnClickListener {
-//            openEditDialog()
-//        }
+        binding.btnEdit.setOnClickListener {
+            openEditDialog()
+        }
 
         // Set up a WebChromeClient to handle console messages from WebView
         binding.markmapWebView.webChromeClient = object : WebChromeClient() {
@@ -167,9 +169,9 @@ class MindMapFragment : Fragment() {
         val editText = EditText(context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            setText(arguments?.getString("markdownContent"))
+            setText(viewModel.markdownContent.value)
         }
 
         context?.let {
@@ -178,7 +180,9 @@ class MindMapFragment : Fragment() {
                 .setView(editText)
                 .setPositiveButton("Update") { _, _ ->
                     val updatedContent = editText.text.toString()
-                    arguments?.putString("markdownContent", updatedContent)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewModel.updateMarkdownContent(updatedContent)
+                    }
                     renderMarkdownInWebView(updatedContent)
                 }
                 .setNegativeButton("Cancel", null)
