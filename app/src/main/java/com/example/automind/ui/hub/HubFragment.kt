@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentHubBinding
 import com.google.android.material.tabs.TabLayout

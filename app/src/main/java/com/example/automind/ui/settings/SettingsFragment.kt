@@ -17,6 +17,7 @@
     import androidx.fragment.app.Fragment
     import androidx.lifecycle.Observer
     import androidx.lifecycle.ViewModelProvider
+    import com.example.automind.MainActivity
     import com.example.automind.R
     import com.example.automind.databinding.FragmentSettingsBinding
     import com.google.android.material.chip.Chip

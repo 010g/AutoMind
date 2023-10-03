@@ -25,6 +25,7 @@ import com.example.automind.R
 import com.example.automind.data.Repository
 import com.example.automind.databinding.FragmentRecordBinding
 import com.example.automind.ui.hub.CategoryViewModel
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.speech.v1.RecognitionAudio
 import com.google.cloud.speech.v1.RecognitionConfig
@@ -66,12 +67,12 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private var editText : EditText? = null
     private var btn_mic :ImageButton? = null
     private var recorder: MediaRecorder? = null
-    private var player: MediaPlayer? = null
+//    private var player: MediaPlayer? = null
     private var tv_timer: TextView? = null
     private var waveformView: View? = null
-    private var btn_submit:Button? = null
-    private var btn_convert_to_mindmap:Button? = null
-    private var txt_response:TextView? = null
+//    private var btn_submit:Button? = null
+//    private var btn_convert_to_mindmap:Button? = null
+//    private var txt_response:TextView? = null
 
     private lateinit var timer: Timer
 
@@ -110,9 +111,9 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         btn_mic = binding.btnMic
         tv_timer = binding.tvTimer
         waveformView = binding.waveformView
-        btn_submit = binding.btnSubmit
-        txt_response = binding.txtResponse
-        btn_convert_to_mindmap = binding.btnConvertToMindmap
+//        btn_submit = binding.btnSubmit
+//        txt_response = binding.txtResponse
+//        btn_convert_to_mindmap = binding.btnConvertToMindmap
 
         timer = Timer(this)
 

@@ -2,7 +2,12 @@ package com.example.automind
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -69,15 +74,19 @@ class MainActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.navigation_hub -> {
                     toolbarTitle.text = "Hub"
+                    binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
                 }
                 R.id.navigation_record -> {
                     toolbarTitle.text = "Record"
+                    binding.navView.setBackgroundColor(Color.TRANSPARENT)
                 }
                 R.id.navigation_settings -> {
                     toolbarTitle.text = "Settings"
+                    binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
                 }
                 else -> {
                     toolbarTitle.text = "AutoMind"
+                    binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
                 }
             }
         }

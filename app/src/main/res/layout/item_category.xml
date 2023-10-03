@@ -40,7 +40,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingStart="8dp"
-                android:paddingTop="4dp" />
+                android:paddingTop="6dp" />
 
             <TextView
                 android:id="@+id/tv_content"
@@ -50,7 +50,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 android:paddingStart="8dp"
-                android:paddingTop="4dp"
+                android:paddingTop="8dp"
                 android:paddingBottom="4dp" />
         </LinearLayout>
 
@@ -85,7 +85,7 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:paddingStart="8dp"
-                    android:paddingTop="4dp" />
+                    android:paddingTop="6dp" />
 
                 <TextView
                     android:id="@+id/tv_content2"
@@ -95,7 +95,7 @@
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
                     android:paddingStart="8dp"
-                    android:paddingTop="4dp"
+                    android:paddingTop="8dp"
                     android:paddingBottom="4dp" />
             </LinearLayout>
 
@@ -130,7 +130,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingStart="8dp"
-                android:paddingTop="4dp" />
+                android:paddingTop="6dp" />
 
             <TextView
                 android:id="@+id/tv_content3"
@@ -140,7 +140,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 android:paddingStart="8dp"
-                android:paddingTop="4dp"
+                android:paddingTop="8dp"
                 android:paddingBottom="4dp" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
