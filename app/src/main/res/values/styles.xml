@@ -33,4 +33,10 @@
         <item name="chipIconTint">@drawable/chip_icon_tint</item>
     </style>
 
+
+    <style name="WhiteSeekBar">
+        <item name="android:background">@drawable/seekbar_background</item>
+        <item name="android:progressBackgroundTint">@android:color/white</item>
+        <item name="android:progressTint">@android:color/white</item>
+    </style>
 </resources>

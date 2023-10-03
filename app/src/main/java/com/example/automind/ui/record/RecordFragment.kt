@@ -22,9 +22,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.automind.MainActivity
 import com.example.automind.R
-import com.example.automind.data.Repository
 import com.example.automind.databinding.FragmentRecordBinding
 import com.example.automind.ui.hub.CategoryViewModel
+import com.example.automind.ui.settings.SettingsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.speech.v1.RecognitionAudio
@@ -59,7 +59,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     private lateinit var categoryViewModel: CategoryViewModel
 
-    private lateinit var repository: Repository
+    private lateinit var settingsViewModel: SettingsViewModel
 
     private val LOG_TAG = "AudioRecordTest"
 
@@ -92,6 +92,11 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         }
     }
 
+    var question = ""
+    var mindmapPrompt = ""
+    var summaryPrompt = ""
+    var listPrompt = ""
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -99,6 +104,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     ): View {
         recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
         categoryViewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
+        settingsViewModel = ViewModelProvider(requireActivity()).get(SettingsViewModel::class.java)
         recordViewModel.clearLiveData()
 
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
@@ -116,9 +122,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 //        btn_convert_to_mindmap = binding.btnConvertToMindmap
 
         timer = Timer(this)
-
-        // Initialize the repository
-        repository = (activity as MainActivity).repository
 
         btn_mic!!.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -212,67 +215,23 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         findNavController().navigate(R.id.action_recordFragment_to_detailFragment, bundle)
     }
 
-    suspend fun getResponse(editText: String): String {
+    suspend fun getResponse(): String {
         return withContext(Dispatchers.IO) {
 
             val apiKey = "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"
             val url = "https://api.openai.com/v1/completions"
 
-            val promptTemplate = """
-I want to make a mindmap through markmap with transforming the markdown format text.
-Please summarize the input text and give back the markdown format of the keywords.
-
-Example 1: 
-INPUT: 
-明天我總共要做三件事情分別為運動吃飯和學習，學習的科目有英文數學和中文，吃飯的部分早上要吃香蕉午餐吃便當晚餐吃火鍋，運動的話早上要游泳下午打籃球晚上跑步，英文科目又分為現在式過去式和未來式。
-OUTPUT:
-### 明天的計畫
-1. **運動**
-   - 早上：游泳
-   - 下午：打籃球
-   - 晚上：跑步           
-2. **吃飯**
-   - 早餐：香蕉
-   - 午餐：便當
-   - 晚餐：火鍋       
-3. **學習**
-   - 學科：
-     - 英文
-       - 現在式
-       - 過去式
-       - 未來式
-     - 數學
-     - 中文
-     
-Example 2:
-INPUT:
-明天我總共要做三件事考試運動和吃飯，考試的科目有英文中文和數學，數學分成三角函數和排列組合，運動的話早上跑步，下午打籃球晚上游泳，吃飯的部分早上吃三明治午餐吃水餃晚上吃火鍋。
-OUTPUT:
-### 明天的計畫
-1. **考試**
-   - 考試科目：
-     - 英文
-     - 中文
-     - 數學
-       - 三角函數
-       - 排列組合
-2. **運動**
-   - 早上：跑步
-   - 下午：打籃球
-   - 晚上：游泳
-3. **吃飯**
-   - 早餐：三明治
-   - 午餐：水餃
-   - 晚餐：火鍋
-   
-INPUT:
-$editText
-OUTPUT:
-        """
+            mindmapPrompt =  recordViewModel.generateMindmapPrompt(
+                question,
+                settingsViewModel.inputLanguage.value.toString(),
+                settingsViewModel.outputLanguage.value.toString(),
+                settingsViewModel.writingStyle.value.toString()
+            )
+            Log.d("mindmapPrompt","$mindmapPrompt")
 
             val requestBody = RequestBody(
                 model = "text-davinci-003",
-                prompt = promptTemplate,
+                prompt = mindmapPrompt,
                 max_tokens = 1000,
                 temperature = 0.0
             )
@@ -303,7 +262,7 @@ OUTPUT:
         }
     }
 
-    suspend fun getSummary(prompt: String): String {
+    suspend fun getSummary(): String {
         return withContext(Dispatchers.IO) {
 
 
@@ -312,7 +271,7 @@ OUTPUT:
 
             val requestBody = RequestBody(
                 model = "text-davinci-003",
-                prompt = prompt,
+                prompt = summaryPrompt,
                 max_tokens = 1000,
                 temperature = 0.0
             )
@@ -341,7 +300,7 @@ OUTPUT:
         }
     }
 
-    suspend fun getList(prompt: String): String  {
+    suspend fun getList(): String  {
         return withContext(Dispatchers.IO) {
 
             val apiKey = "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"
@@ -349,7 +308,7 @@ OUTPUT:
 
             val requestBody = RequestBody(
                 model = "text-davinci-003",
-                prompt = prompt,
+                prompt = listPrompt,
                 max_tokens = 1000,
                 temperature = 0.0
             )
@@ -406,11 +365,22 @@ OUTPUT:
     }
 
     private fun analyze(fileByteString: ByteString): String {
+        var languageCode = ""
+        if (settingsViewModel.inputLanguage.value.toString() == "Traditional Chinese"){
+            languageCode = "zh-TW"
+        }
+        else if (settingsViewModel.inputLanguage.value.toString() == "English"){
+            languageCode = "en-US"
+        }
+        else {
+            val inputLanguage = settingsViewModel.inputLanguage.value.toString()
+            throw Exception("Wrong language code: $inputLanguage !")
+        }
         val req = RecognizeRequest.newBuilder()
             .setConfig(
                 RecognitionConfig.newBuilder()
                     .setEncoding(RecognitionConfig.AudioEncoding.AMR_WB)
-                    .setLanguageCode("zh-TW")
+                    .setLanguageCode(languageCode)
                     .setSampleRateHertz(16000)
                     .setEnableAutomaticPunctuation(true)
                     .build()
@@ -442,32 +412,53 @@ OUTPUT:
         }
         recorder = null
 
+        // Hide btnMic, tvTimer, and waveformView
+        binding.btnMic.visibility = View.GONE
+        binding.tvTimer.visibility = View.GONE
+        binding.waveformView.visibility = View.GONE
+
+        // Show and play Lottie animation
+        binding.lottieLoadingAnimation.visibility = View.VISIBLE
+        binding.lottieLoadingAnimation.playAnimation()
+
         // speech to text
         recordViewModel.viewModelScope.launch(Dispatchers.IO) {
-            val text = analyze(ByteString.copyFrom(File(fileName).readBytes()))
-            Log.d("DatabaseTest", "Recorded Text: $text")
+            question = analyze(ByteString.copyFrom(File(fileName).readBytes()))
+            Log.d("DatabaseTest", "Recorded Text: $question")
 
-            if (text.isNotBlank() || text.isBlank()) {
+            if (question.isNotBlank() || question.isBlank()) {
                 // Insert the transcribed text into the database
                 withContext(Dispatchers.Main) {
-                    editText?.setText(text)
-                    Log.d("RecordFragment", "Posted value to originalText: $text")
+                    editText?.setText(question)
+                    Log.d("RecordFragment", "Posted value to originalText: $question")
                 }
 
                     // Posting value to LiveData
-                    recordViewModel.originalText.postValue(text)
+                    recordViewModel.originalText.postValue(question)
                     recordViewModel.hasOriginal = true
 
-                    val question = editText!!.text.toString()
-                    val responseDeferred = async { getResponse(question) }
+                    val responseDeferred = async { getResponse() }
 
                     // Get the summary-related prompt
-                    val summary = "Create a concise zh-TW summary with half the length for the following text: $text"
-                    val summaryDeferred = async { getSummary(summary) }
+                    summaryPrompt =  recordViewModel.generateSummaryPrompt(
+                        question,
+                        settingsViewModel.inputLanguage.value.toString(),
+                        settingsViewModel.outputLanguage.value.toString(),
+                        settingsViewModel.outputLength.value.toString(),
+                        settingsViewModel.writingStyle.value.toString()
+                    )
+                    Log.d("summaryPrompt","$summaryPrompt")
+                    val summaryDeferred = async { getSummary() }
 
                     // Get the list-related prompt
-                    val list = "Summarize the key words of the following text in zh-TW and using bullet points list: $text"
-                    val listDeferred = async { getList(list) }
+                    listPrompt = recordViewModel.generateListPrompt(
+                        question,
+                        settingsViewModel.inputLanguage.value.toString(),
+                        settingsViewModel.outputLanguage.value.toString(),
+                        settingsViewModel.writingStyle.value.toString()
+                    )
+                    Log.d("listPrompt","$listPrompt")
+                    val listDeferred = async { getList() }
 
                     // Await results
                     val response = responseDeferred.await()
@@ -483,6 +474,17 @@ OUTPUT:
                     recordViewModel.hasList = true
 
 
+                // Stop Lottie animation when all async tasks are complete
+                withContext(Dispatchers.Main) {
+                    // Stop and hide Lottie animation
+                    binding.lottieLoadingAnimation.pauseAnimation()
+                    binding.lottieLoadingAnimation.visibility = View.GONE
+
+                    // Show btnMic, tvTimer, and waveformView
+                    binding.btnMic.visibility = View.VISIBLE
+                    binding.tvTimer.visibility = View.VISIBLE
+                    binding.waveformView.visibility = View.VISIBLE
+                }
             }
         }
     }
@@ -507,12 +509,6 @@ OUTPUT:
     private fun clearTranscribedText() {
         editText?.text?.clear()
     }
-
-//    private fun deleteAllFromDatabase() {
-//        GlobalScope.launch(Dispatchers.IO) {
-//            noteRepository.deleteAllNotes()
-//        }
-//    }
 
     private fun resetWaveformView() {
         (waveformView as WaveformView).reset()

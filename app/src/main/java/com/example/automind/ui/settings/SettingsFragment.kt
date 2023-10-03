@@ -58,7 +58,7 @@
                 binding.tvInputLanguage, // Pass the associated TextView here
                 "Input Language" // Initial text
             ) { selectedItem ->
-                // ...
+                settingsViewModel.updateInputLanguage(selectedItem)
             }
 
             // Set up the output language Spinner
@@ -68,7 +68,7 @@
                 binding.tvOutputLanguage, // Pass the associated TextView here
                 "Output Language" // Initial text
             ) { selectedItem ->
-                // ...
+                settingsViewModel.updateOutputLanguage(selectedItem)
             }
 
 
@@ -176,7 +176,7 @@
             binding.seekbarOutputLength.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
-                        settingsViewModel.updateOutputLength(progress)
+                        settingsViewModel.setOutputLength(progress)
                     }
                 }
 

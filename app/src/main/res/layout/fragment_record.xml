@@ -64,6 +64,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="45dp"/>
 
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_loading_animation"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        app:lottie_autoPlay="false"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loading"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_slogan"
+        android:layout_marginTop="150dp"/>
+
+
+
     <TextView
         android:id="@+id/tv_timer"
         android:layout_width="wrap_content"

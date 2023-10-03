@@ -110,4 +110,96 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
             Log.d("RecordViewModel", "NoteContent updated for Id: $id, New content: $content, New summary: $summary, New list: $list, New mindmapMarkdown: $mindmapMarkdown")
         }
     }
+
+
+
+    fun generateMindmapPrompt(
+        question: String,
+        inputLanguage: String,
+        outputLanguage: String,
+        writingStyle: String
+    ): String {
+        val promptTemplate = """
+I want to make a mindmap through markmap with transforming the markdown format text by using $writingStyle style.
+Please summarize the $inputLanguage input text and give back the  $outputLanguage markdown format of the keywords.
+
+Example 1: 
+INPUT: 
+明天我總共要做三件事情分別為運動吃飯和學習，學習的科目有英文數學和中文，吃飯的部分早上要吃香蕉午餐吃便當晚餐吃火鍋，運動的話早上要游泳下午打籃球晚上跑步，英文科目又分為現在式過去式和未來式。
+OUTPUT:
+### 明天的計畫
+1. **運動**
+   - 早上：游泳
+   - 下午：打籃球
+   - 晚上：跑步           
+2. **吃飯**
+   - 早餐：香蕉
+   - 午餐：便當
+   - 晚餐：火鍋       
+3. **學習**
+   - 學科：
+     - 英文
+       - 現在式
+       - 過去式
+       - 未來式
+     - 數學
+     - 中文
+     
+Example 2:
+INPUT:
+明天我總共要做三件事考試運動和吃飯，考試的科目有英文中文和數學，數學分成三角函數和排列組合，運動的話早上跑步，下午打籃球晚上游泳，吃飯的部分早上吃三明治午餐吃水餃晚上吃火鍋。
+OUTPUT:
+### 明天的計畫
+1. **考試**
+   - 考試科目：
+     - 英文
+     - 中文
+     - 數學
+       - 三角函數
+       - 排列組合
+2. **運動**
+   - 早上：跑步
+   - 下午：打籃球
+   - 晚上：游泳
+3. **吃飯**
+   - 早餐：三明治
+   - 午餐：水餃
+   - 晚餐：火鍋
+   
+INPUT:
+$question
+OUTPUT:
+"""
+        return promptTemplate
+    }
+
+
+
+    fun generateSummaryPrompt(
+        question: String,
+        inputLanguage: String,
+        outputLanguage: String,
+        outputLength: String,
+        writingStyle: String
+    ): String {
+        val promptTemplate = """
+Create a concise $outputLanguage summary with $writingStyle style in $outputLength words for the following $inputLanguage text: $question
+"""
+        return promptTemplate
+    }
+
+
+    fun generateListPrompt(
+        question: String,
+        inputLanguage: String,
+        outputLanguage: String,
+        writingStyle: String
+    ): String {
+        val promptTemplate = """
+Summarize the key words of the following $inputLanguage text in $outputLanguage and using bullet points list with $writingStyle style: $question
+"""
+        return promptTemplate
+    }
 }
+
+
