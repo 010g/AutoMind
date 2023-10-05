@@ -1,4 +1,4 @@
-package com.example.automind.ui.hub
+package com.example.automind.ui.hub.category
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,7 +9,9 @@ import com.example.automind.databinding.ItemCategoryBinding
 
 data class CategoryItem(val id: Long, val date: String, val title: String, val content: String)
 
-class CategoryAdapter : ListAdapter<CategoryItem, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
+class CategoryAdapter : ListAdapter<CategoryItem, CategoryAdapter.CategoryViewHolder>(
+    CategoryDiffCallback()
+) {
 
     inner class CategoryViewHolder(private val binding: ItemCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {

@@ -1,4 +1,4 @@
-package com.example.automind.ui.hub
+package com.example.automind.ui.hub.category
 
 import android.os.Build
 import android.os.Bundle
@@ -10,11 +10,11 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.automind.databinding.FragmentWorkBinding
+import com.example.automind.databinding.FragmentIdeasBinding
 
-class WorkFragment : Fragment() {
+class IdeasFragment : Fragment() {
 
-    private var _binding: FragmentWorkBinding? = null
+    private var _binding: FragmentIdeasBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var viewModel: CategoryViewModel
@@ -25,7 +25,7 @@ class WorkFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentWorkBinding.inflate(inflater, container, false)
+        _binding = FragmentIdeasBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -34,7 +34,6 @@ class WorkFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set LayoutManager to RecyclerView
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         categoryAdapter = CategoryAdapter()
         binding.recyclerView.adapter = categoryAdapter
@@ -43,14 +42,14 @@ class WorkFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
 
         // Observe the categories LiveData
-        viewModel.works.observe(viewLifecycleOwner) {
-            Log.d("works observed!", viewModel.works.value.toString())
+        viewModel.ideas.observe(viewLifecycleOwner) {
+            Log.d("ideas observed!", viewModel.ideas.value.toString())
             categoryAdapter.submitList(it as MutableList<CategoryItem>?)
             //categoryAdapter.notifyDataSetChanged()
         }
 
         // Filter data based on tag when fragment is created
-        viewModel.filterDataByTag("Work")
+        viewModel.filterDataByTag("Ideas")
     }
 
 

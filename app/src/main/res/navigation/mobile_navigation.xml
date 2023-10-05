@@ -14,6 +14,13 @@
         <action
             android:id="@+id/action_hubFragment_to_recordFragment"
             app:destination="@id/navigation_record" />
+        <action
+            android:id="@+id/action_hubFragment_to_searchFragment"
+            app:destination="@id/searchFragment">
+            <argument
+                android:name="query"
+                app:argType="string" />
+        </action>
     </fragment>
 
     <fragment
@@ -71,6 +78,21 @@
         android:name="com.example.automind.ui.detail.mindmap.MindMapFragment"
         tools:layout="@layout/fragment_mindmap">
     </fragment>
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.automind.ui.hub.search.SearchFragment"
+        android:label="SearchFragment"
+        tools:layout="@layout/fragment_search">
+        <argument
+            android:name="query"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_searchFragment_to_hubFragment"
+            app:destination="@id/navigation_hub"/>
+    </fragment>
+
 
 </navigation>
 

@@ -1,4 +1,4 @@
-package com.example.automind.ui.hub
+package com.example.automind.ui.hub.category
 
 import android.os.Build
 import android.os.Bundle

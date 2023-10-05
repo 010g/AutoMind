@@ -54,4 +54,12 @@
     <style name="WhiteTextButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@android:color/white</item>
     </style>
+
+    <!-- Style for search bar -->
+    <style name="SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/white</item>
+        <item name="searchIcon">@drawable/ic_search</item>
+    </style>
+
 </resources>

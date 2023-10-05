@@ -50,6 +50,10 @@ interface NoteDao {
     @Query("UPDATE notes SET content = :content, summary = :summary, list = :list, mindmapMarkdown = :mindmapMarkdown WHERE id = :id")
     suspend fun updateNoteContent(id: Long, content: String, summary: String, list: String, mindmapMarkdown: String?)
 
+    @Query("SELECT * FROM notes WHERE title LIKE :query")
+    suspend fun searchNotesByTitle(query: String): List<Note>
+
+
 }
 
 @Dao

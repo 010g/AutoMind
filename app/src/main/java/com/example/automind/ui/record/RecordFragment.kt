@@ -1,7 +1,6 @@
 package com.example.automind.ui.record
 
 import android.content.pm.PackageManager
-import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
@@ -9,7 +8,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
@@ -20,12 +18,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
-import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentRecordBinding
-import com.example.automind.ui.hub.CategoryViewModel
+import com.example.automind.ui.hub.category.CategoryViewModel
 import com.example.automind.ui.settings.SettingsViewModel
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.speech.v1.RecognitionAudio
 import com.google.cloud.speech.v1.RecognitionConfig

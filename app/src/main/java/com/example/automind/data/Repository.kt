@@ -90,4 +90,9 @@ class Repository(
     suspend fun updateSetting(setting: Setting) {
         settingsDao.update(setting)
     }
+
+    suspend fun searchNotesByTitle(query: String): List<Note> {
+        return noteDao.searchNotesByTitle("%$query%")
+    }
+
 }

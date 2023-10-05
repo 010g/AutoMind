@@ -8,16 +8,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentHubBinding
+import com.example.automind.ui.hub.category.CategoryViewModel
+import com.example.automind.ui.hub.category.IdeasFragment
+import com.example.automind.ui.hub.category.PersonalFragment
+import com.example.automind.ui.hub.category.WorkFragment
 import com.google.android.material.tabs.TabLayout
-import kotlinx.coroutines.launch
 
 class HubFragment : Fragment() {
     private var _binding: FragmentHubBinding? = null
@@ -67,7 +69,26 @@ class HubFragment : Fragment() {
         }
         // Call this to initially load the counts
         hubViewModel.refreshNoteCounts()
-        
+
+
+        //search bar
+        binding.search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    val bundle = Bundle()
+                    bundle.putString("query", query)
+
+                    // Navigate to the SearchFragment using bundle
+                    findNavController().navigate(R.id.searchFragment, bundle)
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Handle real-time changes if necessary. For now, we do nothing here.
+                return true
+            }
+        })
 
 
 

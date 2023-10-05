@@ -8,6 +8,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,22 +16,19 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.TooltipCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentDetailBinding
-import com.example.automind.ui.hub.CategoryViewModel
+import com.example.automind.ui.hub.category.CategoryViewModel
 import com.example.automind.ui.hub.HubViewModel
 import com.example.automind.ui.record.RecordViewModel
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
@@ -203,6 +201,7 @@ class DetailFragment : Fragment() {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.btnUpdate.setImageResource(R.drawable.ic_update)
             }, 2000)
+            showToastMessage("Update Successful")
         }
     }
 
@@ -262,10 +261,14 @@ class DetailFragment : Fragment() {
         viewModel.latestSavedTextId.value?.let {
             Log.d("saveLikeStatus", "$it")
 
-            binding.btnLike.setImageResource(
-                if (viewModel.isLike) R.drawable.ic_heart_detail_full
-                else R.drawable.ic_heart_detail
-            )
+            if (viewModel.isLike) {
+                binding.btnLike.setImageResource(R.drawable.ic_heart_detail_full)
+                showToastMessage("Added to Favorites Successfully")
+            } else {
+                binding.btnLike.setImageResource(R.drawable.ic_heart_detail)
+                showToastMessage("Removed from Favorites")
+            }
+
 
             viewModel.updateIsLike(
                 noteId = it,
@@ -287,5 +290,15 @@ class DetailFragment : Fragment() {
             }
         }
     }
+
+
+    private fun showToastMessage(message: String) {
+        val toast = Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT)
+
+        // Set the position of the toast at the bottom center of the screen
+        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
+        toast.show()
+    }
+
 
 }
