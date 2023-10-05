@@ -58,7 +58,7 @@ class HubFragment : Fragment() {
         // Observe the categories LiveData
         hubViewModel.isLikes.observe(viewLifecycleOwner) {
             Log.d("isLikes observed!", hubViewModel.isLikes.value.toString())
-            horizontalAdapter.submitList(it)
+            horizontalAdapter.submitList(it as MutableList<HorizontalItem>?)
             horizontalAdapter.notifyDataSetChanged()
         }
 

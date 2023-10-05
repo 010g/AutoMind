@@ -26,8 +26,9 @@ class HorizontalAdapter(val listener: (HorizontalItem) -> Unit) :
         holder.bind(item)
     }
 
-
-
+    override fun submitList(list: MutableList<HorizontalItem>?) {
+        super.submitList(list?.sortedByDescending { it.id })
+    }
 
 
     class HorizontalViewHolder(val binding: ItemHorizontalBinding, val listener: (HorizontalItem) -> Unit) :

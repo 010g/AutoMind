@@ -44,8 +44,8 @@ class PersonalFragment : Fragment() {
         // Observe the categories LiveData
         viewModel.personals.observe(viewLifecycleOwner) {
             Log.d("personals observed!", viewModel.personals.value.toString())
-            categoryAdapter.submitList(it)
-            categoryAdapter.notifyDataSetChanged()
+            categoryAdapter.submitList(it as MutableList<CategoryItem>?)
+            //categoryAdapter.notifyDataSetChanged()
         }
 
         // Filter data based on tag when fragment is created
