@@ -146,22 +146,22 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         super.onViewCreated(view, savedInstanceState)
 
         recordViewModel.originalText.observe(viewLifecycleOwner) {
-            Log.d("originalText observed!", it)
+            Log.d("originalText observed before checkAndPerformActions", it)
             checkAndPerformActions()
         }
 
         recordViewModel.summaryText.observe(viewLifecycleOwner) {
-            Log.d("summaryText observed!", it)
+            Log.d("summaryText observed before checkAndPerformActions", it)
             checkAndPerformActions()
         }
 
         recordViewModel.listText.observe(viewLifecycleOwner) {
-            Log.d("listText observed!", it)
+            Log.d("listText observed before checkAndPerformActions", it)
             checkAndPerformActions()
         }
 
         recordViewModel.markdownContent.observe(viewLifecycleOwner) {
-            Log.d("markdownContent observed!", it)
+            Log.d("markdownContent observed before checkAndPerformActions", it)
             checkAndPerformActions()
         }
     }
@@ -169,17 +169,27 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun checkAndPerformActions() {
-            if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown) {
-                actionsAfterAllDataObtained()
-            }
+        Log.d("checkAndPerformActions hasOriginal", recordViewModel.hasOriginal.toString())
+        Log.d("checkAndPerformActions hasSummary", recordViewModel.hasSummary.toString())
+        Log.d("checkAndPerformActions hasList", recordViewModel.hasList.toString())
+        Log.d("checkAndPerformActions hasMarkdown", recordViewModel.hasMarkdown.toString())
+        if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown
+            && recordViewModel.originalText.value != null && recordViewModel.summaryText.value != null && recordViewModel.listText.value != null && recordViewModel.markdownContent.value != null) {
+            actionsAfterAllDataObtained()
         }
+    }
 
-        @RequiresApi(Build.VERSION_CODES.O)
-        fun actionsAfterAllDataObtained(){
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun actionsAfterAllDataObtained(){
         recordViewModel.hasOriginal = false
         recordViewModel.hasSummary = false
         recordViewModel.hasList = false
         recordViewModel.hasMarkdown = false
+
+        Log.d("actionsAfterAllDataObtained originalText after checkAndPerformActions", recordViewModel.originalText.value.toString())
+        Log.d("actionsAfterAllDataObtained summaryText after checkAndPerformActions", recordViewModel.summaryText.value.toString())
+        Log.d("actionsAfterAllDataObtained listText after checkAndPerformActions", recordViewModel.listText.value.toString())
+        Log.d("actionsAfterAllDataObtained markdownContent after checkAndPerformActions", recordViewModel.markdownContent.value.toString())
 
         // save data
         recordViewModel.originalText.value?.let { it1 ->
@@ -429,45 +439,48 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                     Log.d("RecordFragment", "Posted value to originalText: $question")
                 }
 
-                    // Posting value to LiveData
-                    recordViewModel.originalText.postValue(question)
-                    recordViewModel.hasOriginal = true
+                // Posting value to LiveData
+                recordViewModel.originalText.postValue(question)
+                recordViewModel.hasOriginal = true
 
-                    val responseDeferred = async { getResponse() }
+                val responseDeferred = async { getResponse() }
 
-                    // Get the summary-related prompt
-                    summaryPrompt =  recordViewModel.generateSummaryPrompt(
-                        question,
-                        settingsViewModel.inputLanguage.value.toString(),
-                        settingsViewModel.outputLanguage.value.toString(),
-                        settingsViewModel.outputLength.value.toString(),
-                        settingsViewModel.writingStyle.value.toString()
-                    )
-                    Log.d("summaryPrompt","$summaryPrompt")
-                    val summaryDeferred = async { getSummary() }
+                // Get the summary-related prompt
+                summaryPrompt =  recordViewModel.generateSummaryPrompt(
+                    question,
+                    settingsViewModel.inputLanguage.value.toString(),
+                    settingsViewModel.outputLanguage.value.toString(),
+                    settingsViewModel.outputLength.value.toString(),
+                    settingsViewModel.writingStyle.value.toString()
+                )
+                Log.d("summaryPrompt","$summaryPrompt")
+                val summaryDeferred = async { getSummary() }
 
-                    // Get the list-related prompt
-                    listPrompt = recordViewModel.generateListPrompt(
-                        question,
-                        settingsViewModel.inputLanguage.value.toString(),
-                        settingsViewModel.outputLanguage.value.toString(),
-                        settingsViewModel.writingStyle.value.toString()
-                    )
-                    Log.d("listPrompt","$listPrompt")
-                    val listDeferred = async { getList() }
+                // Get the list-related prompt
+                listPrompt = recordViewModel.generateListPrompt(
+                    question,
+                    settingsViewModel.inputLanguage.value.toString(),
+                    settingsViewModel.outputLanguage.value.toString(),
+                    settingsViewModel.writingStyle.value.toString()
+                )
+                Log.d("listPrompt","$listPrompt")
+                val listDeferred = async { getList() }
 
-                    // Await results
-                    val response = responseDeferred.await()
-                    recordViewModel.updateMarkdownContent(response)
-                    recordViewModel.hasMarkdown = true
+                // Await results
+                val response = responseDeferred.await()
+                Log.d("response after await before checkAndPerformActions", response.toString())
+                recordViewModel.updateMarkdownContent(response)
+                recordViewModel.hasMarkdown = true
 
-                    val responseSummary = summaryDeferred.await()
-                    recordViewModel.summaryText.postValue(responseSummary)
-                    recordViewModel.hasSummary = true
+                val responseSummary = summaryDeferred.await()
+                Log.d("responseSummary after await before checkAndPerformActions", responseSummary.toString())
+                recordViewModel.summaryText.postValue(responseSummary)
+                recordViewModel.hasSummary = true
 
-                    val responseList = listDeferred.await()
-                    recordViewModel.listText.postValue(responseList)
-                    recordViewModel.hasList = true
+                val responseList = listDeferred.await()
+                Log.d("responseList after await before checkAndPerformActions", responseList.toString())
+                recordViewModel.listText.postValue(responseList)
+                recordViewModel.hasList = true
 
 
                 // Stop Lottie animation when all async tasks are complete
