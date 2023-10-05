@@ -44,8 +44,8 @@ class IdeasFragment : Fragment() {
         // Observe the categories LiveData
         viewModel.ideas.observe(viewLifecycleOwner) {
             Log.d("ideas observed!", viewModel.ideas.value.toString())
-            categoryAdapter.submitList(it)
-            categoryAdapter.notifyDataSetChanged()
+            categoryAdapter.submitList(it as MutableList<CategoryItem>?)
+            //categoryAdapter.notifyDataSetChanged()
         }
 
         // Filter data based on tag when fragment is created

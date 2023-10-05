@@ -3,6 +3,8 @@ package com.example.automind.ui.detail
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -14,20 +16,25 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.TooltipCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentDetailBinding
 import com.example.automind.ui.hub.CategoryViewModel
+import com.example.automind.ui.hub.HubViewModel
 import com.example.automind.ui.record.RecordViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.launch
 
 class DetailFragment : Fragment() {
-
 
     // View binding instance
     private var _binding: FragmentDetailBinding? = null
@@ -37,6 +44,9 @@ class DetailFragment : Fragment() {
 
     private lateinit var categoryViewModel: CategoryViewModel
 
+    private lateinit var hubViewModel: HubViewModel
+
+    private var isDelete = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,9 +55,11 @@ class DetailFragment : Fragment() {
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
         categoryViewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
+        hubViewModel = ViewModelProvider(requireActivity()).get(HubViewModel::class.java)
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.viewPager.adapter = DetailViewPagerAdapter(this)
@@ -76,6 +88,15 @@ class DetailFragment : Fragment() {
                 }
             }
         })
+
+        //swipe left to see more
+        val gestureIndicator = binding.gestureIndicator
+        gestureIndicator.visibility = View.VISIBLE
+        val handler = Handler(Looper.getMainLooper())
+        handler.postDelayed({
+            gestureIndicator.visibility = View.INVISIBLE
+        }, 8000)
+
 
         val tabLayout = binding.tabLayout
         TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
@@ -125,6 +146,44 @@ class DetailFragment : Fragment() {
             }
         }
 
+        binding.btnLike.setOnClickListener(){
+            Log.d("DetailFragment btnLike", "clicked")
+            saveLikeStatus()
+        }
+
+
+        binding.btnDelete.setOnClickListener {
+            Log.d("DetailFragment btnDelete", "clicked")
+            isDelete = !isDelete
+            binding.btnDelete.setImageResource(
+                if (isDelete) R.drawable.ic_delete_full
+                else R.drawable.ic_delete
+            )
+            if (isDelete) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    deleteNote()
+                }
+            }
+        }
+
+
+        binding.btnUpdate.setOnClickListener {
+            binding.btnUpdate.setImageResource(R.drawable.ic_update_full)
+
+            viewModel.latestSavedTextId.value?.let { id ->
+                val content = viewModel.originalText.value ?: ""
+                val summary = viewModel.summaryText.value ?: ""
+                val list = viewModel.listText.value ?: ""
+                val mindmapMarkdown = viewModel.markdownContent.value ?: ""
+
+                viewModel.updateNoteContent(id, content, summary, list, mindmapMarkdown)
+                Log.d("DetailFragment", "Updating Note Content for Id: $id, Content: $content, Summary: $summary, List: $list, mindmapMarkdown: $mindmapMarkdown")
+            }
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                binding.btnUpdate.setImageResource(R.drawable.ic_update)
+            }, 2000)
+        }
     }
 
 
@@ -145,7 +204,7 @@ class DetailFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveTitle() {
-        Log.d("latestSavedTextId in saveTag", viewModel.latestSavedTextId.value.toString())
+        Log.d("latestSavedTextId in saveTitle", viewModel.latestSavedTextId.value.toString())
         val title = binding.title.text.toString()
         viewModel.latestSavedTextId.value?.let {
             Log.d("saveTitle", "$it: $title")
@@ -172,6 +231,39 @@ class DetailFragment : Fragment() {
                 categoryViewModel.filterDataByTag("Work")
                 categoryViewModel.filterDataByTag("Ideas")
                 categoryViewModel.filterDataByTag("Personal")
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun saveLikeStatus() {
+        Log.d("latestSavedTextId in saveLikeStatus", viewModel.latestSavedTextId.value.toString())
+        viewModel.isLike = !viewModel.isLike
+        viewModel.latestSavedTextId.value?.let {
+            Log.d("saveLikeStatus", "$it")
+
+            binding.btnLike.setImageResource(
+                if (viewModel.isLike) R.drawable.ic_heart_detail_full
+                else R.drawable.ic_heart_detail
+            )
+
+            viewModel.updateIsLike(
+                noteId = it,
+                isLike = viewModel.isLike
+            ).invokeOnCompletion {
+                hubViewModel.filterDataByIsLike()
+            }
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun deleteNote() {
+        viewModel.latestSavedTextId.value?.let { noteId ->
+            Log.d("deleteNote", "$noteId")
+
+            // Call the delete method in the ViewModel.
+            viewModel.deleteNoteById(noteId).invokeOnCompletion {
             }
         }
     }

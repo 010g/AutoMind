@@ -7,21 +7,17 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.automind.data.AppDatabase
-import com.example.automind.data.Note
-import com.example.automind.data.NoteDao
-import com.example.automind.data.NoteRepository
+import com.example.automind.data.Repository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Date
 
 class CategoryViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database by lazy { AppDatabase.getDatabase(application) }
-    private val repository by lazy { NoteRepository(database.noteDao()) }
+    private val repository by lazy { Repository(database.noteDao(),database.settingsDao()) }
 
     private val _works = MutableLiveData<List<CategoryItem>>()
     val works: LiveData<List<CategoryItem>> get() = _works
@@ -31,7 +27,6 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
 
     private val _personals = MutableLiveData<List<CategoryItem>>()
     val personals: LiveData<List<CategoryItem>> get() = _personals
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun filterDataByTag(tag: String) {
         viewModelScope.launch {
@@ -47,15 +42,15 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
                 val format = SimpleDateFormat("yyyy.MM.dd HH:mm")
                  when(tag){
                      "Work" -> {
-                         _works.value = notes.map { CategoryItem(format.format(Date(it.timestamp)), it.title, it.content) }
+                         _works.value = notes.map { CategoryItem(it.id, format.format(Date(it.timestamp)), it.title, it.content) }
                          Log.d("work in filterDataByTag", works.value.toString())
                      }
                      "Ideas" -> {
-                         _ideas.value = notes.map { CategoryItem(format.format(Date(it.timestamp)), it.title, it.content) }
+                         _ideas.value = notes.map { CategoryItem(it.id, format.format(Date(it.timestamp)), it.title, it.content) }
                          Log.d("ideas in filterDataByTag", ideas.value.toString())
                      }
                      "Personal" -> {
-                         _personals.value = notes.map { CategoryItem(format.format(Date(it.timestamp)), it.title, it.content) }
+                         _personals.value = notes.map { CategoryItem(it.id, format.format(Date(it.timestamp)), it.title, it.content) }
                          Log.d("personal in filterDataByTag", personals.value.toString())
                      }
                 }

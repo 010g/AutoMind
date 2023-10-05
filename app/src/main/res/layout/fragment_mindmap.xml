@@ -25,6 +25,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -34,45 +35,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
 
-                <LinearLayout
+                <ImageButton
+                    android:id="@+id/btn_edit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
+                    android:src="@drawable/ic_edit_mindmap"
                     android:layout_alignParentEnd="true"
-                    android:layout_margin="10dp"
-                    android:orientation="horizontal">
-
-                    <ImageButton
-                        android:id="@+id/btn_edit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_edit" />
-
-                    <ImageButton
-                        android:id="@+id/btn_delete"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_delete" />
-
-                    <ImageButton
-                        android:id="@+id/btn_like"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_heart" />
-
-                    <ImageButton
-                        android:id="@+id/btn_share"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:background="?android:selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_share" />
-                </LinearLayout>
+                    android:layout_alignParentTop="true"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@android:color/transparent"/>
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>

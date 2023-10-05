@@ -1,6 +1,8 @@
 package com.example.automind.ui.detail.summary
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -29,9 +31,28 @@ class SummaryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.summaryText.observe(viewLifecycleOwner) { data ->
-            Log.d("Fragment", "Received data: $data")
-            binding.editText.setText(data)
+            Log.d("SummaryFragment", "Received data: $data")
+            if (data != binding.etSummary.text.toString()) {
+                binding.etSummary.setText(data)
+            }
         }
+
+        binding.etSummary.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Do nothing
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Do nothing
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Update the LiveData in ViewModel
+                if (s?.toString() != viewModel.summaryText.value) {
+                    viewModel.summaryText.postValue(s?.toString())
+                }
+            }
+        })
     }
 
     override fun onDestroyView() {

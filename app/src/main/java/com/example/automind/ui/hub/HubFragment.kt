@@ -10,17 +10,20 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentHubBinding
 import com.google.android.material.tabs.TabLayout
+import kotlinx.coroutines.launch
 
 class HubFragment : Fragment() {
     private var _binding: FragmentHubBinding? = null
-    private var items: MutableList<HorizontalItem> = mutableListOf()
     private val binding get() = _binding!!
     private lateinit var viewModel: CategoryViewModel
+    private lateinit var hubViewModel: HubViewModel
     private lateinit var horizontalAdapter: HorizontalAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,6 +34,7 @@ class HubFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,34 +44,27 @@ class HubFragment : Fragment() {
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Ideas"))
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Personal"))
 
-        horizontalAdapter = HorizontalAdapter{position ->
-            if (position < items.size) {
-                val updatedList = items.toMutableList()
-                updatedList.removeAt(position)
-                items = updatedList // Update the reference to the current list.
-                Log.d("!!horizonAdapter remove: position", position.toString())
-                Log.d("!!horizonAdapter remove: remaining list", items.toString())
-                horizontalAdapter.submitList(items) // Update adapter with the new list.
-                horizontalAdapter.notifyDataSetChanged()
-            } else {
-                Log.w("HubFragment", "Invalid item position: $position")
+        horizontalAdapter = HorizontalAdapter{item ->
+            hubViewModel.updateIsLikeForId(item.id, item.isSelected).invokeOnCompletion {
+                hubViewModel.filterDataByIsLike()
             }
         }
         binding.horizontalRecyclerView.adapter = horizontalAdapter
         binding.horizontalRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
+        // Initialize ViewModel
+        hubViewModel = ViewModelProvider(requireActivity()).get(HubViewModel::class.java)
 
+        // Observe the categories LiveData
+        hubViewModel.isLikes.observe(viewLifecycleOwner) {
+            Log.d("isLikes observed!", hubViewModel.isLikes.value.toString())
+            horizontalAdapter.submitList(it as MutableList<HorizontalItem>?)
+            horizontalAdapter.notifyDataSetChanged()
+        }
 
-        // Initialize the items list
-        items = mutableListOf(
-            HorizontalItem("01-01-2023", "Title 1", "Content 1", isSelected = false),
-            HorizontalItem("02-01-2023", "Title 2", "Content 2", isSelected = false),
-            HorizontalItem("03-01-2023", "Title 3", "Content 3", isSelected = false),
-            HorizontalItem("04-01-2023", "Title 4", "Content 4", isSelected = false),
-            HorizontalItem("05-01-2023", "Title 5", "Content 5", isSelected = false)
-        )
+        // Filter data based on tag when fragment is created
+        hubViewModel.filterDataByIsLike()
 
-        horizontalAdapter.submitList(items)
 
 
 

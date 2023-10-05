@@ -75,6 +75,7 @@
             android:textColor="#FFFFFF"
             android:textSize="10sp"
             android:textStyle="bold"
+            android:fontFamily="times"
             app:layout_constraintStart_toEndOf="@+id/userImage"
             app:layout_constraintTop_toBottomOf="@+id/num_work"/>
 
@@ -82,11 +83,12 @@
             android:id="@+id/tv_ideas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
+            android:layout_marginStart="40dp"
             android:text="Ideas"
             android:textColor="#FFFFFF"
             android:textSize="10sp"
             android:textStyle="bold"
+            android:fontFamily="times"
             app:layout_constraintStart_toEndOf="@+id/tv_work"
             app:layout_constraintTop_toBottomOf="@+id/num_ideas"/>
 
@@ -99,6 +101,7 @@
             android:textColor="#FFFFFF"
             android:textSize="10sp"
             android:textStyle="bold"
+            android:fontFamily="times"
             app:layout_constraintStart_toEndOf="@+id/tv_ideas"
             app:layout_constraintTop_toBottomOf="@+id/num_personal"/>
 
@@ -126,6 +129,7 @@
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:fontFamily="times"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/userImage"
             android:layout_marginTop="20dp"/>
@@ -149,6 +153,7 @@
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:fontFamily="times"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/username"
             android:layout_marginTop="25dp"/>
@@ -176,6 +181,7 @@
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:fontFamily="times"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/horizontalRecyclerView"
             android:layout_marginTop="10dp"/>
@@ -202,6 +208,7 @@
             app:tabTextColor="@color/white"
             app:tabSelectedTextColor="@color/black"
             android:textAlignment="center"
+            android:fontFamily="times"
             app:tabGravity="fill"
             app:tabMode="fixed"
             app:tabPaddingStart="12dp"
@@ -227,7 +234,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/white"
-            />
+            android:backgroundTint="@color/white"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

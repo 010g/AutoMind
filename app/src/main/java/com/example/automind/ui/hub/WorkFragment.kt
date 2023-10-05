@@ -45,8 +45,8 @@ class WorkFragment : Fragment() {
         // Observe the categories LiveData
         viewModel.works.observe(viewLifecycleOwner) {
             Log.d("works observed!", viewModel.works.value.toString())
-            categoryAdapter.submitList(it)
-            categoryAdapter.notifyDataSetChanged()
+            categoryAdapter.submitList(it as MutableList<CategoryItem>?)
+            //categoryAdapter.notifyDataSetChanged()
         }
 
         // Filter data based on tag when fragment is created

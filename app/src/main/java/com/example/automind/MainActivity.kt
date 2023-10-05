@@ -2,7 +2,12 @@ package com.example.automind
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -19,7 +24,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.automind.data.AppDatabase
 import com.example.automind.data.NoteDao
-import com.example.automind.data.NoteRepository
+import com.example.automind.data.Repository
+import com.example.automind.data.SettingsDao
 import com.example.automind.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -29,7 +35,9 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var db: RoomDatabase
     lateinit var noteDao: NoteDao
-    lateinit var noteRepository: NoteRepository
+    lateinit var settingsDao: SettingsDao
+    lateinit var repository: Repository
+
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,15 +74,19 @@ class MainActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.navigation_hub -> {
                     toolbarTitle.text = "Hub"
+                    binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
                 }
                 R.id.navigation_record -> {
                     toolbarTitle.text = "Record"
+                    binding.navView.setBackgroundColor(Color.TRANSPARENT)
                 }
                 R.id.navigation_settings -> {
                     toolbarTitle.text = "Settings"
+                    binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
                 }
                 else -> {
                     toolbarTitle.text = "AutoMind"
+                    binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
                 }
             }
         }
@@ -93,7 +105,8 @@ class MainActivity : AppCompatActivity() {
             "app-database" // Provide the database name
         ).build()
         noteDao = (db as AppDatabase).noteDao()
-        noteRepository = NoteRepository(noteDao)
+        settingsDao = (db as AppDatabase).settingsDao()
+        repository = Repository(noteDao,settingsDao)
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -17,3 +17,13 @@ data class Note(
     val mindmapMarkdown: String? = null,
     val timestamp: Long = System.currentTimeMillis()
 )
+
+@Entity(tableName = "settings")
+data class Setting(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val inputLanguage: String,
+    val outputLanguage: String,
+    val writingStyle: String,
+    val outputLength: Int
+)

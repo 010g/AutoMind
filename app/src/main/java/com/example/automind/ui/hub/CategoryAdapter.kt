@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.automind.databinding.ItemCategoryBinding
 
-data class CategoryItem(val date: String, val title: String, val content: String)
+data class CategoryItem(val id: Long, val date: String, val title: String, val content: String)
 
 class CategoryAdapter : ListAdapter<CategoryItem, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
 
@@ -43,6 +43,11 @@ class CategoryAdapter : ListAdapter<CategoryItem, CategoryAdapter.CategoryViewHo
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         holder.bind(position)
     }
+
+    override fun submitList(list: MutableList<CategoryItem>?) {
+        super.submitList(list?.sortedByDescending { it.id })
+    }
+
 
     override fun getItemCount() = (currentList.size + 2) / 3  // 每一個 item 有三個數據模型
 }

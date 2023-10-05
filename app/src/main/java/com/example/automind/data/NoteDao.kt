@@ -1,10 +1,12 @@
 package com.example.automind.data
 
 import android.nfc.Tag
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface NoteDao {
@@ -21,6 +23,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE tag = :noteTag")
     suspend fun getNoteByTag(noteTag: String): List<Note>?
 
+    @Query("SELECT * FROM notes WHERE isLike = 1")
+    suspend fun getNoteByIsLike(): List<Note>?
+
     @Query("DELETE FROM notes")
     suspend fun deleteAllNotes()
 
@@ -36,6 +41,22 @@ interface NoteDao {
     @Query("UPDATE notes SET tag = :tag  WHERE id = :id")
     suspend fun updateTagForId(id: Long, tag: String)
 
+    @Query("UPDATE notes SET isLike = :isLike WHERE id = :id")
+    suspend fun updateIsLikeForId(id: Long, isLike: Boolean)
 
+    @Query("UPDATE notes SET content = :content, summary = :summary, list = :list, mindmapMarkdown = :mindmapMarkdown WHERE id = :id")
+    suspend fun updateNoteContent(id: Long, content: String, summary: String, list: String, mindmapMarkdown: String?)
 
+}
+
+@Dao
+interface SettingsDao {
+    @Query("SELECT * FROM settings WHERE id = :id LIMIT 1")
+    suspend fun getSetting(id: Int): Setting
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(setting: Setting)
+
+    @Update
+    suspend fun update(setting: Setting)
 }
