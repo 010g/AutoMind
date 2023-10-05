@@ -33,10 +33,25 @@
         <item name="chipIconTint">@drawable/chip_icon_tint</item>
     </style>
 
-
+    <!-- style for the WhiteSeekBar -->
     <style name="WhiteSeekBar">
         <item name="android:background">@drawable/seekbar_background</item>
         <item name="android:progressBackgroundTint">@android:color/white</item>
         <item name="android:progressTint">@android:color/white</item>
+    </style>
+
+
+    <!-- Custom AlertDialog style -->
+    <style name="CustomAlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <!-- Color for positive/negative button text -->
+        <item name="buttonBarPositiveButtonStyle">@style/WhiteTextButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/WhiteTextButton</item>
+    </style>
+
+    <!-- Style for white text on buttons -->
+    <style name="WhiteTextButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 </resources>

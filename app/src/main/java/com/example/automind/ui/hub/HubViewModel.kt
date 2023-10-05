@@ -20,6 +20,15 @@ class HubViewModel(application: Application) : AndroidViewModel(application) {
     private val database by lazy { AppDatabase.getDatabase(application) }
     val repository by lazy { Repository(database.noteDao(),database.settingsDao()) }
 
+    private val _workCount = MutableLiveData<Int>()
+    val workCount: LiveData<Int> get() = _workCount
+
+    private val _ideasCount = MutableLiveData<Int>()
+    val ideasCount: LiveData<Int> get() = _ideasCount
+
+    private val _personalCount = MutableLiveData<Int>()
+    val personalCount: LiveData<Int> get() = _personalCount
+
     private val _isLikes = MutableLiveData<List<HorizontalItem>>()
     val isLikes: LiveData<List<HorizontalItem>> get() = _isLikes
     @RequiresApi(Build.VERSION_CODES.O)
@@ -45,6 +54,14 @@ class HubViewModel(application: Application) : AndroidViewModel(application) {
     fun updateIsLikeForId(id: Long, isSelected: Boolean): Job {
         return viewModelScope.launch {
             repository.updateIsLikeForId(id, !isSelected)
+        }
+    }
+
+    fun refreshNoteCounts() {
+        viewModelScope.launch {
+            _workCount.value = repository.countNotesByTag("Work")
+            _ideasCount.value = repository.countNotesByTag("Ideas")
+            _personalCount.value = repository.countNotesByTag("Personal")
         }
     }
 }

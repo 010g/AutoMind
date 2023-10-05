@@ -23,6 +23,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE tag = :noteTag")
     suspend fun getNoteByTag(noteTag: String): List<Note>?
 
+    @Query("SELECT COUNT(id) FROM notes WHERE tag = :noteTag")
+    suspend fun countNotesByTag(noteTag: String): Int
+
     @Query("SELECT * FROM notes WHERE isLike = 1")
     suspend fun getNoteByIsLike(): List<Note>?
 

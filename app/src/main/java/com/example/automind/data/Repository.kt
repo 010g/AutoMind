@@ -65,6 +65,10 @@ class Repository(
         noteDao.updateTagForId(id,tag)
     }
 
+    suspend fun countNotesByTag(noteTag: String): Int {
+        return noteDao.countNotesByTag(noteTag)
+    }
+
     suspend fun updateIsLikeForId(id: Long, isLike: Boolean) {
         noteDao.updateIsLikeForId(id, isLike)
     }

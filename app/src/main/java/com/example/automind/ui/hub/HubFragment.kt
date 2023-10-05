@@ -55,6 +55,22 @@ class HubFragment : Fragment() {
         // Initialize ViewModel
         hubViewModel = ViewModelProvider(requireActivity()).get(HubViewModel::class.java)
 
+        // Observe LiveData to update note counts
+        hubViewModel.workCount.observe(viewLifecycleOwner) { count ->
+            binding.numWork.text = count.toString()
+        }
+        hubViewModel.ideasCount.observe(viewLifecycleOwner) { count ->
+            binding.numIdeas.text = count.toString()
+        }
+        hubViewModel.personalCount.observe(viewLifecycleOwner) { count ->
+            binding.numPersonal.text = count.toString()
+        }
+        // Call this to initially load the counts
+        hubViewModel.refreshNoteCounts()
+        
+
+
+
         // Observe the categories LiveData
         hubViewModel.isLikes.observe(viewLifecycleOwner) {
             Log.d("isLikes observed!", hubViewModel.isLikes.value.toString())

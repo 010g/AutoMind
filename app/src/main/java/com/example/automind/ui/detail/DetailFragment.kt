@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.TooltipCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -154,16 +155,35 @@ class DetailFragment : Fragment() {
 
         binding.btnDelete.setOnClickListener {
             Log.d("DetailFragment btnDelete", "clicked")
-            isDelete = !isDelete
-            binding.btnDelete.setImageResource(
-                if (isDelete) R.drawable.ic_delete_full
-                else R.drawable.ic_delete
-            )
-            if (isDelete) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    deleteNote()
+
+            val builder = AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
+            builder.setTitle("Delete Note")
+            builder.setMessage("Are you sure you want to delete this note?")
+
+            // Negative button: Cancel the operation
+            builder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+            // Positive button: Continue with deletion
+            builder.setPositiveButton("Delete") { _, _ ->
+                isDelete = !isDelete
+                binding.btnDelete.setImageResource(
+                    if (isDelete) R.drawable.ic_delete_full
+                    else R.drawable.ic_delete
+                )
+                if (isDelete) {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        deleteNote()
+                        // After deleting, navigate back to the previous fragment
+                        fragmentManager?.popBackStack()
+                    }
                 }
             }
+
+            // Create and show the AlertDialog
+            val alertDialog = builder.create()
+            alertDialog.show()
         }
 
 
