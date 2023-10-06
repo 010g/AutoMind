@@ -55,6 +55,11 @@ class ListFragment : Fragment() {
         })
     }
 
+
+    fun getTextContent(): String? {
+        return binding.etList.text.toString()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

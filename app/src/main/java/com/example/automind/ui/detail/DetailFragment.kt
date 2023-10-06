@@ -1,6 +1,9 @@
 package com.example.automind.ui.detail
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -19,6 +22,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -26,12 +30,18 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentDetailBinding
+import com.example.automind.ui.detail.list.ListFragment
+import com.example.automind.ui.detail.mindmap.MindMapFragment
+import com.example.automind.ui.detail.original.OriginalFragment
+import com.example.automind.ui.detail.summary.SummaryFragment
 import com.example.automind.ui.hub.category.CategoryViewModel
 import com.example.automind.ui.hub.HubViewModel
 import com.example.automind.ui.record.RecordViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 class DetailFragment : Fragment() {
 
@@ -185,6 +195,11 @@ class DetailFragment : Fragment() {
         }
 
 
+        binding.btnSend.setOnClickListener {
+            shareCurrentPageContent()
+        }
+
+
         binding.btnUpdate.setOnClickListener {
             binding.btnUpdate.setImageResource(R.drawable.ic_update_full)
 
@@ -299,6 +314,60 @@ class DetailFragment : Fragment() {
         toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
         toast.show()
     }
+
+
+    // btn_send
+    private fun shareCurrentPageContent() {
+        val currentFragment = childFragmentManager.fragments[binding.viewPager.currentItem]
+
+        when (currentFragment) {
+            is OriginalFragment -> {
+                val textToShare = currentFragment.getTextContent() ?: return
+                shareText(textToShare)
+            }
+            is SummaryFragment -> {
+                val textToShare = currentFragment.getTextContent() ?: return
+                shareText(textToShare)
+            }
+            is ListFragment -> {
+                val textToShare = currentFragment.getTextContent() ?: return
+                shareText(textToShare)
+            }
+            is MindMapFragment -> {
+                currentFragment.captureWebView { bitmap ->
+                    val uri = saveBitmapToSharedStorage(bitmap)
+                    shareImage(uri)
+                }
+            }
+        }
+    }
+
+    private fun shareText(text: String) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, text)
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share Using"))
+    }
+
+    private fun shareImage(uri: Uri) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/*"
+            putExtra(Intent.EXTRA_STREAM, uri)
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share Using"))
+    }
+
+    private fun saveBitmapToSharedStorage(bitmap: Bitmap): Uri {
+        val filename = "${System.currentTimeMillis()}.jpg"
+        val file = File(requireContext().externalCacheDir, filename)
+        val fos = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+        fos.close()
+        return FileProvider.getUriForFile(requireContext(), "com.example.automind.fileprovider", file)
+    }
+
+
 
 
 }

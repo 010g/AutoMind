@@ -57,6 +57,11 @@ class OriginalFragment : Fragment() {
         })
     }
 
+    fun getTextContent(): String? {
+        return binding.etContent.text.toString()
+    }
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

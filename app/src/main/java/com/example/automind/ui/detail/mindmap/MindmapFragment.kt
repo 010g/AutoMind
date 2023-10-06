@@ -1,5 +1,7 @@
 package com.example.automind.ui.detail.mindmap
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -189,6 +191,19 @@ class MindMapFragment : Fragment() {
                 .show()
         }
     }
+
+
+    fun captureWebView(callback: (Bitmap) -> Unit) {
+        val picture = binding.markmapWebView.capturePicture()
+        if (picture != null) {
+            val bitmap = Bitmap.createBitmap(picture.width, picture.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            picture.draw(canvas)
+            callback(bitmap)
+        }
+    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
