@@ -18,6 +18,11 @@
                 android:name="query"
                 app:argType="string" />
         </action>
+
+        <action
+            android:id="@+id/action_hubFragment_to_detailFragment"
+            app:destination="@id/navigation_detail"/>
+
     </fragment>
 
     <fragment
@@ -88,6 +93,12 @@
         <action
             android:id="@+id/action_searchFragment_to_hubFragment"
             app:destination="@id/navigation_hub"/>
+
+        <!-- search -> detail -->
+        <action
+            android:id="@+id/action_searchFragment_to_detailFragment"
+            app:destination="@id/navigation_detail"/>
+
     </fragment>
 
 

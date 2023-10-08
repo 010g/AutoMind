@@ -22,9 +22,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     val originalText: MutableLiveData<String> = MutableLiveData()
     val summaryText: MutableLiveData<String> = MutableLiveData()
     val listText: MutableLiveData<String> = MutableLiveData()
-    //val markdownContent: MutableLiveData<String> = MutableLiveData()
-    private val _markdownContent = MutableLiveData<String>()
-    val markdownContent: LiveData<String> get() = _markdownContent
+    val markdownContent: MutableLiveData<String> = MutableLiveData()
 
     var hasOriginal = false
     var hasSummary = false
@@ -101,7 +99,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun updateMarkdownContent(newContent: String) {
-        _markdownContent.postValue(newContent)
+        markdownContent.postValue(newContent)
     }
 
     fun updateNoteContent(id: Long, content: String, summary: String, list: String, mindmapMarkdown: String?) {

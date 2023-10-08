@@ -19,11 +19,13 @@ import com.example.automind.ui.hub.category.CategoryViewModel
 import com.example.automind.ui.hub.category.IdeasFragment
 import com.example.automind.ui.hub.category.PersonalFragment
 import com.example.automind.ui.hub.category.WorkFragment
+import com.example.automind.ui.record.RecordViewModel
 import com.google.android.material.tabs.TabLayout
 
 class HubFragment : Fragment() {
     private var _binding: FragmentHubBinding? = null
     private val binding get() = _binding!!
+    private lateinit var recordViewModel: RecordViewModel
     private lateinit var viewModel: CategoryViewModel
     private lateinit var hubViewModel: HubViewModel
     private lateinit var horizontalAdapter: HorizontalAdapter
@@ -40,17 +42,26 @@ class HubFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
         viewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
 
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Work"))
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Ideas"))
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("Personal"))
 
-        horizontalAdapter = HorizontalAdapter{item ->
-            hubViewModel.updateIsLikeForId(item.id, item.isSelected).invokeOnCompletion {
-                hubViewModel.filterDataByIsLike()
+        horizontalAdapter = HorizontalAdapter(
+            recordViewModel,
+            findNavController(),
+            R.id.navigation_detail,
+            btnHeartListener = { item ->
+                hubViewModel.updateIsLikeForId(item.id, item.isSelected).invokeOnCompletion {
+                    hubViewModel.filterDataByIsLike()
+                }
+            },
+            itemListener = { noteId, recordVM, navC, desId ->
+                hubViewModel.navigateToDetailFragmentById(noteId, recordVM, navC, desId)
             }
-        }
+        )
         binding.horizontalRecyclerView.adapter = horizontalAdapter
         binding.horizontalRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 

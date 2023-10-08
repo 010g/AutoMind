@@ -8,8 +8,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.automind.data.AppDatabase
 import com.example.automind.data.Repository
+import com.example.automind.ui.record.RecordViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -62,6 +64,30 @@ class HubViewModel(application: Application) : AndroidViewModel(application) {
             _workCount.value = repository.countNotesByTag("Work")
             _ideasCount.value = repository.countNotesByTag("Ideas")
             _personalCount.value = repository.countNotesByTag("Personal")
+        }
+    }
+
+    fun navigateToDetailFragmentById(
+        noteId: Long,
+        recordViewModel: RecordViewModel,
+        navController: NavController,
+        destinationId: Int,
+    ){
+        viewModelScope.launch {
+            // get note data by id
+            val note = repository.getNoteById(noteId)
+
+            // set livedata in RecordViewModel
+            if (note != null) {
+                recordViewModel.latestSavedTextId.postValue(noteId)
+                recordViewModel.originalText.postValue(note.content)
+                recordViewModel.summaryText.postValue(note.summary)
+                recordViewModel.listText.postValue(note.list)
+                recordViewModel.markdownContent.postValue(note.mindmapMarkdown)
+
+                // navigate to DetailFragment
+                navController.navigate(destinationId)
+            }
         }
     }
 }
