@@ -23,7 +23,20 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     init {
         viewModelScope.launch {
-            setting.postValue(repository.getSetting(1))
+            var initSetting = repository.getSetting(1)
+            if (initSetting == null){
+                Log.d("initSetting", "is null")
+                initSetting = Setting(
+                    id = 1,
+                    inputLanguage = "Traditional Chinese",
+                    outputLanguage = "Traditional Chinese",
+                    writingStyle = "Regular",
+                    outputLength = 50
+                )
+                repository.insertSetting(initSetting)
+            }
+            setting.postValue(initSetting)
+            Log.d("setting in init", setting.value.toString())
 
             inputLanguage.postValue(setting.value?.inputLanguage ?: "Traditional Chinese" )
             outputLanguage.postValue(setting.value?.outputLanguage ?: "Traditional Chinese" )
@@ -34,28 +47,43 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun updateInputLanguage(language: String) = viewModelScope.launch {
         val currentSetting = setting.value ?: return@launch
-        repository.updateSetting(currentSetting.copy(inputLanguage = language))
+        val newSetting = currentSetting.copy(inputLanguage = language)
+        setting.postValue(newSetting)
+        val updatedRowNum = repository.updateSetting(newSetting)
+        Log.d("updatedRowNum in updateInputLanguage", updatedRowNum.toString())
         inputLanguage.postValue(language)
+        Log.d("updateInputLanguage", inputLanguage.value.toString())
     }
 
     fun updateOutputLanguage(language: String) = viewModelScope.launch {
         val currentSetting = setting.value ?: return@launch
-        repository.updateSetting(currentSetting.copy(outputLanguage = language))
+        val newSetting = currentSetting.copy(outputLanguage = language)
+        setting.postValue(newSetting)
+        val updatedRowNum = repository.updateSetting(newSetting)
+        Log.d("updatedRowNum in updateOutputLanguage", updatedRowNum.toString())
         outputLanguage.postValue(language)
+        Log.d("updateOutputLanguage", outputLanguage.value.toString())
     }
 
     fun setOutputLength(newLength: Int) = viewModelScope.launch {
         Log.d("SettingsViewModel", "Setting output length to: $newLength")
         val currentSetting = setting.value ?: return@launch
-        repository.updateSetting(currentSetting.copy(outputLength = newLength))
+        val newSetting = currentSetting.copy(outputLength = newLength)
+        setting.postValue(newSetting)
+        val updatedRowNum = repository.updateSetting(newSetting)
+        Log.d("updatedRowNum in setOutputLength", updatedRowNum.toString())
         outputLength.postValue(newLength)
-
+        Log.d("setOutputLength", outputLength.value.toString())
     }
 
     fun setWritingStyle(newStyle: String) = viewModelScope.launch {
         Log.d("SettingsViewModel", "Setting writing style to: $newStyle")
         val currentSetting = setting.value ?: return@launch
-        repository.updateSetting(currentSetting.copy(writingStyle = newStyle))
+        val newSetting = currentSetting.copy(writingStyle = newStyle)
+        setting.postValue(newSetting)
+        val updatedRowNum = repository.updateSetting(newSetting)
+        Log.d("updatedRowNum in setWritingStyle", updatedRowNum.toString())
         writingStyle.postValue(newStyle)
+        Log.d("setWritingStyle", writingStyle.value.toString())
     }
 }

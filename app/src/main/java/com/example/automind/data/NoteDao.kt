@@ -59,11 +59,11 @@ interface NoteDao {
 @Dao
 interface SettingsDao {
     @Query("SELECT * FROM settings WHERE id = :id LIMIT 1")
-    suspend fun getSetting(id: Int): Setting
+    suspend fun getSetting(id: Int): Setting?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(setting: Setting)
 
     @Update
-    suspend fun update(setting: Setting)
+    suspend fun update(setting: Setting): Int
 }

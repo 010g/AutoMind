@@ -135,11 +135,6 @@ class HubFragment : Fragment() {
                 // Optional: handle tab reselected
             }
         })
-
-        // Navigate to RecordFragment on FloatingActionButton Click
-        binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_hubFragment_to_recordFragment)
-        }
     }
 
 

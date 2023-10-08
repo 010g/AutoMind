@@ -91,11 +91,11 @@ class MindMapFragment : Fragment() {
             justify-content: center;
             height: 100vh; /* 100% of the viewport height */
             margin: 0; /* Removing the default margin */
-            background-color: #353535; /* Dark background color */
+            background-color: #1D1D1D; /* Dark background color */
             color: #ffffff; /* Light font color */
         }
         svg {
-            background-color: #353535; /* Dark background color for SVG */
+            background-color: #1D1D1D; /* Dark background color for SVG */
         }
     </style>
 """

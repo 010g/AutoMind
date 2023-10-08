@@ -12,9 +12,6 @@
         android:label="@string/title_hub"
         tools:layout="@layout/fragment_hub">
         <action
-            android:id="@+id/action_hubFragment_to_recordFragment"
-            app:destination="@id/navigation_record" />
-        <action
             android:id="@+id/action_hubFragment_to_searchFragment"
             app:destination="@id/searchFragment">
             <argument

@@ -223,17 +223,5 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginTop="8dp"/>
 
-
-        <!-- Floating Action Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_add"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/white"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

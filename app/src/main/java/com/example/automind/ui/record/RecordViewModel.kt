@@ -123,7 +123,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 I want to make a mindmap through markmap with transforming the markdown format text by using $writingStyle style.
 Please summarize the $inputLanguage input text and give back the  $outputLanguage markdown format of the keywords.
 
-Example 1: 
+Example 1 for output language being Traditional Chinese: 
 INPUT: 
 明天我總共要做三件事情分別為運動吃飯和學習，學習的科目有英文數學和中文，吃飯的部分早上要吃香蕉午餐吃便當晚餐吃火鍋，運動的話早上要游泳下午打籃球晚上跑步，英文科目又分為現在式過去式和未來式。
 OUTPUT:
@@ -145,27 +145,27 @@ OUTPUT:
      - 數學
      - 中文
      
-Example 2:
+Example 2 for output language being English:
 INPUT:
-明天我總共要做三件事考試運動和吃飯，考試的科目有英文中文和數學，數學分成三角函數和排列組合，運動的話早上跑步，下午打籃球晚上游泳，吃飯的部分早上吃三明治午餐吃水餃晚上吃火鍋。
+Tomorrow, I have a total of three things to do: exams, sports, and eating. The exam subjects include English, Chinese, and Mathematics. Mathematics is divided into trigonometric functions and permutations and combinations. For sports, I will go for a run in the morning, play basketball in the afternoon, and swim in the evening. As for meals, I will have a sandwich for breakfast, dumplings for lunch, and hot pot for dinner."
 OUTPUT:
-### 明天的計畫
-1. **考試**
-   - 考試科目：
-     - 英文
-     - 中文
-     - 數學
-       - 三角函數
-       - 排列組合
-2. **運動**
-   - 早上：跑步
-   - 下午：打籃球
-   - 晚上：游泳
-3. **吃飯**
-   - 早餐：三明治
-   - 午餐：水餃
-   - 晚餐：火鍋
-   
+### Tomorrow's Plan
+1. **Exams**
+   - English
+   - Chinese
+   - Mathematics
+     - Trigonometric functions
+     - Permutations and combinations
+2. **Sports**
+   - Go for a run in the morning
+   - Play basketball in the afternoon
+   - Swim in the evening
+3. **Eating**
+   - A sandwich for breakfast
+   - Dumplings for lunch
+   - Hot pot for dinner
+
+    
 INPUT:
 $question
 OUTPUT:
@@ -196,7 +196,7 @@ Create a concise $outputLanguage summary with $writingStyle style in $outputLeng
         writingStyle: String
     ): String {
         val promptTemplate = """
-Summarize the key words of the following $inputLanguage text in $outputLanguage and using bullet points list with $writingStyle style: $question
+Summarize the key words of the following $inputLanguage text in $outputLanguage and using bullet points list with $writingStyle style:\n\n- $question
 """
         return promptTemplate
     }
