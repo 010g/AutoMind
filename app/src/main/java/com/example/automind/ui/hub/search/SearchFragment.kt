@@ -56,7 +56,7 @@ class SearchFragment : Fragment() {
             itemListener = { noteId, recordVM, navC, desId ->
                 hubViewModel.navigateToDetailFragmentById(noteId, recordVM, navC, desId)
             }
-    )
+        )
 
         binding.searchResultsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.searchResultsRecyclerView.adapter = searchAdapter
