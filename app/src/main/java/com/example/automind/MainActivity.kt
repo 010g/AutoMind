@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -27,11 +28,13 @@ import com.example.automind.data.NoteDao
 import com.example.automind.data.Repository
 import com.example.automind.data.SettingsDao
 import com.example.automind.databinding.ActivityMainBinding
+import com.example.automind.ui.record.RecordViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var toolbar: Toolbar
+    private lateinit var recordViewModel: RecordViewModel
 
     lateinit var db: RoomDatabase
     lateinit var noteDao: NoteDao
@@ -47,6 +50,8 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        recordViewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -77,6 +82,14 @@ class MainActivity : AppCompatActivity() {
                     binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
                 }
                 R.id.navigation_record -> {
+                    recordViewModel.hasOriginal = false
+                    recordViewModel.hasMarkdown = false
+                    recordViewModel.hasSummary = false
+                    recordViewModel.hasList = false
+                    recordViewModel.originalText.postValue("")
+                    recordViewModel.summaryText.postValue("")
+                    recordViewModel.listText.postValue("")
+                    recordViewModel.markdownContent.postValue("")
                     toolbarTitle.text = "Record"
                     binding.navView.setBackgroundColor(Color.TRANSPARENT)
                 }

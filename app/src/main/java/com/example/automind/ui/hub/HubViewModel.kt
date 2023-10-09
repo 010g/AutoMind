@@ -84,6 +84,9 @@ class HubViewModel(application: Application) : AndroidViewModel(application) {
                 recordViewModel.summaryText.postValue(note.summary)
                 recordViewModel.listText.postValue(note.list)
                 recordViewModel.markdownContent.postValue(note.mindmapMarkdown)
+                recordViewModel.title.postValue(note.title)
+                recordViewModel.tag.postValue(note.tag)
+                recordViewModel.isLike.postValue(note.isLike)
 
                 // navigate to DetailFragment
                 navController.navigate(destinationId)

@@ -23,13 +23,14 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     val summaryText: MutableLiveData<String> = MutableLiveData()
     val listText: MutableLiveData<String> = MutableLiveData()
     val markdownContent: MutableLiveData<String> = MutableLiveData()
+    val title: MutableLiveData<String> = MutableLiveData()
+    val tag: MutableLiveData<String> = MutableLiveData()
+    val isLike: MutableLiveData<Boolean> = MutableLiveData(false)
 
     var hasOriginal = false
     var hasSummary = false
     var hasList = false
     var hasMarkdown = false
-
-    var isLike = false
 
     fun clearLiveData() {
         hasOriginal = false

@@ -124,6 +124,11 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
                 ActivityCompat.requestPermissions(requireActivity(), permissions, 0)
             } else {
+                // clear the value as default every time when user has a new recording
+                recordViewModel.title.value = ""
+                recordViewModel.tag.value = "Work"
+                recordViewModel.isLike.value = false
+
                 onRecord(mStartRecording)
                 mStartRecording = !mStartRecording
 

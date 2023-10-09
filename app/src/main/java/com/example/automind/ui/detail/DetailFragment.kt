@@ -73,6 +73,33 @@ class DetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.viewPager.adapter = DetailViewPagerAdapter(this)
 
+        viewModel.title.observe(viewLifecycleOwner) { data ->
+            Log.d("DetailFragment title observed", "Received data: $data")
+            if (data != binding.title.text.toString()) {
+                binding.title.setText(data)
+            }
+        }
+        viewModel.tag.observe(viewLifecycleOwner) { data ->
+            Log.d("DetailFragment tag observed", "Received data: $data")
+            if (data != binding.spinner.selectedItem) {
+                for (position in 0 until binding.spinner.adapter.count) {
+                    if (binding.spinner.adapter.getItem(position).toString() == data) {
+                        binding.spinner.setSelection(position)
+                    }
+                }
+            }
+        }
+        viewModel.isLike.observe(viewLifecycleOwner) { data ->
+            Log.d("DetailFragment isLike observed", "Received data: $data")
+            if (viewModel.isLike.value!!) {
+                binding.btnLike.setImageResource(R.drawable.ic_heart_detail_full)
+            } else {
+                binding.btnLike.setImageResource(R.drawable.ic_heart_detail)
+            }
+        }
+
+
+
         // Create and bind tabs to the TabLayout
         val viewPager2 = binding.viewPager
         viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -272,11 +299,11 @@ class DetailFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveLikeStatus() {
         Log.d("latestSavedTextId in saveLikeStatus", viewModel.latestSavedTextId.value.toString())
-        viewModel.isLike = !viewModel.isLike
+        viewModel.isLike.value = !viewModel.isLike.value!!
         viewModel.latestSavedTextId.value?.let {
             Log.d("saveLikeStatus", "$it")
 
-            if (viewModel.isLike) {
+            if (viewModel.isLike.value!!) {
                 binding.btnLike.setImageResource(R.drawable.ic_heart_detail_full)
                 showToastMessage("Added to Favorites Successfully")
             } else {
@@ -287,7 +314,7 @@ class DetailFragment : Fragment() {
 
             viewModel.updateIsLike(
                 noteId = it,
-                isLike = viewModel.isLike
+                isLike = viewModel.isLike.value!!
             ).invokeOnCompletion {
                 hubViewModel.filterDataByIsLike()
             }

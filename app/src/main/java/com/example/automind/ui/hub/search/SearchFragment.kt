@@ -10,10 +10,14 @@ import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.automind.R
 import com.example.automind.data.AppDatabase
 import com.example.automind.data.Repository
 import com.example.automind.databinding.FragmentSearchBinding
+import com.example.automind.ui.hub.HubViewModel
+import com.example.automind.ui.record.RecordViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -22,6 +26,8 @@ class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private lateinit var viewModel: SearchViewModel
+    private lateinit var hubViewModel: HubViewModel
+    private lateinit var recordViewModel: RecordViewModel
     private lateinit var searchAdapter: SearchAdapter
 
 
@@ -40,10 +46,18 @@ class SearchFragment : Fragment() {
         val repository = Repository(database.noteDao(), database.settingsDao())
 
         viewModel = ViewModelProvider(requireActivity(), SearchViewModelFactory(requireActivity().application, repository)).get(SearchViewModel::class.java)
+        hubViewModel =  ViewModelProvider(requireActivity()).get(HubViewModel::class.java)
+        recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
 
-        searchAdapter = SearchAdapter{ searchItem ->
-            //TODO Handle the click event for the selected search item here.
-        }
+        searchAdapter = SearchAdapter(
+            recordViewModel,
+            findNavController(),
+            R.id.navigation_detail,
+            itemListener = { noteId, recordVM, navC, desId ->
+                hubViewModel.navigateToDetailFragmentById(noteId, recordVM, navC, desId)
+            }
+    )
+
         binding.searchResultsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.searchResultsRecyclerView.adapter = searchAdapter
 
