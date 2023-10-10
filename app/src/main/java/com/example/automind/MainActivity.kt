@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
@@ -56,6 +57,10 @@ class MainActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_arrow_back_white)
+
 
         val navView: BottomNavigationView = binding.navView
 
@@ -76,6 +81,7 @@ class MainActivity : AppCompatActivity() {
 
         // Set the title when the destination changes
         navController.addOnDestinationChangedListener { _, destination: NavDestination, _ ->
+            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white)
             when (destination.id) {
                 R.id.navigation_hub -> {
                     toolbarTitle.text = "Hub"
@@ -126,6 +132,5 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
-
 
 }
