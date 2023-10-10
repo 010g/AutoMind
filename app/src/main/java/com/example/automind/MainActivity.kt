@@ -86,6 +86,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_hub -> {
                     toolbarTitle.text = "Hub"
                     binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
+
+                    // Change the icon if the fragment is active
+                    binding.navView.menu.findItem(R.id.navigation_hub).setIcon(R.drawable.ic_hub_full)
+                    binding.navView.menu.findItem(R.id.navigation_record).setIcon(R.drawable.ic_record_add)
+                    binding.navView.menu.findItem(R.id.navigation_settings).setIcon(R.drawable.ic_settings)
                 }
                 R.id.navigation_record -> {
                     recordViewModel.hasOriginal = false
@@ -98,10 +103,20 @@ class MainActivity : AppCompatActivity() {
                     recordViewModel.markdownContent.postValue("")
                     toolbarTitle.text = "Record"
                     binding.navView.setBackgroundColor(Color.TRANSPARENT)
+
+                    // Change the icon if the fragment is active
+                    binding.navView.menu.findItem(R.id.navigation_record).setIcon(R.drawable.ic_record_add_full)
+                    binding.navView.menu.findItem(R.id.navigation_hub).setIcon(R.drawable.ic_hub)
+                    binding.navView.menu.findItem(R.id.navigation_settings).setIcon(R.drawable.ic_settings)
                 }
                 R.id.navigation_settings -> {
                     toolbarTitle.text = "Settings"
                     binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
+
+                    // Change the icon if the fragment is active
+                    binding.navView.menu.findItem(R.id.navigation_settings).setIcon(R.drawable.ic_settings_full)
+                    binding.navView.menu.findItem(R.id.navigation_record).setIcon(R.drawable.ic_record_add)
+                    binding.navView.menu.findItem(R.id.navigation_hub).setIcon(R.drawable.ic_hub)
                 }
                 else -> {
                     toolbarTitle.text = "AutoMind"
