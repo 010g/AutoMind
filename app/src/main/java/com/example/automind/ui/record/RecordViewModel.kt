@@ -122,7 +122,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 I want to make a mindmap through markmap with transforming the markdown format text by using $writingStyle style.
 Please summarize the $inputLanguage input text and give back the  $outputLanguage markdown format of the keywords.
 
-Example 1 for output language being Traditional Chinese: 
+Example 1 for input language being Traditional Chinese and output language being Traditional Chinese: 
 INPUT: 
 明天我總共要做三件事情分別為運動吃飯和學習，學習的科目有英文數學和中文，吃飯的部分早上要吃香蕉午餐吃便當晚餐吃火鍋，運動的話早上要游泳下午打籃球晚上跑步，英文科目又分為現在式過去式和未來式。
 OUTPUT:
@@ -144,9 +144,9 @@ OUTPUT:
      - 數學
      - 中文
      
-Example 2 for output language being English:
+Example 2 for input language being English and output language being English:
 INPUT:
-Tomorrow, I have a total of three things to do: exams, sports, and eating. The exam subjects include English, Chinese, and Mathematics. Mathematics is divided into trigonometric functions and permutations and combinations. For sports, I will go for a run in the morning, play basketball in the afternoon, and swim in the evening. As for meals, I will have a sandwich for breakfast, dumplings for lunch, and hot pot for dinner."
+Tomorrow, I have a total of three things to do: exams, sports, and eating. The exam subjects include English, Chinese, and Mathematics. Mathematics is divided into trigonometric functions and permutations and combinations. For sports, I will go for a run in the morning, play basketball in the afternoon, and swim in the evening. As for meals, I will have a sandwich for breakfast, dumplings for lunch, and hot pot for dinner.
 OUTPUT:
 ### Tomorrow's Plan
 1. **Exams**
@@ -163,7 +163,48 @@ OUTPUT:
    - A sandwich for breakfast
    - Dumplings for lunch
    - Hot pot for dinner
-
+   
+Example 3 for input language being Traditional Chinese and output language being English: 
+INPUT: 
+明天，我總共有三件事要做：考試、運動和用餐。考試科目包括英語、中文和數學。數學又分為三角函數和排列組合。至於運動，我早上會去跑步，下午打籃球，晚上游泳。至於用餐，早餐吃三明治，午餐吃餃子，晚餐吃火鍋。
+OUTPUT:
+### Tomorrow's Plan
+1. **Exams**
+   - English
+   - Chinese
+   - Mathematics
+     - Trigonometric functions
+     - Permutations and combinations
+2. **Sports**
+   - Go for a run in the morning
+   - Play basketball in the afternoon
+   - Swim in the evening
+3. **Eating**
+   - A sandwich for breakfast
+   - Dumplings for lunch
+   - Hot pot for dinner
+   
+Example 4 for input language being English and output language being Traditional Chinese:
+INPUT: 
+Tomorrow, I have a total of three things to do, which are exercise, eating, and studying. The subjects for studying are English, mathematics, and Chinese. As for meals, I will have bananas for breakfast, a bento for lunch, and hot pot for dinner. Regarding exercise, I will swim in the morning, play basketball in the afternoon, and go for a run in the evening. In English subjects, there are present tense, past tense, and future tense.
+OUTPUT:
+### 明天的計畫
+1. **運動**
+   - 早上：游泳
+   - 下午：打籃球
+   - 晚上：跑步           
+2. **吃飯**
+   - 早餐：香蕉
+   - 午餐：便當
+   - 晚餐：火鍋       
+3. **學習**
+   - 學科：
+     - 英文
+       - 現在式
+       - 過去式
+       - 未來式
+     - 數學
+     - 中文
     
 INPUT:
 $question
