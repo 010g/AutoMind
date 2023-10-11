@@ -65,6 +65,10 @@ class Repository(
         noteDao.updateTagForId(id,tag)
     }
 
+    suspend fun countNotesByTag(noteTag: String): Int {
+        return noteDao.countNotesByTag(noteTag)
+    }
+
     suspend fun updateIsLikeForId(id: Long, isLike: Boolean) {
         noteDao.updateIsLikeForId(id, isLike)
     }
@@ -79,11 +83,16 @@ class Repository(
         settingsDao.insert(setting)
     }
 
-    suspend fun getSetting(id: Int): Setting {
+    suspend fun getSetting(id: Int): Setting? {
         return settingsDao.getSetting(id)
     }
 
-    suspend fun updateSetting(setting: Setting) {
-        settingsDao.update(setting)
+    suspend fun updateSetting(setting: Setting): Int {
+        return settingsDao.update(setting)
     }
+
+    suspend fun searchNotesByTitle(query: String): List<Note> {
+        return noteDao.searchNotesByTitle("%$query%")
+    }
+
 }

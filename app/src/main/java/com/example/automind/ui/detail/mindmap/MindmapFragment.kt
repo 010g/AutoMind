@@ -1,5 +1,7 @@
 package com.example.automind.ui.detail.mindmap
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -89,11 +91,11 @@ class MindMapFragment : Fragment() {
             justify-content: center;
             height: 100vh; /* 100% of the viewport height */
             margin: 0; /* Removing the default margin */
-            background-color: #353535; /* Dark background color */
+            background-color: #1D1D1D; /* Dark background color */
             color: #ffffff; /* Light font color */
         }
         svg {
-            background-color: #353535; /* Dark background color for SVG */
+            background-color: #1D1D1D; /* Dark background color for SVG */
         }
     </style>
 """
@@ -189,6 +191,19 @@ class MindMapFragment : Fragment() {
                 .show()
         }
     }
+
+
+    fun captureWebView(callback: (Bitmap) -> Unit) {
+        val picture = binding.markmapWebView.capturePicture()
+        if (picture != null) {
+            val bitmap = Bitmap.createBitmap(picture.width, picture.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            picture.draw(canvas)
+            callback(bitmap)
+        }
+    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

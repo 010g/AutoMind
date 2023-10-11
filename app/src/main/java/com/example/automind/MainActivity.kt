@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -27,11 +29,13 @@ import com.example.automind.data.NoteDao
 import com.example.automind.data.Repository
 import com.example.automind.data.SettingsDao
 import com.example.automind.databinding.ActivityMainBinding
+import com.example.automind.ui.record.RecordViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var toolbar: Toolbar
+    private lateinit var recordViewModel: RecordViewModel
 
     lateinit var db: RoomDatabase
     lateinit var noteDao: NoteDao
@@ -48,9 +52,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        recordViewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
+
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_arrow_back_white)
+
 
         val navView: BottomNavigationView = binding.navView
 
@@ -71,18 +81,42 @@ class MainActivity : AppCompatActivity() {
 
         // Set the title when the destination changes
         navController.addOnDestinationChangedListener { _, destination: NavDestination, _ ->
+            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white)
             when (destination.id) {
                 R.id.navigation_hub -> {
                     toolbarTitle.text = "Hub"
                     binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
+
+                    // Change the icon if the fragment is active
+                    binding.navView.menu.findItem(R.id.navigation_hub).setIcon(R.drawable.ic_hub_full)
+                    binding.navView.menu.findItem(R.id.navigation_record).setIcon(R.drawable.ic_record_add)
+                    binding.navView.menu.findItem(R.id.navigation_settings).setIcon(R.drawable.ic_settings)
                 }
                 R.id.navigation_record -> {
+                    recordViewModel.hasOriginal = false
+                    recordViewModel.hasMarkdown = false
+                    recordViewModel.hasSummary = false
+                    recordViewModel.hasList = false
+                    recordViewModel.originalText.postValue("")
+                    recordViewModel.summaryText.postValue("")
+                    recordViewModel.listText.postValue("")
+                    recordViewModel.markdownContent.postValue("")
                     toolbarTitle.text = "Record"
                     binding.navView.setBackgroundColor(Color.TRANSPARENT)
+
+                    // Change the icon if the fragment is active
+                    binding.navView.menu.findItem(R.id.navigation_record).setIcon(R.drawable.ic_record_add_full)
+                    binding.navView.menu.findItem(R.id.navigation_hub).setIcon(R.drawable.ic_hub)
+                    binding.navView.menu.findItem(R.id.navigation_settings).setIcon(R.drawable.ic_settings)
                 }
                 R.id.navigation_settings -> {
                     toolbarTitle.text = "Settings"
                     binding.navView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
+
+                    // Change the icon if the fragment is active
+                    binding.navView.menu.findItem(R.id.navigation_settings).setIcon(R.drawable.ic_settings_full)
+                    binding.navView.menu.findItem(R.id.navigation_record).setIcon(R.drawable.ic_record_add)
+                    binding.navView.menu.findItem(R.id.navigation_hub).setIcon(R.drawable.ic_hub)
                 }
                 else -> {
                     toolbarTitle.text = "AutoMind"
@@ -113,6 +147,5 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
-
 
 }

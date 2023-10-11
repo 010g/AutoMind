@@ -9,55 +9,20 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/primary"
+        android:background="@drawable/settings_background"
         android:layout_marginTop="?attr/actionBarSize"
         android:layout_marginBottom="?attr/actionBarSize">
-
-        <ImageView
-            android:id="@+id/userImage"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="10dp"
-            android:src="@drawable/ic_user"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/userName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="10dp"
-            android:text="User Name"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:fontFamily="times"
-            app:layout_constraintBottom_toTopOf="@+id/userEmail"
-            app:layout_constraintStart_toEndOf="@+id/userImage"
-            app:layout_constraintTop_toTopOf="@+id/userImage"/>
-
-        <TextView
-            android:id="@+id/userEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="User Email"
-            android:fontFamily="times"
-            android:textColor="@color/light_gray"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="@+id/userName"
-            app:layout_constraintTop_toBottomOf="@+id/userName" />
-
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/input_language_card"
             style="@style/SettingsCardStyle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/userImage"
-            android:layout_marginTop="40dp">
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="80dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@android:color/white"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -104,7 +69,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/input_language_card"
-            android:layout_marginTop="25dp">
+            android:layout_marginTop="25dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@android:color/white"
+            app:strokeWidth="1dp">
 
 
             <LinearLayout
@@ -152,7 +120,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/output_language_card"
-            android:layout_marginTop="25dp">
+            android:layout_marginTop="25dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@android:color/white"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:id="@+id/linear_layout_writing_style"
@@ -246,7 +217,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/writing_style"
-            android:layout_marginTop="25dp">
+            android:layout_marginTop="25dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@android:color/white"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -55,6 +55,12 @@ class SummaryFragment : Fragment() {
         })
     }
 
+
+    fun getTextContent(): String? {
+        return binding.etSummary.text.toString()
+    }
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

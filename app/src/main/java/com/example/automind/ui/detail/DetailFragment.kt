@@ -1,6 +1,9 @@
 package com.example.automind.ui.detail
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -8,6 +11,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,24 +19,29 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.TooltipCompat
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.automind.MainActivity
 import com.example.automind.R
 import com.example.automind.databinding.FragmentDetailBinding
-import com.example.automind.ui.hub.CategoryViewModel
+import com.example.automind.ui.detail.list.ListFragment
+import com.example.automind.ui.detail.mindmap.MindMapFragment
+import com.example.automind.ui.detail.original.OriginalFragment
+import com.example.automind.ui.detail.summary.SummaryFragment
+import com.example.automind.ui.hub.category.CategoryViewModel
 import com.example.automind.ui.hub.HubViewModel
 import com.example.automind.ui.record.RecordViewModel
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 class DetailFragment : Fragment() {
 
@@ -63,6 +72,33 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.viewPager.adapter = DetailViewPagerAdapter(this)
+
+        viewModel.title.observe(viewLifecycleOwner) { data ->
+            Log.d("DetailFragment title observed", "Received data: $data")
+            if (data != binding.title.text.toString()) {
+                binding.title.setText(data)
+            }
+        }
+        viewModel.tag.observe(viewLifecycleOwner) { data ->
+            Log.d("DetailFragment tag observed", "Received data: $data")
+            if (data != binding.spinner.selectedItem) {
+                for (position in 0 until binding.spinner.adapter.count) {
+                    if (binding.spinner.adapter.getItem(position).toString() == data) {
+                        binding.spinner.setSelection(position)
+                    }
+                }
+            }
+        }
+        viewModel.isLike.observe(viewLifecycleOwner) { data ->
+            Log.d("DetailFragment isLike observed", "Received data: $data")
+            if (viewModel.isLike.value!!) {
+                binding.btnLike.setImageResource(R.drawable.ic_heart_detail_full)
+            } else {
+                binding.btnLike.setImageResource(R.drawable.ic_heart_detail)
+            }
+        }
+
+
 
         // Create and bind tabs to the TabLayout
         val viewPager2 = binding.viewPager
@@ -154,16 +190,40 @@ class DetailFragment : Fragment() {
 
         binding.btnDelete.setOnClickListener {
             Log.d("DetailFragment btnDelete", "clicked")
-            isDelete = !isDelete
-            binding.btnDelete.setImageResource(
-                if (isDelete) R.drawable.ic_delete_full
-                else R.drawable.ic_delete
-            )
-            if (isDelete) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    deleteNote()
+
+            val builder = AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
+            builder.setTitle("Delete Note")
+            builder.setMessage("Are you sure you want to delete this note?")
+
+            // Negative button: Cancel the operation
+            builder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+            // Positive button: Continue with deletion
+            builder.setPositiveButton("Delete") { _, _ ->
+                isDelete = !isDelete
+                binding.btnDelete.setImageResource(
+                    if (isDelete) R.drawable.ic_delete_full
+                    else R.drawable.ic_delete
+                )
+                if (isDelete) {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        deleteNote()
+                        // After deleting, navigate back to the previous fragment
+                        fragmentManager?.popBackStack()
+                    }
                 }
             }
+
+            // Create and show the AlertDialog
+            val alertDialog = builder.create()
+            alertDialog.show()
+        }
+
+
+        binding.btnSend.setOnClickListener {
+            shareCurrentPageContent()
         }
 
 
@@ -183,6 +243,7 @@ class DetailFragment : Fragment() {
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.btnUpdate.setImageResource(R.drawable.ic_update)
             }, 2000)
+            showToastMessage("Update Successful")
         }
     }
 
@@ -238,18 +299,22 @@ class DetailFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveLikeStatus() {
         Log.d("latestSavedTextId in saveLikeStatus", viewModel.latestSavedTextId.value.toString())
-        viewModel.isLike = !viewModel.isLike
+        viewModel.isLike.value = !viewModel.isLike.value!!
         viewModel.latestSavedTextId.value?.let {
             Log.d("saveLikeStatus", "$it")
 
-            binding.btnLike.setImageResource(
-                if (viewModel.isLike) R.drawable.ic_heart_detail_full
-                else R.drawable.ic_heart_detail
-            )
+            if (viewModel.isLike.value!!) {
+                binding.btnLike.setImageResource(R.drawable.ic_heart_detail_full)
+                showToastMessage("Added to Favorites Successfully")
+            } else {
+                binding.btnLike.setImageResource(R.drawable.ic_heart_detail)
+                showToastMessage("Removed from Favorites")
+            }
+
 
             viewModel.updateIsLike(
                 noteId = it,
-                isLike = viewModel.isLike
+                isLike = viewModel.isLike.value!!
             ).invokeOnCompletion {
                 hubViewModel.filterDataByIsLike()
             }
@@ -267,5 +332,69 @@ class DetailFragment : Fragment() {
             }
         }
     }
+
+
+    private fun showToastMessage(message: String) {
+        val toast = Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT)
+
+        // Set the position of the toast at the bottom center of the screen
+        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, 100)
+        toast.show()
+    }
+
+
+    // btn_send
+    private fun shareCurrentPageContent() {
+        val currentFragment = childFragmentManager.fragments[binding.viewPager.currentItem]
+
+        when (currentFragment) {
+            is OriginalFragment -> {
+                val textToShare = currentFragment.getTextContent() ?: return
+                shareText(textToShare)
+            }
+            is SummaryFragment -> {
+                val textToShare = currentFragment.getTextContent() ?: return
+                shareText(textToShare)
+            }
+            is ListFragment -> {
+                val textToShare = currentFragment.getTextContent() ?: return
+                shareText(textToShare)
+            }
+            is MindMapFragment -> {
+                currentFragment.captureWebView { bitmap ->
+                    val uri = saveBitmapToSharedStorage(bitmap)
+                    shareImage(uri)
+                }
+            }
+        }
+    }
+
+    private fun shareText(text: String) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, text)
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share Using"))
+    }
+
+    private fun shareImage(uri: Uri) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/*"
+            putExtra(Intent.EXTRA_STREAM, uri)
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share Using"))
+    }
+
+    private fun saveBitmapToSharedStorage(bitmap: Bitmap): Uri {
+        val filename = "${System.currentTimeMillis()}.jpg"
+        val file = File(requireContext().externalCacheDir, filename)
+        val fos = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+        fos.close()
+        return FileProvider.getUriForFile(requireContext(), "com.example.automind.fileprovider", file)
+    }
+
+
+
 
 }
