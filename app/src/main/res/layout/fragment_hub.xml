@@ -29,40 +29,43 @@
             android:id="@+id/num_work"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
             android:text="0"
             android:textColor="#FFFFFF"
             android:textSize="30sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/logoImage"
-            app:layout_constraintTop_toTopOf="@+id/logoImage"/>
+            app:layout_constraintBottom_toTopOf="@+id/tv_work"
+            app:layout_constraintEnd_toEndOf="@+id/tv_work"
+            app:layout_constraintStart_toStartOf="@+id/tv_work"
+            app:layout_constraintTop_toTopOf="@+id/logoImage"
+            android:layout_marginTop="8dp"/>
 
         <TextView
             android:id="@+id/num_ideas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
-            android:layout_marginTop="10dp"
-            android:text="3"
+            android:text="0"
             android:textColor="#FFFFFF"
             android:textSize="30sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/num_work"
-            app:layout_constraintTop_toTopOf="@+id/logoImage"/>
+            app:layout_constraintBottom_toTopOf="@+id/tv_ideas"
+            app:layout_constraintStart_toStartOf="@+id/tv_ideas"
+            app:layout_constraintEnd_toEndOf="@+id/tv_ideas"
+            app:layout_constraintTop_toTopOf="@+id/logoImage"
+            android:layout_marginTop="8dp"/>
 
         <TextView
             android:id="@+id/num_personal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
-            android:layout_marginTop="10dp"
-            android:text="2"
+            android:text="0"
             android:textColor="#FFFFFF"
             android:textSize="30sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/num_ideas"
-            app:layout_constraintTop_toTopOf="@+id/logoImage"/>
+            app:layout_constraintBottom_toTopOf="@+id/tv_personal"
+            app:layout_constraintLeft_toLeftOf="@+id/tv_personal"
+            app:layout_constraintRight_toRightOf="@+id/tv_personal"
+            app:layout_constraintTop_toTopOf="@+id/logoImage"
+            android:layout_marginTop="8dp"/>
 
 
 
@@ -70,7 +73,7 @@
             android:id="@+id/tv_work"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
+            android:layout_marginStart="16dp"
             android:text="Work"
             android:textColor="#FFFFFF"
             android:textSize="10sp"
