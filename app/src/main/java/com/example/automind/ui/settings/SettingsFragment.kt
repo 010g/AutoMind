@@ -31,6 +31,8 @@ class SettingsFragment : Fragment() {
 
     private lateinit var settingsViewModel: SettingsViewModel
 
+    private var isSeekBarBeingTouched = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -79,15 +81,16 @@ class SettingsFragment : Fragment() {
         binding.seekbarOutputLength.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                settingsViewModel.setOutputLength(progress)
+
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // Handle if needed
+                isSeekBarBeingTouched = true
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // Handle if needed
+                isSeekBarBeingTouched = false
+                settingsViewModel.setOutputLength(seekBar?.progress ?: 0)
             }
         })
 
@@ -163,7 +166,7 @@ class SettingsFragment : Fragment() {
             }
         }
         settingsViewModel.outputLength.observe(viewLifecycleOwner) { length ->
-            if (length != binding.seekbarOutputLength.progress){
+            if (!isSeekBarBeingTouched && length != binding.seekbarOutputLength.progress) {
                 binding.seekbarOutputLength.progress = length
             }
         }
