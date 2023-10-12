@@ -167,7 +167,7 @@ class DetailFragment : Fragment() {
         })
 
         val items = arrayOf("Work", "Ideas", "Personal")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, items)
+        val adapter = ArrayAdapter(requireContext(), R.layout.spinner_detail_item, items)
         binding.spinner.adapter = adapter
 
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
