@@ -256,6 +256,8 @@
                 android:layout_marginEnd="20dp"
                 android:layout_marginTop="65dp"
                 android:layout_marginBottom="20dp"
+                android:max="100"
+                android:progress="50"
                 android:thumb="@drawable/white_thumb"
                 style="@style/WhiteSeekBar"/>
 
