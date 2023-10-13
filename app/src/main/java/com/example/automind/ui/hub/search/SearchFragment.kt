@@ -103,7 +103,16 @@ class SearchFragment : Fragment() {
                 val dateStr = dateFormatter.format(Date(note.timestamp))
                 SearchItem(note.id, dateStr, note.title, note.content)
             }
-            searchAdapter.submitList(searchItems.reversed())
+            if (searchItems.isEmpty()) {
+                // If there are no search results, hide the RecyclerView and show the no results TextView
+                binding.searchResultsRecyclerView.visibility = View.GONE
+                binding.tvNoResults.visibility = View.VISIBLE
+            } else {
+                // If there are search results, show the RecyclerView and hide the no results TextView
+                binding.searchResultsRecyclerView.visibility = View.VISIBLE
+                binding.tvNoResults.visibility = View.GONE
+                searchAdapter.submitList(searchItems.reversed())
+            }
         }
 
     }

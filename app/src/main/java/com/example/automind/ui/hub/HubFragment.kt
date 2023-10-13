@@ -108,6 +108,15 @@ class HubFragment : Fragment() {
             Log.d("isLikes observed!", hubViewModel.isLikes.value.toString())
             horizontalAdapter.submitList(it as MutableList<HorizontalItem>?)
             horizontalAdapter.notifyDataSetChanged()
+
+            // Determine visibility based on the list size
+            if (it.isNullOrEmpty()) {
+                binding.horizontalRecyclerView.visibility = View.GONE
+                binding.tvNoFav.visibility = View.VISIBLE
+            } else {
+                binding.horizontalRecyclerView.visibility = View.VISIBLE
+                binding.tvNoFav.visibility = View.GONE
+            }
         }
 
         // Filter data based on tag when fragment is created

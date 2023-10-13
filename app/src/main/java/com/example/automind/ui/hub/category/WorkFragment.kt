@@ -59,10 +59,17 @@ class WorkFragment : Fragment() {
         binding.recyclerView.adapter = categoryAdapter
 
         // Observe the categories LiveData
-        viewModel.works.observe(viewLifecycleOwner) {
+        viewModel.works.observe(viewLifecycleOwner) {observedWorks ->
             Log.d("works observed!", viewModel.works.value.toString())
-            categoryAdapter.submitList(it as MutableList<CategoryItem>?)
-            //categoryAdapter.notifyDataSetChanged()
+            // Check if the list is empty
+            if (observedWorks.isNullOrEmpty()) {
+                binding.recyclerView.visibility = View.GONE
+                binding.tvNoRecords.visibility = View.VISIBLE
+            } else {
+                binding.recyclerView.visibility = View.VISIBLE
+                binding.tvNoRecords.visibility = View.GONE
+                categoryAdapter.submitList(observedWorks as MutableList<CategoryItem>?)
+            }
         }
 
         // Filter data based on tag when fragment is created

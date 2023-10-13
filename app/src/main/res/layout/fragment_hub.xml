@@ -116,12 +116,13 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_ideas"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="45dp"
-            app:queryHint="Search"
+            app:queryHint="Search..."
             android:textSize="12sp"
             android:background="@drawable/searchview_background"
             android:textColor="@color/black"
             app:layout_constraintStart_toEndOf="@+id/logoImage"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="10dp"
+            app:iconifiedByDefault="false"/>
 
 
 
@@ -163,6 +164,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <TextView
+            android:id="@+id/tv_no_fav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No items."
+            android:textSize="16sp"
+            android:textStyle="italic"
+            android:fontFamily="times"
+            android:visibility="gone"
+            android:textColor="@color/gray"
+            app:layout_constraintTop_toBottomOf="@+id/favorite"
+            app:layout_constraintBottom_toTopOf="@+id/categories"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
 
         <TextView
             android:id="@+id/categories"
@@ -175,8 +191,8 @@
             android:textStyle="bold"
             android:fontFamily="times"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/horizontalRecyclerView"
-            android:layout_marginTop="30dp"/>
+            app:layout_constraintTop_toBottomOf="@+id/favorite"
+            android:layout_marginTop="100dp"/>
 
         <!-- TabLayout for Work, Ideas, and Personal tabs -->
         <FrameLayout

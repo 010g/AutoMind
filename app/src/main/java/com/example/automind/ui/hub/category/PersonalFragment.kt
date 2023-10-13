@@ -57,10 +57,17 @@ class PersonalFragment : Fragment() {
         binding.recyclerView.adapter = categoryAdapter
 
         // Observe the categories LiveData
-        viewModel.personals.observe(viewLifecycleOwner) {
+        viewModel.personals.observe(viewLifecycleOwner) {observedPersonals ->
             Log.d("personals observed!", viewModel.personals.value.toString())
-            categoryAdapter.submitList(it as MutableList<CategoryItem>?)
-            //categoryAdapter.notifyDataSetChanged()
+            // Check if the list is empty
+            if (observedPersonals.isNullOrEmpty()) {
+                binding.recyclerView.visibility = View.GONE
+                binding.tvNoRecords.visibility = View.VISIBLE
+            } else {
+                binding.recyclerView.visibility = View.VISIBLE
+                binding.tvNoRecords.visibility = View.GONE
+                categoryAdapter.submitList(observedPersonals as MutableList<CategoryItem>?)
+            }
         }
 
         // Filter data based on tag when fragment is created
