@@ -66,7 +66,18 @@ class IdeasFragment : Fragment() {
             } else {
                 binding.recyclerView.visibility = View.VISIBLE
                 binding.tvNoRecords.visibility = View.GONE
-                categoryAdapter.submitList(observedIdeas as MutableList<CategoryItem>?)
+                val threeCategoryItemList = mutableListOf<ThreeCategoryItems>()
+                for (i in 0..(observedIdeas.size - 1) / 3) {
+                    val threeCategoryItems = ThreeCategoryItems(
+                        observedIdeas.getOrNull(i*3),
+                        observedIdeas.getOrNull(i*3+1),
+                        observedIdeas.getOrNull(i*3+2)
+                    )
+                    threeCategoryItemList.add(threeCategoryItems)
+                }
+                Log.d("threeCategoryItemList", threeCategoryItemList.toString())
+                categoryAdapter.submitList(threeCategoryItemList)
+                categoryAdapter.notifyDataSetChanged()
             }
         }
 

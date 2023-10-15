@@ -66,7 +66,18 @@ class PersonalFragment : Fragment() {
             } else {
                 binding.recyclerView.visibility = View.VISIBLE
                 binding.tvNoRecords.visibility = View.GONE
-                categoryAdapter.submitList(observedPersonals as MutableList<CategoryItem>?)
+                val threeCategoryItemList = mutableListOf<ThreeCategoryItems>()
+                for (i in 0..(observedPersonals.size - 1) / 3) {
+                    val threeCategoryItems = ThreeCategoryItems(
+                        observedPersonals.getOrNull(i*3),
+                        observedPersonals.getOrNull(i*3+1),
+                        observedPersonals.getOrNull(i*3+2)
+                    )
+                    threeCategoryItemList.add(threeCategoryItems)
+                }
+                Log.d("threeCategoryItemList", threeCategoryItemList.toString())
+                categoryAdapter.submitList(threeCategoryItemList)
+                categoryAdapter.notifyDataSetChanged()
             }
         }
 

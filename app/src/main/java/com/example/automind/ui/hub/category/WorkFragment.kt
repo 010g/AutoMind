@@ -68,7 +68,18 @@ class WorkFragment : Fragment() {
             } else {
                 binding.recyclerView.visibility = View.VISIBLE
                 binding.tvNoRecords.visibility = View.GONE
-                categoryAdapter.submitList(observedWorks as MutableList<CategoryItem>?)
+                val threeCategoryItemList = mutableListOf<ThreeCategoryItems>()
+                for (i in 0..(observedWorks.size - 1) / 3) {
+                    val threeCategoryItems = ThreeCategoryItems(
+                        observedWorks.getOrNull(i*3),
+                        observedWorks.getOrNull(i*3+1),
+                        observedWorks.getOrNull(i*3+2)
+                    )
+                    threeCategoryItemList.add(threeCategoryItems)
+                }
+                Log.d("threeCategoryItemList", threeCategoryItemList.toString())
+                categoryAdapter.submitList(threeCategoryItemList)
+                categoryAdapter.notifyDataSetChanged()
             }
         }
 
