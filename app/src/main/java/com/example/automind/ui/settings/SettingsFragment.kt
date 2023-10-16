@@ -102,11 +102,24 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupSpinner(spinner: Spinner, arrayResId: Int, associatedTextView: TextView,  defaultText: String, onItemSelected: (String) -> Unit) {
-        val adapter = ArrayAdapter.createFromResource(
-            requireContext(),
-            arrayResId,
-            android.R.layout.simple_spinner_item
-        )
+        val items = resources.getStringArray(arrayResId)
+
+        val adapter = object : ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, items) {
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getDropDownView(position, convertView, parent)
+                val textView = view as TextView
+                textView.setTextColor(Color.BLACK)  // Set dropdown text color to black
+                return view
+            }
+
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent)
+                val textView = view as TextView
+                textView.setTextColor(Color.WHITE)  // Set selected item text color to white
+                return view
+            }
+        }
+
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
@@ -114,7 +127,6 @@ class SettingsFragment : Fragment() {
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val selectedItem = parent.getItemAtPosition(position) as String
-                associatedTextView.text= selectedItem
                 onItemSelected(selectedItem)
             }
 

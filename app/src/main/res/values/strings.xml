@@ -8,13 +8,11 @@
 
 
     <string-array name="input_language_options">
-        <item>Input Language</item>
         <item>English</item>
         <item>Traditional Chinese</item>
     </string-array>
 
     <string-array name="output_language_options">
-        <item>Output Language</item>
         <item>English</item>
         <item>Traditional Chinese</item>
     </string-array>
