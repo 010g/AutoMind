@@ -124,25 +124,17 @@ Please summarize the $inputLanguage input text and give back the  $outputLanguag
 
 Example 1 for input language being Traditional Chinese and output language being Traditional Chinese: 
 INPUT: 
-明天我總共要做三件事情分別為運動吃飯和學習，學習的科目有英文數學和中文，吃飯的部分早上要吃香蕉午餐吃便當晚餐吃火鍋，運動的話早上要游泳下午打籃球晚上跑步，英文科目又分為現在式過去式和未來式。
+設計這款應用程式的動機是希望透過支援語音輸入，利用人工智慧，為使用者提供筆記整理，包含逐字稿、摘要、清單和心智圖四種格式。
 OUTPUT:
-### 明天的計畫
-1. **運動**
-   - 早上：游泳
-   - 下午：打籃球
-   - 晚上：跑步           
-2. **吃飯**
-   - 早餐：香蕉
-   - 午餐：便當
-   - 晚餐：火鍋       
-3. **學習**
-   - 學科：
-     - 英文
-       - 現在式
-       - 過去式
-       - 未來式
-     - 數學
-     - 中文
+### 設計這款應用程式的動機
+1. **透過支援語音輸入**
+2. **利用人工智慧**
+3. **為使用者提供筆記整理**
+    - 逐字稿
+    - 摘要
+    - 清單
+    - 心智圖
+
      
 Example 2 for input language being English and output language being English:
 INPUT:
