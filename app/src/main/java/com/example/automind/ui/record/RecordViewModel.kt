@@ -124,7 +124,7 @@ Please summarize the $inputLanguage input text and give back the  $outputLanguag
 
 Example 1 for input language being Traditional Chinese and output language being Traditional Chinese: 
 INPUT: 
-設計這款應用程式的動機是希望透過支援語音輸入，利用人工智慧，為使用者提供筆記整理，包含逐字稿、摘要、清單和心智圖四種格式。
+設計這款應用程式的動機是，希望使用者可以透過語音輸入，讓人工智慧自動分析整理成不同的筆記型態，包含逐字稿、總結、清單還有心智圖 四種格式。
 OUTPUT:
 ### 設計這款應用程式的動機
 1. **透過支援語音輸入**
@@ -215,7 +215,7 @@ OUTPUT:
         writingStyle: String
     ): String {
         val promptTemplate = """
-Create a concise $outputLanguage summary with $writingStyle style in $outputLength words for the following $inputLanguage text: $question
+Create a concise $outputLanguage summary with $writingStyle style in $outputLength words for the following $inputLanguage text: $question.
 """
         return promptTemplate
     }
@@ -228,7 +228,7 @@ Create a concise $outputLanguage summary with $writingStyle style in $outputLeng
         writingStyle: String
     ): String {
         val promptTemplate = """
-Summarize the key words of the following $inputLanguage text in $outputLanguage and using bullet points list with $writingStyle style:\n\n- $question
+Summarize the key words of the following $inputLanguage text in $outputLanguage and using bullet points list with $writingStyle style:\n\n- $question.
 """
         return promptTemplate
     }

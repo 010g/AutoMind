@@ -30,8 +30,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     id = 1,
                     inputLanguage = "Traditional Chinese",
                     outputLanguage = "Traditional Chinese",
-                    writingStyle = "Regular",
-                    outputLength = 50
+                    writingStyle = "Regular",q
+                    outputLength = 20
                 )
                 repository.insertSetting(initSetting)
             }
@@ -41,7 +41,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             inputLanguage.postValue(setting.value?.inputLanguage ?: "Traditional Chinese" )
             outputLanguage.postValue(setting.value?.outputLanguage ?: "Traditional Chinese" )
             writingStyle.postValue(setting.value?.writingStyle ?: "Regular" )
-            outputLength.postValue(setting.value?.outputLength ?: 50 )
+            outputLength.postValue(setting.value?.outputLength ?: 20 )
         }
     }
 
