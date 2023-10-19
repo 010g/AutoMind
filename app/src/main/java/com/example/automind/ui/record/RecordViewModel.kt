@@ -112,13 +112,16 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
 
 
-    fun generateMindmapPrompt(
+    fun generatePrompt(
+        type: String,
         question: String,
         inputLanguage: String,
         outputLanguage: String,
-        writingStyle: String
+        writingStyle: String,
+        outputLength: String? = null
     ): String {
-        val promptTemplate = """
+        return when (type) {
+            "Mindmap" ->  """
 I want to make a mindmap through markmap with transforming the markdown format text by using $writingStyle style.
 Please summarize the $inputLanguage input text and give back the  $outputLanguage markdown format of the keywords.
 
@@ -202,35 +205,14 @@ INPUT:
 $question
 OUTPUT:
 """
-        return promptTemplate
-    }
-
-
-
-    fun generateSummaryPrompt(
-        question: String,
-        inputLanguage: String,
-        outputLanguage: String,
-        outputLength: String,
-        writingStyle: String
-    ): String {
-        val promptTemplate = """
+            "Summary" -> """
 Create a concise $outputLanguage summary with $writingStyle style in $outputLength words for the following $inputLanguage text: $question.
 """
-        return promptTemplate
-    }
-
-
-    fun generateListPrompt(
-        question: String,
-        inputLanguage: String,
-        outputLanguage: String,
-        writingStyle: String
-    ): String {
-        val promptTemplate = """
+            "List" -> """
 Summarize the key words of the following $inputLanguage text in $outputLanguage and using bullet points list with $writingStyle style:\n\n- $question.
 """
-        return promptTemplate
+            else -> ""
+        }
     }
 }
 

@@ -57,8 +57,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     private lateinit var settingsViewModel: SettingsViewModel
 
-    private val LOG_TAG = "AudioRecordTest"
-
     private var fileName: String = ""
     private var editText : EditText? = null
     private var btn_mic :ImageButton? = null
@@ -232,10 +230,12 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             val apiKey = "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"
             val url = "https://api.openai.com/v1/completions"
 
-            mindmapPrompt =  recordViewModel.generateMindmapPrompt(
+            mindmapPrompt =  recordViewModel.generatePrompt(
+                "Mindmap",
                 question,
                 settingsViewModel.inputLanguage.value.toString(),
                 settingsViewModel.outputLanguage.value.toString(),
+                settingsViewModel.outputLength.value.toString(),
                 settingsViewModel.writingStyle.value.toString()
             )
             Log.d("mindmapPrompt","$mindmapPrompt")
@@ -368,7 +368,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             try {
                 prepare()
             } catch (e: IOException) {
-                Log.e(LOG_TAG, "prepare() failed")
+                Log.e("AudioRecordTest", "prepare() failed")
             }
 
             start()
@@ -451,7 +451,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val responseDeferred = async { getResponse() }
 
                 // Get the summary-related prompt
-                summaryPrompt =  recordViewModel.generateSummaryPrompt(
+                summaryPrompt =  recordViewModel.generatePrompt(
+                    "Summary",
                     question,
                     settingsViewModel.inputLanguage.value.toString(),
                     settingsViewModel.outputLanguage.value.toString(),
@@ -462,10 +463,12 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val summaryDeferred = async { getSummary() }
 
                 // Get the list-related prompt
-                listPrompt = recordViewModel.generateListPrompt(
+                listPrompt = recordViewModel.generatePrompt(
+                    "List",
                     question,
                     settingsViewModel.inputLanguage.value.toString(),
                     settingsViewModel.outputLanguage.value.toString(),
+                    settingsViewModel.outputLength.value.toString(),
                     settingsViewModel.writingStyle.value.toString()
                 )
                 Log.d("listPrompt","$listPrompt")
