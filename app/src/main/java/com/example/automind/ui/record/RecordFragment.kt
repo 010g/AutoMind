@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import com.example.automind.BuildConfig
 import com.example.automind.R
 import com.example.automind.databinding.FragmentRecordBinding
 import com.example.automind.ui.hub.category.CategoryViewModel
@@ -222,7 +223,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     suspend fun getResponse(): String {
         return withContext(Dispatchers.IO) {
 
-            val apiKey = "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"
+            val apiKey = BuildConfig.API_KEY
             val url = "https://api.openai.com/v1/completions"
 
             mindmapPrompt =  recordViewModel.generatePrompt(
@@ -272,7 +273,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         return withContext(Dispatchers.IO) {
 
 
-            val apiKey = "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"
+            val apiKey = BuildConfig.API_KEY
             val url = "https://api.openai.com/v1/completions"
 
             val requestBody = RequestBody(
@@ -309,7 +310,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     suspend fun getList(): String  {
         return withContext(Dispatchers.IO) {
 
-            val apiKey = "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"
+            val apiKey = BuildConfig.API_KEY
             val url = "https://api.openai.com/v1/completions"
 
             val requestBody = RequestBody(
