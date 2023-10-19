@@ -99,7 +99,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
         categoryViewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
         settingsViewModel = ViewModelProvider(requireActivity()).get(SettingsViewModel::class.java)
-        recordViewModel.clearLiveData()
 
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -172,11 +171,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun checkAndPerformActions() {
-        Log.d("checkAndPerformActions hasOriginal", recordViewModel.hasOriginal.toString())
-        Log.d("checkAndPerformActions hasSummary", recordViewModel.hasSummary.toString())
-        Log.d("checkAndPerformActions hasList", recordViewModel.hasList.toString())
-        Log.d("checkAndPerformActions hasMarkdown", recordViewModel.hasMarkdown.toString())
-        if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown
+        if (recordViewModel.originalText.value != "" && recordViewModel.summaryText.value != "" && recordViewModel.listText.value != "" && recordViewModel.markdownContent.value != ""
             && recordViewModel.originalText.value != null && recordViewModel.summaryText.value != null && recordViewModel.listText.value != null && recordViewModel.markdownContent.value != null) {
             actionsAfterAllDataObtained()
         }
@@ -184,10 +179,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun actionsAfterAllDataObtained(){
-        recordViewModel.hasOriginal = false
-        recordViewModel.hasSummary = false
-        recordViewModel.hasList = false
-        recordViewModel.hasMarkdown = false
 
         Log.d("actionsAfterAllDataObtained originalText after checkAndPerformActions", recordViewModel.originalText.value.toString())
         Log.d("actionsAfterAllDataObtained summaryText after checkAndPerformActions", recordViewModel.summaryText.value.toString())
@@ -446,7 +437,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
                 // Posting value to LiveData
                 recordViewModel.originalText.postValue(question)
-                recordViewModel.hasOriginal = true
 
                 val responseDeferred = async { getResponse() }
 
@@ -478,17 +468,14 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val response = responseDeferred.await()
                 Log.d("response after await before checkAndPerformActions", response.toString())
                 recordViewModel.updateMarkdownContent(response)
-                recordViewModel.hasMarkdown = true
 
                 val responseSummary = summaryDeferred.await()
                 Log.d("responseSummary after await before checkAndPerformActions", responseSummary.toString())
                 recordViewModel.summaryText.postValue(responseSummary)
-                recordViewModel.hasSummary = true
 
                 val responseList = listDeferred.await()
                 Log.d("responseList after await before checkAndPerformActions", responseList.toString())
                 recordViewModel.listText.postValue(responseList)
-                recordViewModel.hasList = true
 
 
                 // Stop Lottie animation when all async tasks are complete

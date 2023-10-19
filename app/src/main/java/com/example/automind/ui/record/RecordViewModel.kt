@@ -19,25 +19,13 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
     val latestSavedTextId: MutableLiveData<Long?> = MutableLiveData(null)
 
     // Added LiveData objects
-    val originalText: MutableLiveData<String> = MutableLiveData()
-    val summaryText: MutableLiveData<String> = MutableLiveData()
-    val listText: MutableLiveData<String> = MutableLiveData()
-    val markdownContent: MutableLiveData<String> = MutableLiveData()
+    var originalText: MutableLiveData<String> = MutableLiveData()
+    var summaryText: MutableLiveData<String> = MutableLiveData()
+    var listText: MutableLiveData<String> = MutableLiveData()
+    var markdownContent: MutableLiveData<String> = MutableLiveData()
     val title: MutableLiveData<String> = MutableLiveData()
     val tag: MutableLiveData<String> = MutableLiveData()
     val isLike: MutableLiveData<Boolean> = MutableLiveData(false)
-
-    var hasOriginal = false
-    var hasSummary = false
-    var hasList = false
-    var hasMarkdown = false
-
-    fun clearLiveData() {
-        hasOriginal = false
-        hasSummary = false
-        hasList = false
-        hasMarkdown = false
-    }
 
 
     fun updateOriginalText(text: String) {

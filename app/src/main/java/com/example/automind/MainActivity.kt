@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
@@ -93,14 +94,10 @@ class MainActivity : AppCompatActivity() {
                     binding.navView.menu.findItem(R.id.navigation_settings).setIcon(R.drawable.ic_settings)
                 }
                 R.id.navigation_record -> {
-                    recordViewModel.hasOriginal = false
-                    recordViewModel.hasMarkdown = false
-                    recordViewModel.hasSummary = false
-                    recordViewModel.hasList = false
-                    recordViewModel.originalText.postValue("")
-                    recordViewModel.summaryText.postValue("")
-                    recordViewModel.listText.postValue("")
-                    recordViewModel.markdownContent.postValue("")
+                    recordViewModel.originalText.value = ""
+                    recordViewModel.summaryText.value = ""
+                    recordViewModel.listText.value = ""
+                    recordViewModel.markdownContent.value = ""
                     toolbarTitle.text = "Record"
                     binding.navView.setBackgroundColor(Color.TRANSPARENT)
 
