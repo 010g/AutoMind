@@ -20,7 +20,7 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE id = :noteId LIMIT 1")
     suspend fun getNoteById(noteId: Long): Note?
 
-    @Query("SELECT * FROM notes WHERE tag = :noteTag")
+    @Query("SELECT * FROM notes WHERE tag = :noteTag ORDER BY timestamp DESC")
     suspend fun getNoteByTag(noteTag: String): List<Note>?
 
     @Query("SELECT COUNT(id) FROM notes WHERE tag = :noteTag")

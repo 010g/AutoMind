@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +31,8 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var settingsViewModel: SettingsViewModel
+
+    private var isSeekBarBeingTouched = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,15 +82,18 @@ class SettingsFragment : Fragment() {
         binding.seekbarOutputLength.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                settingsViewModel.setOutputLength(progress)
+                Log.d("SeekBarProgress", "Progress: $progress, FromUser: $fromUser")
+                if (fromUser) {
+                    settingsViewModel.setOutputLength(progress)
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // Handle if needed
+                isSeekBarBeingTouched = true
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // Handle if needed
+                isSeekBarBeingTouched = false
             }
         })
 
@@ -96,11 +102,24 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupSpinner(spinner: Spinner, arrayResId: Int, associatedTextView: TextView,  defaultText: String, onItemSelected: (String) -> Unit) {
-        val adapter = ArrayAdapter.createFromResource(
-            requireContext(),
-            arrayResId,
-            android.R.layout.simple_spinner_item
-        )
+        val items = resources.getStringArray(arrayResId)
+
+        val adapter = object : ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, items) {
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getDropDownView(position, convertView, parent)
+                val textView = view as TextView
+                textView.setTextColor(Color.BLACK)  // Set dropdown text color to black
+                return view
+            }
+
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent)
+                val textView = view as TextView
+                textView.setTextColor(Color.WHITE)  // Set selected item text color to white
+                return view
+            }
+        }
+
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
@@ -108,7 +127,6 @@ class SettingsFragment : Fragment() {
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val selectedItem = parent.getItemAtPosition(position) as String
-                associatedTextView.text= selectedItem
                 onItemSelected(selectedItem)
             }
 
@@ -163,7 +181,7 @@ class SettingsFragment : Fragment() {
             }
         }
         settingsViewModel.outputLength.observe(viewLifecycleOwner) { length ->
-            if (length != binding.seekbarOutputLength.progress){
+            if (!isSeekBarBeingTouched && length != binding.seekbarOutputLength.progress) {
                 binding.seekbarOutputLength.progress = length
             }
         }
@@ -185,16 +203,16 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        binding.seekbarOutputLength.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    settingsViewModel.setOutputLength(progress)
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
+//        binding.seekbarOutputLength.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+//                if (fromUser) {
+//                    settingsViewModel.setOutputLength(progress)
+//                }
+//            }
+//
+//            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+//            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+//        })
     }
 
 

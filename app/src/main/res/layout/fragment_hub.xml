@@ -29,40 +29,43 @@
             android:id="@+id/num_work"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
             android:text="0"
             android:textColor="#FFFFFF"
             android:textSize="30sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/logoImage"
-            app:layout_constraintTop_toTopOf="@+id/logoImage"/>
+            app:layout_constraintBottom_toTopOf="@+id/tv_work"
+            app:layout_constraintEnd_toEndOf="@+id/tv_work"
+            app:layout_constraintStart_toStartOf="@+id/tv_work"
+            app:layout_constraintTop_toTopOf="@+id/logoImage"
+            android:layout_marginTop="8dp"/>
 
         <TextView
             android:id="@+id/num_ideas"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
-            android:layout_marginTop="10dp"
-            android:text="3"
+            android:text="0"
             android:textColor="#FFFFFF"
             android:textSize="30sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/num_work"
-            app:layout_constraintTop_toTopOf="@+id/logoImage"/>
+            app:layout_constraintBottom_toTopOf="@+id/tv_ideas"
+            app:layout_constraintStart_toStartOf="@+id/tv_ideas"
+            app:layout_constraintEnd_toEndOf="@+id/tv_ideas"
+            app:layout_constraintTop_toTopOf="@+id/logoImage"
+            android:layout_marginTop="8dp"/>
 
         <TextView
             android:id="@+id/num_personal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
-            android:layout_marginTop="10dp"
-            android:text="2"
+            android:text="0"
             android:textColor="#FFFFFF"
             android:textSize="30sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/num_ideas"
-            app:layout_constraintTop_toTopOf="@+id/logoImage"/>
+            app:layout_constraintBottom_toTopOf="@+id/tv_personal"
+            app:layout_constraintLeft_toLeftOf="@+id/tv_personal"
+            app:layout_constraintRight_toRightOf="@+id/tv_personal"
+            app:layout_constraintTop_toTopOf="@+id/logoImage"
+            android:layout_marginTop="8dp"/>
 
 
 
@@ -70,7 +73,7 @@
             android:id="@+id/tv_work"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
+            android:layout_marginStart="16dp"
             android:text="Work"
             android:textColor="#FFFFFF"
             android:textSize="10sp"
@@ -113,12 +116,13 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_ideas"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="45dp"
-            app:queryHint="Search"
+            app:queryHint="Search..."
             android:textSize="12sp"
             android:background="@drawable/searchview_background"
             android:textColor="@color/black"
             app:layout_constraintStart_toEndOf="@+id/logoImage"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="10dp"
+            app:iconifiedByDefault="false"/>
 
 
 
@@ -160,6 +164,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <TextView
+            android:id="@+id/tv_no_fav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No items."
+            android:textSize="16sp"
+            android:textStyle="italic"
+            android:fontFamily="times"
+            android:visibility="gone"
+            android:textColor="@color/gray"
+            app:layout_constraintTop_toBottomOf="@+id/favorite"
+            app:layout_constraintBottom_toTopOf="@+id/categories"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
 
         <TextView
             android:id="@+id/categories"
@@ -172,8 +191,8 @@
             android:textStyle="bold"
             android:fontFamily="times"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/horizontalRecyclerView"
-            android:layout_marginTop="30dp"/>
+            app:layout_constraintTop_toBottomOf="@+id/favorite"
+            android:layout_marginTop="100dp"/>
 
         <!-- TabLayout for Work, Ideas, and Personal tabs -->
         <FrameLayout

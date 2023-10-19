@@ -40,8 +40,8 @@ class HorizontalAdapter(
     override fun onBindViewHolder(holder: HorizontalViewHolder, position: Int) {
         val item = getItem(position)
         holder.binding.btnHeart.setImageResource(
-            if (!item.isSelected) R.drawable.ic_heart_detail
-            else R.drawable.ic_heart_detail_full
+            if (!item.isSelected) R.drawable.ic_heart_hub
+            else R.drawable.ic_heart_hub_full
         )
         holder.bind(item)
     }
