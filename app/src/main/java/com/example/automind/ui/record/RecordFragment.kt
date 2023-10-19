@@ -58,7 +58,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     private lateinit var settingsViewModel: SettingsViewModel
 
     private var fileName: String = ""
-    private var editText : EditText? = null
+    private var transcription : EditText? = null
     private var btn_mic :ImageButton? = null
     private var recorder: MediaRecorder? = null
 //    private var player: MediaPlayer? = null
@@ -106,7 +106,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         // Record to the external cache directory for visibility
         fileName = "${requireContext().externalCacheDir?.absolutePath}/audiorecordtest.awb"
 
-        editText = binding.edittext
+        transcription = binding.edittext
         btn_mic = binding.btnMic
         tv_timer = binding.tvTimer
         waveformView = binding.waveformView
@@ -186,18 +186,18 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         Log.d("actionsAfterAllDataObtained markdownContent after checkAndPerformActions", recordViewModel.markdownContent.value.toString())
 
         // save data
-        recordViewModel.originalText.value?.let { it1 ->
-            recordViewModel.summaryText.value?.let { it2 ->
-                recordViewModel.listText.value?.let { it3 ->
-                    recordViewModel.markdownContent.value?.let { it4 ->
+        recordViewModel.originalText.value?.let { originalText ->
+            recordViewModel.summaryText.value?.let { summaryText ->
+                recordViewModel.listText.value?.let { listText ->
+                    recordViewModel.markdownContent.value?.let { markdownContent ->
                         recordViewModel.saveNoteData(
-                            "Work", // tag
-                            binding.edittext.text.toString(), // title
-                            false,
-                            it1,
-                            it2,
-                            it3,
-                            it4
+                            tag = "Work",
+                            title = binding.edittext.text.toString(),
+                            isLike = false,
+                            text = originalText,
+                            summary = summaryText,
+                            list = listText,
+                            markdownContent = markdownContent
                         ).invokeOnCompletion {
                             categoryViewModel.filterDataByTag("Work")
                         }
@@ -431,7 +431,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             if (question.isNotBlank() || question.isBlank()) {
                 // Insert the transcribed text into the database
                 withContext(Dispatchers.Main) {
-                    editText?.setText(question)
+                    transcription?.setText(question)
                     Log.d("RecordFragment", "Posted value to originalText: $question")
                 }
 
@@ -511,7 +511,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
 
     private fun clearTranscribedText() {
-        editText?.text?.clear()
+        transcription?.text?.clear()
     }
 
     private fun resetWaveformView() {
