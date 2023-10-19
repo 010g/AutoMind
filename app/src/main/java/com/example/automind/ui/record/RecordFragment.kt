@@ -132,10 +132,14 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 // Change the icon based on the recording state
                 if (mStartRecording) {
                     // Start recording
-                    btn_mic!!.setImageResource(R.drawable.ic_is_recording)
+                    btn_mic?.let {
+                        it.setImageResource(R.drawable.ic_is_recording)
+                    }
                 } else {
                     // Stop recording, revert to the original icon
-                    btn_mic!!.setImageResource(R.drawable.ic_not_recording)
+                    btn_mic?.let {
+                        it.setImageResource(R.drawable.ic_not_recording)
+                    }
                 }
             }
         }
