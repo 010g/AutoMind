@@ -131,17 +131,13 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 mStartRecording = !mStartRecording
 
                 // Change the icon based on the recording state
-                if (mStartRecording) {
-                    // Start recording
-                    btn_mic?.let {
-                        it.setImageResource(R.drawable.ic_is_recording)
+                btn_mic?.setImageResource(
+                    if (mStartRecording) {
+                        R.drawable.ic_is_recording
+                    } else {
+                        R.drawable.ic_not_recording
                     }
-                } else {
-                    // Stop recording, revert to the original icon
-                    btn_mic?.let {
-                        it.setImageResource(R.drawable.ic_not_recording)
-                    }
-                }
+                )
             }
         }
 
@@ -176,10 +172,21 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun checkAndPerformActions() {
-        if (recordViewModel.originalText.value != "" && recordViewModel.summaryText.value != "" && recordViewModel.listText.value != "" && recordViewModel.markdownContent.value != ""
-            && recordViewModel.originalText.value != null && recordViewModel.summaryText.value != null && recordViewModel.listText.value != null && recordViewModel.markdownContent.value != null) {
+        if (isValid()) {
             actionsAfterAllDataObtained()
         }
+    }
+
+    private fun isValid(): Boolean {
+        if (recordViewModel.originalText.value == null || recordViewModel.originalText.value.toString().isEmpty())
+            return false
+        if (recordViewModel.summaryText.value == null || recordViewModel.summaryText.value.toString().isEmpty())
+            return false
+        if (recordViewModel.listText.value == null || recordViewModel.listText.value.toString().isEmpty())
+            return false
+        if (recordViewModel.markdownContent.value == null || recordViewModel.markdownContent.value.toString().isEmpty())
+            return false
+        return true
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -190,24 +197,17 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         Log.d("actionsAfterAllDataObtained listText after checkAndPerformActions", recordViewModel.listText.value.toString())
         Log.d("actionsAfterAllDataObtained markdownContent after checkAndPerformActions", recordViewModel.markdownContent.value.toString())
 
-        // save data
-        recordViewModel.originalText.value?.let { originalText ->
-            recordViewModel.summaryText.value?.let { summaryText ->
-                recordViewModel.listText.value?.let { listText ->
-                    recordViewModel.markdownContent.value?.let { markdownContent ->
-                        recordViewModel.saveNoteData(
-                            tag = "Work",
-                            title = binding.edittext.text.toString(),
-                            isLike = false,
-                            text = originalText,
-                            summary = summaryText,
-                            list = listText,
-                            markdownContent = markdownContent
-                        ).invokeOnCompletion {
-                            categoryViewModel.filterDataByTag("Work")
-                        }
-                    }
-                }
+        if (isValid()){
+            recordViewModel.saveNoteData(
+                tag = "Work",
+                title = binding.edittext.text.toString(),
+                isLike = false,
+                text = recordViewModel.originalText.value!!,
+                summary = recordViewModel.summaryText.value!!,
+                list = recordViewModel.listText.value!!,
+                markdownContent = recordViewModel.markdownContent.value!!
+            ).invokeOnCompletion {
+                categoryViewModel.filterDataByTag("Work")
             }
         }
 
