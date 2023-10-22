@@ -30,7 +30,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     id = 1,
                     inputLanguage = "Traditional Chinese",
                     outputLanguage = "Traditional Chinese",
-                    writingStyle = "Regular",q
+                    writingStyle = "Regular",
                     outputLength = 20
                 )
                 repository.insertSetting(initSetting)

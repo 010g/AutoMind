@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import com.example.automind.BuildConfig
 import com.example.automind.R
 import com.example.automind.databinding.FragmentRecordBinding
 import com.example.automind.ui.hub.category.CategoryViewModel
@@ -57,10 +58,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     private lateinit var settingsViewModel: SettingsViewModel
 
-    private val LOG_TAG = "AudioRecordTest"
-
     private var fileName: String = ""
-    private var editText : EditText? = null
+    private var transcription : EditText? = null
     private var btn_mic :ImageButton? = null
     private var recorder: MediaRecorder? = null
 //    private var player: MediaPlayer? = null
@@ -101,7 +100,6 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         recordViewModel = ViewModelProvider(requireActivity()).get(RecordViewModel::class.java)
         categoryViewModel = ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
         settingsViewModel = ViewModelProvider(requireActivity()).get(SettingsViewModel::class.java)
-        recordViewModel.clearLiveData()
 
         _binding = FragmentRecordBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -109,7 +107,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         // Record to the external cache directory for visibility
         fileName = "${requireContext().externalCacheDir?.absolutePath}/audiorecordtest.awb"
 
-        editText = binding.edittext
+        transcription = binding.edittext
         btn_mic = binding.btnMic
         tv_timer = binding.tvTimer
         waveformView = binding.waveformView
@@ -133,13 +131,13 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 mStartRecording = !mStartRecording
 
                 // Change the icon based on the recording state
-                if (mStartRecording) {
-                    // Start recording
-                    btn_mic!!.setImageResource(R.drawable.ic_is_recording)
-                } else {
-                    // Stop recording, revert to the original icon
-                    btn_mic!!.setImageResource(R.drawable.ic_not_recording)
-                }
+                btn_mic?.setImageResource(
+                    if (mStartRecording) {
+                        R.drawable.ic_is_recording
+                    } else {
+                        R.drawable.ic_not_recording
+                    }
+                )
             }
         }
 
@@ -174,46 +172,42 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun checkAndPerformActions() {
-        Log.d("checkAndPerformActions hasOriginal", recordViewModel.hasOriginal.toString())
-        Log.d("checkAndPerformActions hasSummary", recordViewModel.hasSummary.toString())
-        Log.d("checkAndPerformActions hasList", recordViewModel.hasList.toString())
-        Log.d("checkAndPerformActions hasMarkdown", recordViewModel.hasMarkdown.toString())
-        if (recordViewModel.hasOriginal && recordViewModel.hasSummary && recordViewModel.hasList && recordViewModel.hasMarkdown
-            && recordViewModel.originalText.value != null && recordViewModel.summaryText.value != null && recordViewModel.listText.value != null && recordViewModel.markdownContent.value != null) {
+        if (isValid()) {
             actionsAfterAllDataObtained()
         }
     }
 
+    private fun isValid(): Boolean {
+        if (recordViewModel.originalText.value == null || recordViewModel.originalText.value.toString().isEmpty())
+            return false
+        if (recordViewModel.summaryText.value == null || recordViewModel.summaryText.value.toString().isEmpty())
+            return false
+        if (recordViewModel.listText.value == null || recordViewModel.listText.value.toString().isEmpty())
+            return false
+        if (recordViewModel.markdownContent.value == null || recordViewModel.markdownContent.value.toString().isEmpty())
+            return false
+        return true
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun actionsAfterAllDataObtained(){
-        recordViewModel.hasOriginal = false
-        recordViewModel.hasSummary = false
-        recordViewModel.hasList = false
-        recordViewModel.hasMarkdown = false
 
         Log.d("actionsAfterAllDataObtained originalText after checkAndPerformActions", recordViewModel.originalText.value.toString())
         Log.d("actionsAfterAllDataObtained summaryText after checkAndPerformActions", recordViewModel.summaryText.value.toString())
         Log.d("actionsAfterAllDataObtained listText after checkAndPerformActions", recordViewModel.listText.value.toString())
         Log.d("actionsAfterAllDataObtained markdownContent after checkAndPerformActions", recordViewModel.markdownContent.value.toString())
 
-        // save data
-        recordViewModel.originalText.value?.let { it1 ->
-            recordViewModel.summaryText.value?.let { it2 ->
-                recordViewModel.listText.value?.let { it3 ->
-                    recordViewModel.markdownContent.value?.let { it4 ->
-                        recordViewModel.saveNoteData(
-                            "Work", // tag
-                            binding.edittext.text.toString(), // title
-                            false,
-                            it1,
-                            it2,
-                            it3,
-                            it4
-                        ).invokeOnCompletion {
-                            categoryViewModel.filterDataByTag("Work")
-                        }
-                    }
-                }
+        if (isValid()){
+            recordViewModel.saveNoteData(
+                tag = "Work",
+                title = binding.edittext.text.toString(),
+                isLike = false,
+                text = recordViewModel.originalText.value!!,
+                summary = recordViewModel.summaryText.value!!,
+                list = recordViewModel.listText.value!!,
+                markdownContent = recordViewModel.markdownContent.value!!
+            ).invokeOnCompletion {
+                categoryViewModel.filterDataByTag("Work")
             }
         }
 
@@ -229,13 +223,15 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     suspend fun getResponse(): String {
         return withContext(Dispatchers.IO) {
 
-            val apiKey = "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"
+            val apiKey = BuildConfig.API_KEY
             val url = "https://api.openai.com/v1/completions"
 
-            mindmapPrompt =  recordViewModel.generateMindmapPrompt(
+            mindmapPrompt =  recordViewModel.generatePrompt(
+                "Mindmap",
                 question,
                 settingsViewModel.inputLanguage.value.toString(),
                 settingsViewModel.outputLanguage.value.toString(),
+                settingsViewModel.outputLength.value.toString(),
                 settingsViewModel.writingStyle.value.toString()
             )
             Log.d("mindmapPrompt","$mindmapPrompt")
@@ -277,7 +273,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         return withContext(Dispatchers.IO) {
 
 
-            val apiKey = "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"
+            val apiKey = BuildConfig.API_KEY
             val url = "https://api.openai.com/v1/completions"
 
             val requestBody = RequestBody(
@@ -314,7 +310,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     suspend fun getList(): String  {
         return withContext(Dispatchers.IO) {
 
-            val apiKey = "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"
+            val apiKey = BuildConfig.API_KEY
             val url = "https://api.openai.com/v1/completions"
 
             val requestBody = RequestBody(
@@ -368,7 +364,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             try {
                 prepare()
             } catch (e: IOException) {
-                Log.e(LOG_TAG, "prepare() failed")
+                Log.e("AudioRecordTest", "prepare() failed")
             }
 
             start()
@@ -440,18 +436,18 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             if (question.isNotBlank() || question.isBlank()) {
                 // Insert the transcribed text into the database
                 withContext(Dispatchers.Main) {
-                    editText?.setText(question)
+                    transcription?.setText(question)
                     Log.d("RecordFragment", "Posted value to originalText: $question")
                 }
 
                 // Posting value to LiveData
                 recordViewModel.originalText.postValue(question)
-                recordViewModel.hasOriginal = true
 
                 val responseDeferred = async { getResponse() }
 
                 // Get the summary-related prompt
-                summaryPrompt =  recordViewModel.generateSummaryPrompt(
+                summaryPrompt =  recordViewModel.generatePrompt(
+                    "Summary",
                     question,
                     settingsViewModel.inputLanguage.value.toString(),
                     settingsViewModel.outputLanguage.value.toString(),
@@ -462,10 +458,12 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val summaryDeferred = async { getSummary() }
 
                 // Get the list-related prompt
-                listPrompt = recordViewModel.generateListPrompt(
+                listPrompt = recordViewModel.generatePrompt(
+                    "List",
                     question,
                     settingsViewModel.inputLanguage.value.toString(),
                     settingsViewModel.outputLanguage.value.toString(),
+                    settingsViewModel.outputLength.value.toString(),
                     settingsViewModel.writingStyle.value.toString()
                 )
                 Log.d("listPrompt","$listPrompt")
@@ -475,17 +473,14 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val response = responseDeferred.await()
                 Log.d("response after await before checkAndPerformActions", response.toString())
                 recordViewModel.updateMarkdownContent(response)
-                recordViewModel.hasMarkdown = true
 
                 val responseSummary = summaryDeferred.await()
                 Log.d("responseSummary after await before checkAndPerformActions", responseSummary.toString())
                 recordViewModel.summaryText.postValue(responseSummary)
-                recordViewModel.hasSummary = true
 
                 val responseList = listDeferred.await()
                 Log.d("responseList after await before checkAndPerformActions", responseList.toString())
                 recordViewModel.listText.postValue(responseList)
-                recordViewModel.hasList = true
 
 
                 // Stop Lottie animation when all async tasks are complete
@@ -521,7 +516,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
 
     private fun clearTranscribedText() {
-        editText?.text?.clear()
+        transcription?.text?.clear()
     }
 
     private fun resetWaveformView() {
