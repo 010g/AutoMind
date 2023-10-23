@@ -62,22 +62,28 @@ class RecordingTest {
         val listener = mock(Timer.OnTimerTickListener::class.java)
         val timer = Timer(listener)
 
-        val initialInvocationCount = Mockito.mockingDetails(listener).invocations.size
-        println(initialInvocationCount.toString())
+
+        // Before starting the timer, no ticks
+        val preStartInvocationCount = Mockito.mockingDetails(listener).invocations.size
+        assertEquals(0, preStartInvocationCount)
+        println("Ticks before starting: $preStartInvocationCount")
+
 
         timer.start()
         ShadowLooper.idleMainLooper(2000)
+
+        // Ensure timer ticked at least once before pausing
+        val prePauseInvocationCount = Mockito.mockingDetails(listener).invocations.size
+        assertTrue(prePauseInvocationCount > preStartInvocationCount)
+        println("Ticks before pausing: $prePauseInvocationCount")
+
         timer.pause()
-        val invocationCount = Mockito.mockingDetails(listener).invocations.size
-        println(invocationCount.toString())
-
-        assertNotSame(invocationCount, initialInvocationCount)
-
         ShadowLooper.idleMainLooper(2000)  // Give some additional time
-        val postPauseInvocationCount = Mockito.mockingDetails(listener).invocations.size
-        println(postPauseInvocationCount.toString())
 
-        assertEquals(invocationCount, postPauseInvocationCount)
+        // Ensure timer didn't tick after pausing
+        val postPauseInvocationCount = Mockito.mockingDetails(listener).invocations.size
+        assertEquals(prePauseInvocationCount, postPauseInvocationCount)
+        println("Ticks after pausing: $postPauseInvocationCount")
     }
 
     @Test
@@ -122,13 +128,13 @@ class RecordingTest {
             .add(fragment, null)
             .commitNow()
 
-        // At this point, your fragment's `onCreateView` would have been called.
-        // Therefore, _binding should have been initialized if you're following typical fragment patterns.
+        // At this point, fragment's `onCreateView` would have been called.
+        // Therefore, _binding should have been initialized if following typical fragment patterns.
 
         fragment.lottieLoadingAnimationOnRecordingStopped()  // Simulate stopping recording and loading animation
 
         assertTrue(fragment._binding!!.lottieLoadingAnimation.visibility == View.VISIBLE)
-        // If lottieLoadingAnimation is a real view, you'd avoid verifying the animation play as it's more of an Espresso test concern
+        // If lottieLoadingAnimation is a real view, avoid verifying the animation play as it's more of an Espresso test concern
     }
 
     @After
