@@ -26,7 +26,7 @@ import org.robolectric.shadows.ShadowLooper
 
 @Config(sdk = [Config.OLDEST_SDK])
 @RunWith(RobolectricTestRunner::class)
-class RecordingTest {
+class RecordFragmentTest {
 
     private lateinit var waveformView: WaveformView
 
@@ -120,13 +120,9 @@ class RecordingTest {
             .add(fragment, null)
             .commitNow()
 
-        // At this point, fragment's `onCreateView` would have been called.
-        // Therefore, _binding should have been initialized if following typical fragment patterns.
-
         fragment.lottieLoadingAnimationOnRecordingStopped()  // Simulate stopping recording and loading animation
 
         assertTrue(fragment._binding!!.lottieLoadingAnimation.visibility == View.VISIBLE)
-        // If lottieLoadingAnimation is a real view, avoid verifying the animation play as it's more of an Espresso test concern
     }
 
     @After

@@ -47,12 +47,12 @@ class RecordViewModelTest {
         val expected = """
 Summarize the key words of the following $inputLanguage text in $outputLanguage and using bullet points list with $writingStyle style:\n\n- $question.
 """
+        println(expected)
 
         // When
         val result = viewModel.generatePrompt(type, question, inputLanguage, outputLanguage, writingStyle)
 
         // Then
         assertEquals(expected, result)
-
     }
 }
