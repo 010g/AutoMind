@@ -2,18 +2,12 @@ package com.example.automind
 
 import android.os.Looper
 import android.view.View
-import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import com.airbnb.lottie.LottieAnimationView
-import com.example.automind.databinding.FragmentRecordBinding
 import com.example.automind.ui.record.RecordFragment
 import com.example.automind.ui.record.Timer
 import com.example.automind.ui.record.WaveformView
-import io.mockk.every
-import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertNotSame
 import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Before
@@ -23,8 +17,6 @@ import org.mockito.Mockito
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
