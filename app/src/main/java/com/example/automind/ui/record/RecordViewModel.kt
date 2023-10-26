@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class RecordViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database by lazy { AppDatabase.getDatabase(application) }
-    private val repository by lazy { Repository(database.noteDao(),database.settingsDao()) }
+    internal val repository by lazy { Repository(database.noteDao(),database.settingsDao()) }
 
     val latestSavedTextId: MutableLiveData<Long?> = MutableLiveData(null)
 
@@ -30,7 +30,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
 
     fun updateOriginalText(text: String) {
         originalText.postValue(text)
-        Log.d("ViewModel", "Posted value to originalText: $text")
+//        Log.d("ViewModel", "Posted value to originalText: $text")
     }
     fun saveNoteData(
         tag: String,
@@ -111,7 +111,7 @@ class RecordViewModel(application: Application) : AndroidViewModel(application) 
         return when (type) {
             "Mindmap" ->  """
 I want to make a mindmap through markmap with transforming the markdown format text by using $writingStyle style.
-Please summarize the $inputLanguage input text and give back the  $outputLanguage markdown format of the keywords.
+Please summarize the $inputLanguage input text and give back the $outputLanguage markdown format of the keywords.
 
 Example 1 for input language being Traditional Chinese and output language being Traditional Chinese: 
 INPUT: 
