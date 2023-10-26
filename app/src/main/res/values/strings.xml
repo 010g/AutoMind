@@ -3,4 +3,19 @@
     <string name="title_hub">Hub</string>
     <string name="title_record">Record</string>
     <string name="title_settings">Settings</string>
+    <string name="title_mindmap">Mind Map</string>
+
+
+
+    <string-array name="input_language_options">
+        <item>English</item>
+        <item>Traditional Chinese</item>
+    </string-array>
+
+    <string-array name="output_language_options">
+        <item>English</item>
+        <item>Traditional Chinese</item>
+    </string-array>
+
+
 </resources>

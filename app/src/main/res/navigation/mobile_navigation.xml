@@ -3,23 +3,104 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_record">
+
 
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.example.automind.ui.home.HomeFragment"
+        android:id="@+id/navigation_hub"
+        android:name="com.example.automind.ui.hub.HubFragment"
         android:label="@string/title_hub"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_hub">
+        <action
+            android:id="@+id/action_hubFragment_to_searchFragment"
+            app:destination="@id/searchFragment">
+            <argument
+                android:name="query"
+                app:argType="string" />
+        </action>
+
+        <action
+            android:id="@+id/action_hubFragment_to_detailFragment"
+            app:destination="@id/navigation_detail"/>
+
+    </fragment>
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.automind.ui.dashboard.DashboardFragment"
+        android:id="@+id/navigation_record"
+        android:name="com.example.automind.ui.record.RecordFragment"
         android:label="@string/title_record"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_record" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.automind.ui.notifications.NotificationsFragment"
+        android:id="@+id/navigation_settings"
+        android:name="com.example.automind.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/navigation_mindmap"
+        android:name="com.example.automind.ui.detail.mindmap.MindMapFragment"
+        android:label="@string/title_mindmap"
+        tools:layout="@layout/fragment_mindmap" />
+
+    <action
+        android:id="@+id/action_recordFragment_to_mindmapFragment"
+        app:destination="@id/navigation_mindmap" />
+
+    <fragment
+        android:id="@+id/navigation_detail"
+        android:name="com.example.automind.ui.detail.DetailFragment"
+        android:label="Detail"
+        tools:layout="@layout/fragment_detail" />
+    <action
+        android:id="@+id/action_recordFragment_to_detailFragment"
+        app:destination="@id/navigation_detail" />
+
+
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="com.example.automind.ui.detail.list.ListFragment"
+        tools:layout="@layout/fragment_list">
+    </fragment>
+
+    <fragment
+        android:id="@+id/summaryFragment"
+        android:name="com.example.automind.ui.detail.summary.SummaryFragment"
+        tools:layout="@layout/fragment_summary">
+    </fragment>
+
+    <fragment
+        android:id="@+id/originalFragment"
+        android:name="com.example.automind.ui.detail.original.OriginalFragment"
+        tools:layout="@layout/fragment_original">
+    </fragment>
+
+    <fragment
+        android:id="@+id/mindmapFragment"
+        android:name="com.example.automind.ui.detail.mindmap.MindMapFragment"
+        tools:layout="@layout/fragment_mindmap">
+    </fragment>
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.automind.ui.hub.search.SearchFragment"
+        android:label="SearchFragment"
+        tools:layout="@layout/fragment_search">
+        <argument
+            android:name="query"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_searchFragment_to_hubFragment"
+            app:destination="@id/navigation_hub"/>
+
+        <!-- search -> detail -->
+        <action
+            android:id="@+id/action_searchFragment_to_detailFragment"
+            app:destination="@id/navigation_detail"/>
+
+    </fragment>
+
+
 </navigation>
+
