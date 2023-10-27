@@ -6,42 +6,38 @@ A note-taking app adept at converting audio into diverse formats. AutoMind makes
 
 ## 🌟 Features 
 
-<img align="right" src="./assets/gifs/splash.gif" width="300" alt="Splash">
+### Splash
+<img src="./assets/gifs/splash.gif" width="300" alt="Splash">
 
 🚀 **Lottie Integration**: 
 - Utilized Lottie animations for creating an engaging splash screen.
 
-<br clear="right"/>
-
 ---
 
-<img align="right" src="./assets/gifs/record.gif" width="300" alt="Record">
+### Recording
+<img src="./assets/gifs/record.gif" width="300" alt="Record">
 
 🎤 **Recording Experience**:
 - Time & Sound Visualization: Enhance the recording with a time ticker and sound visualizer.
 - Transcription Services: Utilize Google's speech-to-text SDK, OpenAI API, and Markmap SDK.
 - Mindmap Display & Sharing: Interactive presentations with WebView and HTML.
 
-<br clear="right"/>
-
 ---
 
-<img align="right" src="./assets/gifs/hub.gif" width="300" alt="Hub">
+### Hub
+<img src="./assets/gifs/hub.gif" width="300" alt="Hub">
 
 📚 **Note Management**:
 - Note History & Display: Organize with RecyclerView, Viewbinding, and TabLayout.
 - Search & Favorites: Easily locate and favorite your important notes.
 
-<br clear="right"/>
-
 ---
 
-<img align="right" src="./assets/gifs/settings.gif" width="300" alt="Settings">
+### Settings
+<img src="./assets/gifs/settings.gif" width="300" alt="Settings">
 
 ⚙️ **User Customization**:
 - Personalize your experience: Choose audio input language, note output language/style, and summary length.
-
-<br clear="right"/>
 
 ---
 
@@ -52,10 +48,7 @@ A note-taking app adept at converting audio into diverse formats. AutoMind makes
 3. **Install**: Locate the downloaded APK in your 'Downloads' folder and tap on it. Confirm the installation.
 4. **Launch**: Once installed, open AutoMind from your list of applications to start taking notes!
 
----
-
-## 🎯 Usage 
-
+## 📋 Usage
 1. **Splash**: Upon launching, enjoy the engaging Lottie-animated splash screen while the app initializes.
 2. **Recording Notes**: 
    - Tap on the 'Record' icon.
@@ -68,15 +61,13 @@ A note-taking app adept at converting audio into diverse formats. AutoMind makes
    - Mark any note as 'Favorite' to add it to the 'Favorites' list for quicker access.
 4. **Personalizing Settings**: 
     - Navigate to the 'Settings' menu.
-    - Here you can:
-      - Select the preferred language for audio input.
-      - Choose your desired note output language.
-      - Decide the note output style.
-      - Adjust the summary output length to your liking.
+     - Here you can:
+       - Select the preferred language for audio input.
+       - Choose your desired note output language.
+       - Decide the note output style.
+       - Adjust the summary output length to your liking.
 
----
-
-## 🔐 API Key Configuration
+## 🔑 API Key Configuration
 
 To ensure the transcription features work correctly:
 
@@ -93,8 +84,6 @@ To ensure the transcription features work correctly:
 
 Ensure you keep these keys confidential to prevent unauthorized usage and potential costs.
 
----
-
 ## 📞 Contact
 
 For any questions, feedback, or collaboration inquiries, you can reach out via:
@@ -104,6 +93,3 @@ For any questions, feedback, or collaboration inquiries, you can reach out via:
 -  [**My GitHub**](https://github.com/010g)
 
 Feel free to share your experiences, suggestions, or ask questions related to the AutoMind project!
-
----
-
