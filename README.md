@@ -56,11 +56,10 @@ A note-taking app adept at converting audio into diverse formats. AutoMind makes
    - Mark any note as 'Favorite' to add it to the 'Favorites' list for quicker access.
 4. **Personalizing Settings**: 
     - Navigate to the 'Settings' menu.
-    - Here you can:
-      - Select the preferred language for audio input.
-      - Choose your desired note output language.
-      - Decide the note output style.
-      - Adjust the summary output length to your liking.
+    - Select the preferred language for audio input.
+    - Choose your desired note output language.
+    - Decide the note output style.
+    - Adjust the summary output length to your liking.
 
 </details>
 
