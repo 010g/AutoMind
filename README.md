@@ -15,24 +15,48 @@ A note-taking app adept at converting audio into diverse formats. AutoMind makes
 ### 🎤 Recording Experience
 <img src="./assets/gifs/record.gif" alt="Record" width="200"/>
 
-> - **Time & Sound Visualization**: Enhance the recording with a time ticker and sound visualizer.<br>
-> - **Transcription Services**: Utilize Google's speech-to-text SDK, OpenAI API, and Markmap SDK.<br>
-> - **Mindmap Display & Sharing**: Interactive presentations with WebView and HTML.
-
+> - **Time & Sound Visualization**: Implemented a time ticker alongside a sound visualizer to enhance the recording experience.<br>
+> - **Transcription Services**:  Integrated Google's speech-to-text SDK, OpenAI API, and Markmap SDK to convert transcriptions into concise summaries, bullet lists, and visual mindmaps.<br>
+> - **Mindmap Display & Sharing**: Incorporated WebView and HTML for interactive mindmap presentations. Additionally, provided an option to export these mindmaps as images for effortless sharing.
 ---
 
 ### 📚 Note Management
 <img src="./assets/gifs/hub.gif" alt="Hub" width="200"/>
 
-> - **Note History & Display**: Organize with RecyclerView, Viewbinding, and TabLayout.<br>
-> - **Search & Favorites**: Easily locate and favorite your important notes.
+> - **Note History & Display**: Made use of RecyclerView, Viewbinding, and TabLayout to showcase the history of notes. Organized them into various categories for easier access.<br>
+> - **Search Capability**: Introduced a search feature, enabling users to effortlessly locate notes by their title.
 
 ---
 
 ### ⚙️ User Customization
 <img src="./assets/gifs/settings.gif" alt="Settings" width="200"/>
 
-> - **Personalize your experience**: Choose audio input language, note output language/style, and summary length.
+> - **User Customization**: Integrated Spinner, ChipGroup, and Seekbar to provide a wide range of customization options, ensuring a personalized user experience.
+
+---
+
+<details>
+<summary> 🎯 Usage</summary>
+
+1. **Splash**: Upon launching, enjoy the engaging Lottie-animated splash screen while the app initializes.
+2. **Recording Notes**: 
+   - Tap on the 'Record' icon.
+   - As you speak, observe the time ticker and sound visualizer to track your recording.
+   - Once the recording concludes, swipe through different pages to view the transcription in various formats: summary, bullet list, or visual mindmap.
+3. **Reviewing Notes**: 
+   - Go to the 'Hub' section to view all your notes.
+   - Notes are organized into categories for easy access. Tap on categories like 'Work', 'Ideas' or 'Personal'.
+   - Use the search feature to quickly find notes by title.
+   - Mark any note as 'Favorite' to add it to the 'Favorites' list for quicker access.
+4. **Personalizing Settings**: 
+    - Navigate to the 'Settings' menu.
+    - Here you can:
+      - Select the preferred language for audio input.
+      - Choose your desired note output language.
+      - Decide the note output style.
+      - Adjust the summary output length to your liking.
+
+</details>
 
 ---
 
