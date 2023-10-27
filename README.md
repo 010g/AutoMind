@@ -1,9 +1,9 @@
 # AutoMind 🎙️✍️
-A note-taking app adept at converting audio into diverse formats. AutoMind makes it easy for users to transcribe their voice recordings and transform them into different formats, including summaries, bullet lists, and visual mindmaps.
+AutoMind makes it easy for users to transcribe their voice recordings and transform them into different formats, including summaries, bullet lists, and visual mindmaps.
 
 ---
 
-## 💼 Skills
+## 💼 Used Skills
 - **Architecture & Patterns** : MVVM, Observer
 - **Database & UI** : Room, Android Jetpack
 - **Libraries & Frameworks** : API, Lottie, WebView
@@ -14,30 +14,30 @@ A note-taking app adept at converting audio into diverse formats. AutoMind makes
 ### 🚀 Splash Screen
 <img src="./assets/gifs/splash.gif" alt="Splash" width="200"/>
 
-> - **Lottie Integration**: Utilized Lottie animations for creating an engaging splash screen.
+> - **Lottie Integration**: Utilize Lottie animations for creating an engaging splash screen.
 
 ---
 
 ### 🎤 Recording Experience
 <img src="./assets/gifs/record.gif" alt="Record" width="200"/>
 
-> - **Time & Sound Visualization**: Implemented a time ticker alongside a sound visualizer to enhance the recording experience.<br>
-> - **Transcription Services**:  Integrated Google's speech-to-text SDK, OpenAI API, and Markmap SDK to convert transcriptions into concise summaries, bullet lists, and visual mindmaps.<br>
-> - **Mindmap Display & Sharing**: Incorporated WebView and HTML for interactive mindmap presentations. Additionally, provided an option to export these mindmaps as images for effortless sharing.
+> - **Time & Sound Visualization**: Implement a time ticker alongside a sound visualizer to enhance the recording experience.<br>
+> - **Transcription Services**:  Integrate Google's speech-to-text SDK, OpenAI API, and Markmap SDK to convert transcriptions into concise summaries, bullet lists, and visual mindmaps.<br>
+> - **Mindmap Display & Sharing**: Incorporate WebView and HTML for interactive mindmap presentations. Additionally, provide an option to export these mindmaps as images for effortless sharing.
 ---
 
 ### 📚 Note Management
 <img src="./assets/gifs/hub.gif" alt="Hub" width="200"/>
 
-> - **Note History & Display**: Made use of RecyclerView, Viewbinding, and TabLayout to showcase the history of notes. Organized them into various categories for easier access.<br>
-> - **Search Capability**: Introduced a search feature, enabling users to effortlessly locate notes by their title.
+> - **Note History & Display**: Make use of RecyclerView, Viewbinding, and TabLayout to showcase the history of notes. Organize them into various categories for easier access.<br>
+> - **Search Capability**: Introduce a search feature, enabling users to effortlessly locate notes by their titles.
 
 ---
 
 ### ⚙️ User Customization
 <img src="./assets/gifs/settings.gif" alt="Settings" width="200"/>
 
-> - **User Customization**: Integrated Spinner, ChipGroup, and Seekbar to provide a wide range of customization options, ensuring a personalized user experience.
+> - **User Customization**: Integrate Spinner, ChipGroup, and Seekbar to provide a wide range of customization options, ensuring a personalized user experience.
 
 ---
 
@@ -100,9 +100,9 @@ A note-taking app adept at converting audio into diverse formats. AutoMind makes
 
 For any questions, feedback, or collaboration inquiries, you can reach out via:
 
--  [**My LinkedIn**](https://www.linkedin.com/in/010)
--  [**My Email**](leilanilin10@gmail.com)
+-  [**My LinkedIn**](https://www.linkedin.com/in/010g)
 -  [**My GitHub**](https://github.com/010g)
+-  **My Email**: leilanilin10@gmail.com
 
 Feel free to share your experiences, suggestions, or ask questions related to the AutoMind project!
 
