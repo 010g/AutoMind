@@ -3,6 +3,13 @@ A note-taking app adept at converting audio into diverse formats. AutoMind makes
 
 ---
 
+## 💼 Skills
+- **Languages** : Kotlin
+- **Architecture & Patterns** : MVVM, Observer
+- **Database & UI** : Room, Android Jetpack
+- **Libraries & Frameworks** : API, Lottie, WebView
+- **Others** : GitHub, Coroutines, Unit Testing
+  
 ## 🌟 Features 
 
 ### 🚀 Splash Screen
