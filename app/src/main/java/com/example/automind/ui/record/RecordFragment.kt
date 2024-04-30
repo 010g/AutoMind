@@ -47,35 +47,35 @@ import kotlinx.serialization.encodeToString
 
 
 
-class RecordFragment : Fragment(),Timer.OnTimerTickListener {
+class RecordFragment : Fragment(), Timer.OnTimerTickListener {
 
 
     private val client = OkHttpClient()
 
-    private lateinit var recordViewModel: RecordViewModel
+    internal lateinit var recordViewModel: RecordViewModel
 
-    private lateinit var categoryViewModel: CategoryViewModel
+    internal lateinit var categoryViewModel: CategoryViewModel
 
-    private lateinit var settingsViewModel: SettingsViewModel
+    internal lateinit var settingsViewModel: SettingsViewModel
 
     private var fileName: String = ""
     private var transcription : EditText? = null
     private var btn_mic :ImageButton? = null
     private var recorder: MediaRecorder? = null
-//    private var player: MediaPlayer? = null
+    //    private var player: MediaPlayer? = null
     private var tv_timer: TextView? = null
     private var waveformView: View? = null
 //    private var btn_submit:Button? = null
 //    private var btn_convert_to_mindmap:Button? = null
 //    private var txt_response:TextView? = null
 
-    private lateinit var timer: Timer
+    internal lateinit var timer: Timer
 
     var mStartRecording = true
 
-    private var _binding: FragmentRecordBinding? = null
+    internal var _binding: FragmentRecordBinding? = null
 
-    private val binding get() = _binding!!
+    internal val binding get() = _binding!!
 
     private val speechClient: SpeechClient by lazy{
         activity?.applicationContext?.resources?.openRawResource(R.raw.credential).use{
@@ -362,7 +362,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         }
     }
 
-    private fun onRecord(start: Boolean) = if (start) {
+    internal fun onRecord(start: Boolean) = if (start) {
         clearTranscribedText()
         startRecording()
         resetWaveformView()
@@ -372,7 +372,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         stopRecording()
         timer.pause()
     }
-    private fun startRecording() {
+    internal fun startRecording() {
         recorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.AMR_WB)
@@ -430,7 +430,12 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         return text
     }
 
-    private fun stopRecording() {
+    internal fun lottieLoadingAnimationOnRecordingStopped(){
+        binding.lottieLoadingAnimation.visibility = View.VISIBLE
+        binding.lottieLoadingAnimation.playAnimation()
+    }
+
+    internal fun stopRecording() {
         recorder?.apply {
             stop()
             release()
@@ -443,8 +448,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         binding.waveformView.visibility = View.GONE
 
         // Show and play Lottie animation
-        binding.lottieLoadingAnimation.visibility = View.VISIBLE
-        binding.lottieLoadingAnimation.playAnimation()
+        lottieLoadingAnimationOnRecordingStopped()
 
         // speech to text
         recordViewModel.viewModelScope.launch(Dispatchers.IO) {
@@ -522,8 +526,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
     }
 
     override fun OnTimerTick(duration: String) {
-      tv_timer?.text = duration
-      recorder?.maxAmplitude?.let { (waveformView as WaveformView).addAmplitude(it.toFloat()) }
+        tv_timer?.text = duration
+        recorder?.maxAmplitude?.let { (waveformView as WaveformView).addAmplitude(it.toFloat()) }
     }
 
     private fun cleanAndResetTimer() {

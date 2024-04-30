@@ -12,8 +12,8 @@ import kotlin.text.Typography.amp
 class WaveformView(context: Context?, attrs: AttributeSet?):View (context,attrs){
 
     private var paint = Paint()
-    private var amplitudes = ArrayList<Float>()
-    private var spikes = ArrayList<RectF>()
+    var amplitudes = ArrayList<Float>()
+    var spikes = ArrayList<RectF>()
 
     private var radius = 6f
     private var width = 9f
@@ -33,7 +33,7 @@ class WaveformView(context: Context?, attrs: AttributeSet?):View (context,attrs)
     }
 
     fun addAmplitude(amp: Float){
-        var norm = Math.min(amp.toInt() /55, 300).toFloat()
+        var norm = (amp / 55).coerceAtMost(screenHigh)
         amplitudes.add(norm)
 
 
