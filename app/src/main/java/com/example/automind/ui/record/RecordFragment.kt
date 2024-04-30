@@ -224,7 +224,7 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         return withContext(Dispatchers.IO) {
 
             val apiKey = BuildConfig.API_KEY
-            val url = "https://api.openai.com/v1/completions"
+            val url = "https://api.openai.com/v1/chat/completions"
 
             mindmapPrompt =  recordViewModel.generatePrompt(
                 "Mindmap",
@@ -237,8 +237,13 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
             Log.d("mindmapPrompt","$mindmapPrompt")
 
             val requestBody = RequestBody(
-                model = "text-davinci-003",
-                prompt = mindmapPrompt,
+                model = "gpt-3.5-turbo",
+                messages = listOf(
+                    Message(
+                        role = "system",
+                        content = mindmapPrompt
+                    )
+                ),
                 max_tokens = 1000,
                 temperature = 0.0
             )
@@ -262,7 +267,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val jsonObject = JSONObject(body!!)
                 val jsonArray = jsonObject.getJSONArray("choices")
                 val firstChoice = jsonArray.getJSONObject(0)
-                firstChoice.getString("text")
+                val message = firstChoice.getJSONObject("message")
+                message.getString("content")
             }.getOrElse {
                 ""
             }
@@ -274,11 +280,16 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
 
             val apiKey = BuildConfig.API_KEY
-            val url = "https://api.openai.com/v1/completions"
+            val url = "https://api.openai.com/v1/chat/completions"
 
             val requestBody = RequestBody(
-                model = "text-davinci-003",
-                prompt = summaryPrompt,
+                model = "gpt-3.5-turbo",
+                messages = listOf(
+                    Message(
+                        role = "system",
+                        content = summaryPrompt
+                    )
+                ),
                 max_tokens = 1000,
                 temperature = 0.0
             )
@@ -300,7 +311,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val jsonObject = JSONObject(body!!)
                 val jsonArray = jsonObject.getJSONArray("choices")
                 val firstChoice = jsonArray.getJSONObject(0)
-                firstChoice.getString("text")
+                val message = firstChoice.getJSONObject("message")
+                message.getString("content")
             }.getOrElse {
                 ""
             }
@@ -311,11 +323,16 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
         return withContext(Dispatchers.IO) {
 
             val apiKey = BuildConfig.API_KEY
-            val url = "https://api.openai.com/v1/completions"
+            val url = "https://api.openai.com/v1/chat/completions"
 
             val requestBody = RequestBody(
-                model = "text-davinci-003",
-                prompt = listPrompt,
+                model = "gpt-3.5-turbo",
+                messages = listOf(
+                    Message(
+                        role = "system",
+                        content = listPrompt
+                    )
+                ),
                 max_tokens = 1000,
                 temperature = 0.0
             )
@@ -337,7 +354,8 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
                 val jsonObject = JSONObject(body!!)
                 val jsonArray = jsonObject.getJSONArray("choices")
                 val firstChoice = jsonArray.getJSONObject(0)
-                firstChoice.getString("text")
+                val message = firstChoice.getJSONObject("message")
+                message.getString("content")
             }.getOrElse {
                 ""
             }
@@ -471,15 +489,15 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 
                 // Await results
                 val response = responseDeferred.await()
-                Log.d("response after await before checkAndPerformActions", response.toString())
+                Log.d("response after await before checkAndPerformActions", response)
                 recordViewModel.updateMarkdownContent(response)
 
                 val responseSummary = summaryDeferred.await()
-                Log.d("responseSummary after await before checkAndPerformActions", responseSummary.toString())
+                Log.d("responseSummary after await before checkAndPerformActions", responseSummary)
                 recordViewModel.summaryText.postValue(responseSummary)
 
                 val responseList = listDeferred.await()
-                Log.d("responseList after await before checkAndPerformActions", responseList.toString())
+                Log.d("responseList after await before checkAndPerformActions", responseList)
                 recordViewModel.listText.postValue(responseList)
 
 
@@ -530,7 +548,13 @@ class RecordFragment : Fragment(),Timer.OnTimerTickListener {
 @Serializable
 data class RequestBody(
     val model: String,
-    val prompt: String,
+    val messages: List<Message>,
     val max_tokens: Int,
     val temperature: Double
+)
+
+@Serializable
+data class Message(
+    val role: String,
+    val content: String
 )

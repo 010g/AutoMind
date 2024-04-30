@@ -97,6 +97,10 @@ class MindMapFragment : Fragment() {
         svg {
             background-color: #2C2C2C; /* Dark background color for SVG */
         }
+        /* Set text color to white */
+        body, p, span, div, h1, h2, h3, h4, h5, h6 {
+            color: #ffffff !important;
+        }
     </style>
 """
 
